@@ -1,7 +1,7 @@
 {
   "name": "nicify",
   "displayName": "Nicify",
-  "description": "",
+  "description": "A simple VS Code extension example.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.90.0"
@@ -9,13 +9,17 @@
   "categories": [
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:nicify.helloWorld"
+  ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "nicify.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "nicify.helloWorld",
+        "title": "Hello World"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",

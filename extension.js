@@ -18,17 +18,35 @@ function activate(context) {
 	// Now provide the implementation of the command with  registerCommand
 	// The commandId parameter must match the command field in package.json
 	const disposable = vscode.commands.registerCommand('nicify.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+		const editor = vscode.window.activeTextEditor;
+        if (editor) {
+            const document = editor.document;
+            const selection = editor.selection;
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from Nicify!');
+            const text = document.getText(selection);
+			console.log(text);
+        }
 	});
-
 	context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
 function deactivate() {}
+
+function determineLanguage(text) {
+	let array = text.split(" ");
+	for (let word of array) {
+		if (word == "elif" || word == "def") {
+			return "Python";
+		}
+		if (word == "<!DOCTYPE") {
+			return "HTML";
+		}
+		if  (word == "of" || word == "var" || word == "function") {
+			return "Javascript";
+		}
+	}
+}
 
 module.exports = {
 	activate,
