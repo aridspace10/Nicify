@@ -34,15 +34,6 @@ function activate(context) {
 // This method is called when your extension is deactivated
 function deactivate() {}
 
-function increment_count(map, str) {
-	if (!map.get(str)) {
-		map.set(str, 1)
-	} else {
-		map.set(str, map.get(str) + 1)
-	}
-	return map
-}
-
 function determineLanguage(editor) {
 	if (editor.document.fileName.endsWith('.js')) {
 		return "Javascript"
