@@ -24,7 +24,8 @@ function activate(context) {
             const selection = editor.selection;
 
             const text = document.getText(selection);
-			console.log(text);
+			const language = determineLanguage(text);
+			vscode.window.showInformationMessage('The language is ' + language);
         }
 	});
 	context.subscriptions.push(disposable);
@@ -33,19 +34,37 @@ function activate(context) {
 // This method is called when your extension is deactivated
 function deactivate() {}
 
+function increment_count(map, str) {
+	if (!map.get(str)) {
+		map.set(str, 1)
+	} else {
+		map.set(str, map.get(str) + 1)
+	}
+	return map
+}
+
 function determineLanguage(text) {
 	let array = text.split(" ");
+	let count = new Map()
 	for (let word of array) {
 		if (word == "elif" || word == "def") {
-			return "Python";
-		}
-		if (word == "<!DOCTYPE") {
-			return "HTML";
-		}
-		if  (word == "of" || word == "var" || word == "function") {
-			return "Javascript";
+			count = increment_count(count, "Python");
+		} else if (word == "<!DOCTYPE") {
+			count = increment_count(count, "HTML");
+		} else if (word == "of" || word == "var" || word == "function" || word.substring(0,11) == "console.log") {
+			count = increment_count(count, "Javascript");
+		} else if (word.substring(0,18) == "System.out.println" || word == "public" || word == "private") {
+			count = increment_count(count, "Java");
 		}
 	}
+	var max = ["", -1]
+	count.forEach(function(key, value) {
+		if (value > max) {
+			max[0] = key;
+			max[1] = value;
+		}
+	});
+	return max[0];
 }
 
 module.exports = {
