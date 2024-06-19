@@ -21,10 +21,10 @@ function activate(context) {
 		const editor = vscode.window.activeTextEditor;
         if (editor) {
             const document = editor.document;
-            const selection = editor.selection;
-
-            const text = document.getText(selection);
-			const language = determineLanguage(text);
+            /*const selection = editor.selection;
+            const text = document.getText(selection);*/
+			const text = document.getText();
+			const language = determineLanguage(editor);
 			vscode.window.showInformationMessage('The language is ' + language);
         }
 	});
@@ -43,28 +43,14 @@ function increment_count(map, str) {
 	return map
 }
 
-function determineLanguage(text) {
-	let array = text.split(" ");
-	let count = new Map()
-	for (let word of array) {
-		if (word == "elif" || word == "def") {
-			count = increment_count(count, "Python");
-		} else if (word == "<!DOCTYPE") {
-			count = increment_count(count, "HTML");
-		} else if (word == "of" || word == "var" || word == "function" || word.substring(0,11) == "console.log") {
-			count = increment_count(count, "Javascript");
-		} else if (word.substring(0,18) == "System.out.println" || word == "public" || word == "private") {
-			count = increment_count(count, "Java");
-		}
+function determineLanguage(editor) {
+	if (editor.document.fileName.endsWith('.js')) {
+		return "Javascript"
+	} else if (editor.document.fileName.endsWith('.py')) {
+		return "Python"
+	} else if (editor.document.fileName.endsWith(".html")) {
+		return "HTML"
 	}
-	var max = ["", -1]
-	count.forEach(function(key, value) {
-		if (value > max) {
-			max[0] = key;
-			max[1] = value;
-		}
-	});
-	return max[0];
 }
 
 module.exports = {
