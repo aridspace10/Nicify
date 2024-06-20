@@ -1,0 +1,19 @@
+{
+    "Javascript": {
+        "google": {
+            "naming": {
+                "class": "UpperCamel",
+                "method": "LowerCamel",
+                "constant": "UpperAll"
+            },
+            "limits": {
+                "column": 80,
+                "blockIndentation": 2
+            },
+            "rules": {
+                "semiColon": true,
+                "multiDeclaration": false
+            }
+        }  
+    }
+}
