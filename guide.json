@@ -3,7 +3,8 @@
         "general": {
             "varDeclaration": ["var", "const", "let"],
             "semiColon": true,
-            "classMemberIdentifier": "this"
+            "classMemberIdentifier": "this",
+            "methodDeclaration": "function"
         },   
         "conventions": {
             "google": {
