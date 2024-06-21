@@ -23,15 +23,36 @@ function readJSON() {
 	});
 }
 
+function checkCasing(type, name, namingRules) {
+	newName = "";
+	if (namingRules[type] == "SnakeCasing") {
+		for (let i = 1; i < name.length; i++) {
+			if (name.charCodeAt(i) >= 65 && name.charCodeAt(i) < 90) {
+				newName += "_" + name[i].toLowerCase()
+			}
+		}
+	} else {
+		for (let i = 0; i < name.length; i++) {
+			if (name[i] == "_") {
+				i++;
+				newName += name[i].toUpperCase()
+			} else {
+				newName += name[i]
+			}
+		}
+	}
+}
+
 function checkNaming(line, varDeclarations, namingRules) {
 	const array = line.split(" ")
 	if (array[0] in varDeclarations) {
 		if (namingRules["variable"] == "LowerCamel" && array[1].charCodeAt(0) >= 65 && array[1].charCodeAt(0) < 90) {
-			array[1] = String.fromCharCode(array[1].charCodeAt(0) + 32) + array[1].substr(1)
+			array[1] = String.fromCharCode(array[1].charCodeAt(0) + 32) + array[1].substr(1);
 		}
 		if (namingRules["variable"] == "UpperCamel" && array[1].charCodeAt(0) >= 97 && array[1].charCodeAt(0) < 122) {
-			array[1] = String.fromCharCode(array[1].charCodeAt(0) - 32) + array[1].substr(1)
+			array[1] = String.fromCharCode(array[1].charCodeAt(0) - 32) + array[1].substr(1);
 		}
+		return;
 	}
 }
 
