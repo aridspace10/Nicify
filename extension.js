@@ -3,12 +3,10 @@
 const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const FILE = 'guide.json';
 
 function readJSON() {
-	const filePath = path.resolve(__dirname, 'guide.json');
+	const filePath = path.resolve(__dirname, FILE);
 	fs.readFile(filePath, 'utf8', (err, data) => {
 		if (err) {
 		  console.error('Error reading the file:', err);
@@ -32,7 +30,7 @@ function checkCasing(type, name, namingRules) {
 			}
 		}
 	} else {
-		for (let i = 0; i < name.length; i++) {
+		for (let i = 0; i < name.length - 1; i++) {
 			if (name[i] == "_") {
 				i++;
 				newName += name[i].toUpperCase()
@@ -41,18 +39,24 @@ function checkCasing(type, name, namingRules) {
 			}
 		}
 	}
+	return newName;
 }
 
-function checkNaming(line, varDeclarations, namingRules) {
-	const array = line.split(" ")
+
+function checkNaming(language, line, varDeclarations, namingRules) {
+	const array = line.split(" ");
 	if (array[0] in varDeclarations) {
+		if (language == "Javascript" && array[0] == "var") {
+			array[0] = "let";
+		}
 		if (namingRules["variable"] == "LowerCamel" && array[1].charCodeAt(0) >= 65 && array[1].charCodeAt(0) < 90) {
 			array[1] = String.fromCharCode(array[1].charCodeAt(0) + 32) + array[1].substr(1);
 		}
 		if (namingRules["variable"] == "UpperCamel" && array[1].charCodeAt(0) >= 97 && array[1].charCodeAt(0) < 122) {
 			array[1] = String.fromCharCode(array[1].charCodeAt(0) - 32) + array[1].substr(1);
 		}
-		return;
+		array[1] = checkCasing("variable", array[1], namingRules);
+		return array.join(" ");
 	}
 }
 
@@ -60,24 +64,35 @@ function checkNaming(line, varDeclarations, namingRules) {
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
 	console.log('Congratulations, your extension "nicify" is now active!');
 	const jsonData = readJSON();
-
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
 	const disposable = vscode.commands.registerCommand('nicify.helloWorld', function () {
 		const editor = vscode.window.activeTextEditor;
         if (editor) {
             const document = editor.document;
             /*const selection = editor.selection;
             const text = document.getText(selection);*/
-			const text = document.getText();
-			const language = determineLanguage(editor);
+			const text = document.getText().split("\n");
+			let new_text = ""
+			//const language = jsonData[determineLanguage(editor)];
+			const language = jsonData["Javascript"]
+			for (line of text) {
+				new_text += checkNaming("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
+			}
 			vscode.window.showInformationMessage('The language is ' + language);
+			editor.edit(editBuilder => {
+				const docLength = new vscode.Range(
+				  document.positionAt(0), 
+				  document.positionAt(text.length)
+				);
+				editBuilder.replace(docLength, new_text);
+			  }).then(success => {
+				if (success) {
+				  vscode.window.showInformationMessage('Document content replaced with correct style');
+				} else {
+				  vscode.window.showErrorMessage('Failed to replace document content.');
+				}
+			});
         }
 	});
 	context.subscriptions.push(disposable);
