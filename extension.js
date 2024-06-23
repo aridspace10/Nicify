@@ -42,22 +42,25 @@ function checkCasing(type, name, namingRules) {
 	return newName;
 }
 
+function checkNaming(name, namingRules) {
+	if (namingRules["variable"] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
+		return String.fromCharCode(name.charCodeAt(0) + 32) + name.substr(1);
+	}
+	if (namingRules["variable"] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
+		return String.fromCharCode(name.charCodeAt(0) - 32) + name.substr(1);
+	}
+	return checkCasing("variable", name, namingRules);
+}
 
-function checkNaming(language, line, varDeclarations, namingRules) {
+function checkLine(language, line, varDeclarations, namingRules) {
 	const array = line.split(" ");
 	if (array[0] in varDeclarations) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
 		}
-		if (namingRules["variable"] == "LowerCamel" && array[1].charCodeAt(0) >= 65 && array[1].charCodeAt(0) < 90) {
-			array[1] = String.fromCharCode(array[1].charCodeAt(0) + 32) + array[1].substr(1);
-		}
-		if (namingRules["variable"] == "UpperCamel" && array[1].charCodeAt(0) >= 97 && array[1].charCodeAt(0) < 122) {
-			array[1] = String.fromCharCode(array[1].charCodeAt(0) - 32) + array[1].substr(1);
-		}
-		array[1] = checkCasing("variable", array[1], namingRules);
-		return array.join(" ");
+		array[1] = checkNaming(array[1], namingRules)
 	}
+	return array.join(" ");
 }
 
 /**
@@ -77,7 +80,7 @@ function activate(context) {
 			//const language = jsonData[determineLanguage(editor)];
 			const language = jsonData["Javascript"]
 			for (line of text) {
-				new_text += checkNaming("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
+				new_text += checkLine("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
 			}
 			vscode.window.showInformationMessage('The language is ' + language);
 			editor.edit(editBuilder => {
@@ -103,11 +106,11 @@ function deactivate() {}
 
 function determineLanguage(editor) {
 	if (editor.document.fileName.endsWith('.js')) {
-		return "Javascript"
+		return "Javascript";
 	} else if (editor.document.fileName.endsWith('.py')) {
-		return "Python"
+		return "Python";
 	} else if (editor.document.fileName.endsWith(".html")) {
-		return "HTML"
+		return "HTML";
 	}
 }
 
