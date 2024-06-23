@@ -44,10 +44,10 @@ function checkCasing(type, name, namingRules) {
 
 function checkNaming(name, namingRules) {
 	if (namingRules["variable"] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
-		return String.fromCharCode(name.charCodeAt(0) + 32) + name.substr(1);
+		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substr(1);
 	}
 	if (namingRules["variable"] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
-		return String.fromCharCode(name.charCodeAt(0) - 32) + name.substr(1);
+		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substr(1);
 	}
 	return checkCasing("variable", name, namingRules);
 }
@@ -59,6 +59,10 @@ function checkLine(language, line, varDeclarations, namingRules) {
 			array[0] = "let";
 		}
 		array[1] = checkNaming(array[1], namingRules)
+	}
+	let last = array[array.length - 1];
+	if (last[last.length - 1] != ";") {
+		last += ";";
 	}
 	return array.join(" ");
 }
