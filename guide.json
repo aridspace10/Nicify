@@ -4,7 +4,9 @@
             "varDeclaration": ["var", "const", "let"],
             "semiColon": true,
             "classMemberIdentifier": "this",
-            "methodDeclaration": "function"
+            "methodDeclaration": "function",
+            "singleComment": "//",
+            "multiLineComment" : ["/*", "*/"]
         },   
         "conventions": {
             "google": {
@@ -22,6 +24,34 @@
                     "multiDeclaration": false
                 }
             }  
+        }
+    },
+    "Python": {
+        "general": {
+            "varDeclaration": [],
+            "semiColon": false,
+            "classMemberIdentifier": "self",
+            "methodDeclaration": "def",
+            "singleComment": "#",
+            "multiLineComment": ["###","###"]
+        },
+        "conventions": {
+            "PEP 8": {
+                "naming": {
+                    "class": "LowerCamel",
+                    "method": "SnakeCasing",
+                    "variable": "SnakeCasing"
+                },
+                "limits": {
+                    "column": 80,
+                    "blockIndentation": 2
+                },
+                "rules": {
+                    "semiColonAlways": false,
+                    "multiVarDeclaration": false,
+                    "breakBinarOperation": "Before"
+                }
+            }
         }
     }
 }
