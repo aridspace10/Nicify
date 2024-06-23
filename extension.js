@@ -1,25 +1,9 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-const fs = require('fs');
+const fs = require('fs').promises;
 const path = require('path');
-const FILE = 'guide.json';
-
-function readJSON() {
-	const filePath = path.resolve(__dirname, FILE);
-	fs.readFile(filePath, 'utf8', (err, data) => {
-		if (err) {
-		  console.error('Error reading the file:', err);
-		  return;
-		}
-		try {
-		  const jsonData = JSON.parse(data);
-		  return jsonData;
-		} catch (err) {
-		  console.error('Error parsing JSON:', err);
-		}
-	});
-}
+const jsonData = require(path.resolve(__dirname, 'guide.json'));
 
 function checkCasing(type, name, namingRules) {
 	newName = "";
@@ -72,7 +56,6 @@ function checkLine(language, line, varDeclarations, namingRules) {
  */
 function activate(context) {
 	console.log('Congratulations, your extension "nicify" is now active!');
-	const jsonData = readJSON();
 	const disposable = vscode.commands.registerCommand('nicify.helloWorld', function () {
 		const editor = vscode.window.activeTextEditor;
         if (editor) {
