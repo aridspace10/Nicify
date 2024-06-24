@@ -45,9 +45,10 @@ function checkLine(language, line, varDeclarations, namingRules) {
 		array[1] = checkNaming(array[1], namingRules)
 	}
 	let last = array[array.length - 1];
-	if (last[last.length - 1] != ";") {
-		last += ";";
+	if (last[last.length - 2] !== ";" && last[last.length - 2] !== "{" && last[last.length - 2] !== "}") {
+		array[array.length - 1] = array[array.length - 1].slice(0,-1) + ";\n"
 	}
+	vscode.window.showInformationMessage("Array: " + last)
 	return array.join(" ");
 }
 
@@ -63,17 +64,16 @@ function activate(context) {
             /*const selection = editor.selection;
             const text = document.getText(selection);*/
 			const text = document.getText().split("\n");
-			let new_text = ""
+			let new_text = "";
 			//const language = jsonData[determineLanguage(editor)];
 			const language = jsonData["Javascript"]
 			for (line of text) {
 				new_text += checkLine("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
 			}
-			vscode.window.showInformationMessage('The language is ' + language);
 			editor.edit(editBuilder => {
 				const docLength = new vscode.Range(
-				  document.positionAt(0), 
-				  document.positionAt(text.length)
+				  new vscode.Position(0, 0), 
+				  document.positionAt(document.getText().length)
 				);
 				editBuilder.replace(docLength, new_text);
 			  }).then(success => {
