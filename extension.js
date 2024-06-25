@@ -26,11 +26,11 @@ function checkCasing(type, name, namingRules) {
 	return newName;
 }
 
-function checkNaming(name, namingRules) {
-	if (namingRules["variable"] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
+function checkNaming(type, name, namingRules) {
+	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substr(1);
 	}
-	if (namingRules["variable"] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
+	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substr(1);
 	}
 	return checkCasing("variable", name, namingRules);
@@ -50,6 +50,33 @@ function checkLine(language, line, varDeclarations, namingRules) {
 	}
 	vscode.window.showInformationMessage("Array: " + last)
 	return array.join(" ");
+}
+
+function checkFunc(text, rules) {
+	const lines = text.split("\n");
+	let count = 0;
+	while (count < lines.length) {
+		const line = lines[count].split(" ")
+		if (line[0] == "function") {
+			const chars = line.split("")
+			// finds name by looking for (, slicing the name from the chars and then turning it into a string
+			let funcName = checkNaming("method", (chars.slice(0, chars.indexOf("(") + 1)).join(""), rules["naming"]);
+			const raw_parameters = chars.slice(chars.indexOf("("));
+			const params = [];
+			let temp = "";
+			for (let char of chars) {
+				if (char == ",") {
+					params.push(checkNaming("variable", temp, rules["naming"]));
+					temp = "";
+				} else if (char != ")") {
+					temp += char
+				} else {
+					break;
+				}
+			}
+			lines[count] = "function " + funcName + "(" + params.join(" , ") + ") {  ";  
+		}
+	}
 }
 
 /**
