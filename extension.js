@@ -80,39 +80,42 @@ function checkFunc(text, rules) {
 	}
 }
 
+function setup() {
+	const editor = vscode.window.activeTextEditor;
+	if (editor) {
+		const document = editor.document;
+		const text = document.getText().split("\n");
+		const language = determineLanguage(editor);
+		const data = jsonData[language]
+		return [editor, text, language, data]
+	}
+}
+
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	console.log('Congratulations, your extension "nicify" is now active!');
-	const disposable = vscode.commands.registerCommand('nicify.helloWorld', function () {
-		const editor = vscode.window.activeTextEditor;
-        if (editor) {
-            const document = editor.document;
-            /*const selection = editor.selection;
-            const text = document.getText(selection);*/
-			const text = document.getText().split("\n");
-			let new_text = "";
-			//const language = jsonData[determineLanguage(editor)];
-			const language = jsonData["Javascript"]
-			for (line of text) {
-				new_text += checkLine("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
+	commands = ["nicify.styleFix", "nicify.styleNaming"];
+	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
+		const info = setup()
+		let new_text = "";
+		for (line of info[1]) {
+			new_text += checkLine(info[2], line, info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"])
+		}
+		new_text = new_text.substring(0, new_text.length - 1)
+		info[0].edit(editBuilder => {
+			const docLength = new vscode.Range(
+				new vscode.Position(0, 0), 
+				info[0].document.positionAt(info[0].document.getText().length)
+			);
+			editBuilder.replace(docLength, new_text);
+			}).then(success => {
+			if (success) {
+				vscode.window.showInformationMessage('Document content replaced with correct style');
+			} else {
+				vscode.window.showErrorMessage('Failed to replace document content.');
 			}
-			new_text = new_text.substring(0, new_text.length - 1)
-			editor.edit(editBuilder => {
-				const docLength = new vscode.Range(
-				  new vscode.Position(0, 0), 
-				  document.positionAt(document.getText().length)
-				);
-				editBuilder.replace(docLength, new_text);
-			  }).then(success => {
-				if (success) {
-				  vscode.window.showInformationMessage('Document content replaced with correct style');
-				} else {
-				  vscode.window.showErrorMessage('Failed to replace document content.');
-				}
-			});
-        }
+		});
 	});
 	context.subscriptions.push(disposable);
 }
