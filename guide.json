@@ -22,6 +22,10 @@
                 "rules": {
                     "semiColonAlways": true,
                     "multiDeclaration": false
+                },
+                "functionDoc": {
+                    "position": "top",
+                    "tags": {"@param": "{type} desc","@return": "{type} desc"}
                 }
             }  
         }
