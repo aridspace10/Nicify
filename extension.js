@@ -14,7 +14,7 @@ function checkCasing(type, name, namingRules) {
 			}
 		}
 	} else {
-		for (let i = 0; i < name.length - 1; i++) {
+		for (let i = 0; i < name.length; i++) {
 			if (name[i] == "_") {
 				i++;
 				newName += name[i].toUpperCase()
@@ -28,21 +28,22 @@ function checkCasing(type, name, namingRules) {
 
 function checkNaming(type, name, namingRules) {
 	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
-		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substr(1);
+		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
 	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
-		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substr(1);
+		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
-	return checkCasing("variable", name, namingRules);
+	vscode.window.showInformationMessage('Hello ' + name);
+	return checkCasing(type, name, namingRules);
 }
 
 function checkLine(language, line, varDeclarations, namingRules) {
 	const array = line.split(" ");
-	if (array[0] in varDeclarations) {
+	if (varDeclarations.includes(array[0])) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
 		}
-		array[1] = checkNaming(array[1], namingRules)
+		array[1] = checkNaming("variable", array[1], namingRules)
 	}
 	let last = array[array.length - 1].slice(0,-1);
 	if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
