@@ -44,11 +44,10 @@ function checkLine(language, line, varDeclarations, namingRules) {
 		}
 		array[1] = checkNaming(array[1], namingRules)
 	}
-	let last = array[array.length - 1];
-	if (last[last.length - 2] !== ";" && last[last.length - 2] !== "{" && last[last.length - 2] !== "}") {
-		array[array.length - 1] = array[array.length - 1].slice(0,-1) + ";\n"
+	let last = array[array.length - 1].slice(0,-1);
+	if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
+		array[array.length - 1] = last + ";\n";
 	}
-	vscode.window.showInformationMessage("Array: " + last)
 	return array.join(" ");
 }
 
@@ -68,10 +67,11 @@ function checkFunc(text, rules) {
 				if (char == ",") {
 					params.push(checkNaming("variable", temp, rules["naming"]));
 					temp = "";
-				} else if (char != ")") {
-					temp += char
 				} else {
-					break;
+					temp += char
+					if (char != ")") {
+						break;
+					}
 				}
 			}
 			lines[count] = "function " + funcName + "(" + params.join(" , ") + ") {  ";  
@@ -97,6 +97,7 @@ function activate(context) {
 			for (line of text) {
 				new_text += checkLine("Javascript", line, language["general"]["varDeclaration"], language["conventions"]["google"]["naming"])
 			}
+			new_text = new_text.substring(0, new_text.length - 1)
 			editor.edit(editBuilder => {
 				const docLength = new vscode.Range(
 				  new vscode.Position(0, 0), 
