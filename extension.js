@@ -27,19 +27,44 @@ function checkCasing(type, name, namingRules) {
 }
 
 function checkNaming(type, name, namingRules) {
+	vscode.window.showInformationMessage('Hella ' + namingRules);
 	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
 	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
-	vscode.window.showInformationMessage('Hello ' + name);
+	vscode.window.showInformationMessage('Hello ');
 	return checkCasing(type, name, namingRules);
+}
+
+function checkFuncNaming(line, rules) {
+	const chars = line.join(" ").split("")
+	// finds name by looking for (, slicing the name from the chars and then turning it into a string
+	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""), rules);
+	const raw_parameters = chars.slice(chars.indexOf("("));
+	const params = [];
+	let temp = "";
+	for (let char of raw_parameters) {
+		if (char == ",") {
+			params.push(checkNaming("variable", temp, rules));
+			temp = "";
+		} else {
+			temp += char
+			if (char == ")") {
+				params.push(checkNaming("variable", temp, rules));
+				break;
+			}
+		}
+	}
+	return "function " + funcName + "" + params.join(" , ") + " {  ";  
 }
 
 function checkLine(language, line, varDeclarations, namingRules) {
 	const array = line.split(" ");
-	if (varDeclarations.includes(array[0])) {
+	if (array[0] == "function") {
+		return checkFuncNaming(array, namingRules)
+	} else if (varDeclarations.includes(array[0])) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
 		}
@@ -50,34 +75,6 @@ function checkLine(language, line, varDeclarations, namingRules) {
 		array[array.length - 1] = last + ";\n";
 	}
 	return array.join(" ");
-}
-
-function checkFunc(text, rules) {
-	const lines = text.split("\n");
-	let count = 0;
-	while (count < lines.length) {
-		const line = lines[count].split(" ")
-		if (line[0] == "function") {
-			const chars = line.split("")
-			// finds name by looking for (, slicing the name from the chars and then turning it into a string
-			let funcName = checkNaming("method", (chars.slice(0, chars.indexOf("(") + 1)).join(""), rules["naming"]);
-			const raw_parameters = chars.slice(chars.indexOf("("));
-			const params = [];
-			let temp = "";
-			for (let char of chars) {
-				if (char == ",") {
-					params.push(checkNaming("variable", temp, rules["naming"]));
-					temp = "";
-				} else {
-					temp += char
-					if (char != ")") {
-						break;
-					}
-				}
-			}
-			lines[count] = "function " + funcName + "(" + params.join(" , ") + ") {  ";  
-		}
-	}
 }
 
 function setup() {
