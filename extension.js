@@ -91,6 +91,22 @@ function setup() {
 	}
 }
 
+function editDocument(editor, document, text) {
+	editor.edit(editBuilder => {
+		const docLength = new vscode.Range(
+			new vscode.Position(0, 0), 
+			document.positionAt(document.getText().length)
+		);
+		editBuilder.replace(docLength, text);
+		}).then(success => {
+		if (success) {
+			vscode.window.showInformationMessage('Document content replaced with correct style');
+		} else {
+			vscode.window.showErrorMessage('Failed to replace document content.');
+		}
+	});
+}
+
 /**
  * @param {vscode.ExtensionContext} context
  */
@@ -103,19 +119,7 @@ function activate(context) {
 			new_text += checkLine(info[2], line, info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"])
 		}
 		new_text = new_text.substring(0, new_text.length - 1)
-		info[0].edit(editBuilder => {
-			const docLength = new vscode.Range(
-				new vscode.Position(0, 0), 
-				info[0].document.positionAt(info[0].document.getText().length)
-			);
-			editBuilder.replace(docLength, new_text);
-			}).then(success => {
-			if (success) {
-				vscode.window.showInformationMessage('Document content replaced with correct style');
-			} else {
-				vscode.window.showErrorMessage('Failed to replace document content.');
-			}
-		});
+		editDocument(info[0], info[0].document, new_text);
 	});
 	context.subscriptions.push(disposable);
 }
