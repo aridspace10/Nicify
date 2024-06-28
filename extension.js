@@ -57,24 +57,27 @@ function checkFuncNaming(line, rules) {
 			}
 		}
 	}
-	return "function " + funcName + "" + params.join(" , ") + " {  ";  
+	return "function " + funcName + "" + params.join(",") + " {\n";  
 }
 
 function checkLine(language, line, varDeclarations, namingRules) {
-	const array = line.split(" ");
-	if (array[0] == "function") {
-		return checkFuncNaming(array, namingRules)
-	} else if (varDeclarations.includes(array[0])) {
-		if (language == "Javascript" && array[0] == "var") {
-			array[0] = "let";
+	if (line.trim() != "") {
+		const array = line.split(" ");
+		if (array[0] == "function") {
+			return checkFuncNaming(array, namingRules)
+		} else if (varDeclarations.includes(array[0])) {
+			if (language == "Javascript" && array[0] == "var") {
+				array[0] = "let";
+			}
+			array[1] = checkNaming("variable", array[1], namingRules)
 		}
-		array[1] = checkNaming("variable", array[1], namingRules)
+		let last = array[array.length - 1].slice(0,-1);
+		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
+			array[array.length - 1] = last + ";\n";
+		}
+		return array.join(" ");
 	}
-	let last = array[array.length - 1].slice(0,-1);
-	if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
-		array[array.length - 1] = last + ";\n";
-	}
-	return array.join(" ");
+	return line
 }
 
 function setup() {
