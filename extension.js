@@ -4,12 +4,15 @@ const vscode = require('vscode');
 const fs = require('fs').promises;
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
+const LOWER_CASE_EDGES = [65, 90];
+const UPPER_CASE_EDGES = [97,122];
 
 function checkCasing(type, name, namingRules) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
+		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
-			if (name.charCodeAt(i) >= 65 && name.charCodeAt(i) < 90) {
+			if (name.charCodeAt(i) >= LOWER_CASE_EDGES[0] && name.charCodeAt(i) < LOWER_CASE_EDGES[1]) {
 				newName += "_" + name[i].toLowerCase()
 			}
 		}
@@ -27,14 +30,12 @@ function checkCasing(type, name, namingRules) {
 }
 
 function checkNaming(type, name, namingRules) {
-	vscode.window.showInformationMessage('Hella ' + namingRules);
-	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= 65 && name.charCodeAt(0) < 90) {
+	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= LOWER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
-	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= 97 && name.charCodeAt(0) < 122) {
+	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= UPPER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
-	vscode.window.showInformationMessage('Hello ');
 	return checkCasing(type, name, namingRules);
 }
 
@@ -71,6 +72,7 @@ function checkLine(language, line, varDeclarations, namingRules) {
 			}
 			array[1] = checkNaming("variable", array[1], namingRules)
 		}
+		
 		let last = array[array.length - 1].slice(0,-1);
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
@@ -83,8 +85,7 @@ function checkLine(language, line, varDeclarations, namingRules) {
 function setup() {
 	const editor = vscode.window.activeTextEditor;
 	if (editor) {
-		const document = editor.document;
-		const text = document.getText().split("\n");
+		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
 		const data = jsonData[language]
 		return [editor, text, language, data]
