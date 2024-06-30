@@ -62,6 +62,11 @@ function checkFuncNaming(line, rules) {
 }
 
 function checkLine(language, line, varDeclarations, namingRules) {
+	// check for end of funtion line
+	if (line[0] === "}" && line.length == 2) {
+		return "}\n\n";
+	}
+
 	if (line.trim() != "") {
 		const array = line.split(" ");
 		if (array[0] == "function") {
