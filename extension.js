@@ -61,7 +61,7 @@ function checkFuncNaming(line, rules) {
 	return "function " + funcName + "" + params.join(",") + " {\n";  
 }
 
-function checkLine(language, line, varDeclarations, namingRules) {
+function checkLine(language, line, varDeclarations, namingRules, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
 		return "}\n\n";
@@ -74,6 +74,9 @@ function checkLine(language, line, varDeclarations, namingRules) {
 		} else if (varDeclarations.includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
+			}
+			if (line[0] != " ") {
+				checkUse(array[1], text, lineNum)
 			}
 			array[1] = checkNaming("variable", array[1], namingRules)
 		}
@@ -121,8 +124,8 @@ function activate(context) {
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup()
 		let new_text = "";
-		for (line of info[1]) {
-			new_text += checkLine(info[2], line, info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"])
+		for (lineNum in info[1]) {
+			new_text += checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"], lineNum, info[1])
 		}
 		new_text = new_text.substring(0, new_text.length - 1)
 		editDocument(info[0], info[0].document, new_text);
@@ -140,6 +143,12 @@ function determineLanguage(editor) {
 		return "Python";
 	} else if (editor.document.fileName.endsWith(".html")) {
 		return "HTML";
+	} else if (editor.document.fileName.endsWith(".c")) {
+		return "C";
+	} else if (editor.document.fileName.endsWith(".java")) {
+		return "Java"
+	} else if (editor.document.fileName.endsWith(".css")) {
+		return "CSS"
 	}
 }
 
