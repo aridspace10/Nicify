@@ -61,6 +61,24 @@ function checkFuncNaming(line, rules) {
 	return "function " + funcName + "" + params.join(",") + " {\n";  
 }
 
+function checkWhiteSpaces(language, line) {
+	let index = 0;
+	let new_line = "";
+	while (index != line.length) {
+		if (["+","=","-"].includes(line[index])) {
+			if (line[index - 1] != " ") {
+				new_line += " "
+			}
+			new_line += line[index]
+			if (line[index + 1] != " ") {
+				new_line += " "
+			}
+		}
+		index++;
+	}
+
+}
+
 function checkLine(language, line, varDeclarations, namingRules, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
@@ -76,7 +94,7 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 				array[0] = "let";
 			}
 			if (line[0] != " ") {
-				checkUse(array[1], text, lineNum)
+				;//checkUse(array[1], text, lineNum)
 			}
 			array[1] = checkNaming("variable", array[1], namingRules)
 		}
@@ -85,7 +103,7 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
 		}
-		return array.join(" ");
+		return checkWhiteSpaces(language, array.join(" "));
 	}
 	return line
 }
