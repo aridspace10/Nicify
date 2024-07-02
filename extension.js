@@ -7,6 +7,14 @@ const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const LOWER_CASE_EDGES = [65, 90];
 const UPPER_CASE_EDGES = [97,122];
 
+class Logger {
+	constructor() {
+		this.namingChanges = new Map();
+	}
+}
+
+const logger = new Logger()
+
 function checkCasing(type, name, namingRules) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
@@ -94,6 +102,7 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 			indentation += " "
 			array.shift()
 		}
+
 		if (array[0] == "function") {
 			return checkFuncNaming(array, namingRules)
 		} else if (varDeclarations.includes(array[0])) {
@@ -103,10 +112,17 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 			if (line[0] != " ") {
 				//checkUse(array[1], text, lineNum)
 			}
-			array[1] = checkNaming("variable", array[1], namingRules)
+			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules))
+			array[1] = logger.namingChanges.get(array[1])
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], namingRules)
 		}
+
+		for (word in array) {
+			if (logger.namingChanges.get(array[word]) !== undefined) {
+				array[word] = logger.namingChanges.get(array[word])
+			}
+		} 
 
 		let last = array[array.length - 1].slice(0,-1);
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
