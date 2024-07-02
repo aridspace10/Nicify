@@ -73,10 +73,12 @@ function checkWhiteSpaces(language, line) {
 			if (line[index + 1] != " ") {
 				new_line += " "
 			}
+		} else {
+			new_line += line[index]
 		}
 		index++;
 	}
-
+	return new_line
 }
 
 function checkLine(language, line, varDeclarations, namingRules, lineNum, text) {
@@ -86,7 +88,12 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 	}
 
 	if (line.trim() != "") {
+		let indentation = "";
 		const array = line.split(" ");
+		while (array[0] == "") {
+			indentation += " "
+			array.shift()
+		}
 		if (array[0] == "function") {
 			return checkFuncNaming(array, namingRules)
 		} else if (varDeclarations.includes(array[0])) {
@@ -94,7 +101,7 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 				array[0] = "let";
 			}
 			if (line[0] != " ") {
-				;//checkUse(array[1], text, lineNum)
+				//checkUse(array[1], text, lineNum)
 			}
 			array[1] = checkNaming("variable", array[1], namingRules)
 		}
@@ -103,7 +110,7 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
 		}
-		return checkWhiteSpaces(language, array.join(" "));
+		return indentation + array.join(" ");
 	}
 	return line
 }
