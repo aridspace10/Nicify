@@ -112,7 +112,23 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
 		}
-		return indentation + array.join(" ");
+
+		let newLine = indentation + array.join(" ");
+		let temp = ""
+		let index = 0;
+		while (index < newLine.length) {
+			if (newLine[index] == "=" && newLine[index+1] == "=") {
+				temp += "===";
+				index++;
+			} else if (newLine[index] == "!" && newLine[index+1] == "=") {
+				temp += "!==";
+				index++;
+			} else {
+				temp += newLine[index]
+			}
+			index++
+		}
+		return temp
 	}
 	return line
 }
@@ -150,11 +166,11 @@ function activate(context) {
 	commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup()
-		let new_text = "";
+		let new_text = [];
 		for (lineNum in info[1]) {
-			new_text += checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"], lineNum, info[1])
+			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"], lineNum, info[1]))
 		}
-		new_text = new_text.substring(0, new_text.length - 1)
+		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
 	});
 	context.subscriptions.push(disposable);
