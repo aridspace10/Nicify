@@ -104,8 +104,10 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 				//checkUse(array[1], text, lineNum)
 			}
 			array[1] = checkNaming("variable", array[1], namingRules)
+		} else if (array[0] == "class") {
+			array[1] = checkNaming("class", array[1], namingRules)
 		}
-		
+
 		let last = array[array.length - 1].slice(0,-1);
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
