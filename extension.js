@@ -1,7 +1,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-const fs = require('fs').promises;
+const fs = require('fs');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const LOWER_CASE_EDGES = [65, 90];
@@ -18,6 +18,20 @@ class Logger {
 		if (typeChange == "Naming") {
 			this.report["naming"].push("Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}");
 		}
+	}
+	createReport() {
+		let content = "";
+		for (const key of this.report) {
+			content += key + "\n"
+			for (let change of this.report[key]) {
+				content += change + "\n"
+			}
+		}
+		fs.writeFile("demo.txt", content, "utf8", (error, data) => {
+			console.log("Write complete");
+			console.log(error);
+			console.log(data);
+		});
 	}
 }
 
@@ -41,6 +55,9 @@ function checkCasing(type, name, namingRules, lineNum) {
 				newName += name[i]
 			}
 		}
+	}
+	if (newName != name) {
+		logger.addToReport("naming", lineNum, orginal = name, processed = newName);
 	}
 	return newName;
 }
