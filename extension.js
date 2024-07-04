@@ -8,14 +8,22 @@ const LOWER_CASE_EDGES = [65, 90];
 const UPPER_CASE_EDGES = [97,122];
 
 class Logger {
-	constructor() {
+	constructor(convention) {
 		this.namingChanges = new Map();
+		this.report = {"naming": []};
+		this.conventions = convention;
+	}
+
+	addToReport(typeChange, lineNum, orginal = "", processed = "") {
+		if (typeChange == "Naming") {
+			this.report["naming"].push("Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}");
+		}
 	}
 }
 
-const logger = new Logger()
+const logger = new Logger("google");
 
-function checkCasing(type, name, namingRules) {
+function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
@@ -37,14 +45,14 @@ function checkCasing(type, name, namingRules) {
 	return newName;
 }
 
-function checkNaming(type, name, namingRules) {
+function checkNaming(type, name, namingRules, lineNum) {
 	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= LOWER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
 	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= UPPER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
-	return checkCasing(type, name, namingRules);
+	return checkCasing(type, name, namingRules, lineNum);
 }
 
 function checkFuncNaming(line, rules) {
@@ -112,10 +120,10 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 			if (line[0] != " ") {
 				//checkUse(array[1], text, lineNum)
 			}
-			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules))
+			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum))
 			array[1] = logger.namingChanges.get(array[1])
 		} else if (array[0] == "class") {
-			array[1] = checkNaming("class", array[1], namingRules)
+			array[1] = checkNaming("class", array[1], namingRules, lineNum)
 		}
 
 		for (word in array) {
@@ -133,16 +141,13 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 		let temp = ""
 		let index = 0;
 		while (index < newLine.length) {
-			if (newLine[index] == "=" && newLine[index+1] == "=") {
-				temp += "===";
-				index++;
-			} else if (newLine[index] == "!" && newLine[index+1] == "=") {
-				temp += "!==";
-				index++;
+			if ((newLine[index] === "=" || newLine[index] === "!") && newLine[index+1] === "=" && newLine[index+2] !== "=") {
+				temp += newLine[index] + newLine[index + 1] + "=";
+				index += 2;
 			} else {
 				temp += newLine[index]
+				index++;
 			}
-			index++
 		}
 		return temp
 	}
@@ -184,7 +189,7 @@ function activate(context) {
 		const info = setup()
 		let new_text = [];
 		for (lineNum in info[1]) {
-			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"]["google"]["naming"], lineNum, info[1]))
+			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"][logger.conventions]["naming"], lineNum, info[1]))
 		}
 		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
