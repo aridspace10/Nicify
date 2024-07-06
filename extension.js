@@ -114,6 +114,22 @@ function checkWhiteSpaces(language, line) {
 	return new_line
 }
 
+function checkSpacing(line) {
+	let modified = "";
+	for (let i in line) {
+		let index = line[i].indexOf("=")
+		if (index === -1 || line[i] == "=") {
+			modified += line[i]
+		} else {
+			if (index === 0) {
+				modified += "= " + line[i].slice(1)
+			} else if (index == line[i].length - 1) {
+				modified += line[i].slice(0, line[i].length - 1) + " ="
+			}
+		}
+	}
+}
+
 function checkLine(language, line, varDeclarations, namingRules, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
