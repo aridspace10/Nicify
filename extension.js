@@ -37,6 +37,10 @@ class Logger {
 
 const logger = new Logger("google");
 
+function addAtIndex(str, index, char) {
+	return str.slice(0, index) + char + str.slice(index, str.length);
+}
+
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
@@ -173,14 +177,20 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 		let newLine = indentation + array.join(" ");
 		let temp = ""
 		let index = 0;
+		const allowed = ["<", ">", "!", " ", "="];
 		while (index < newLine.length) {
-			if ((newLine[index] === "=" || newLine[index] === "!") && newLine[index+1] === "=" && newLine[index+2] !== "=") {
-				temp += newLine[index] + newLine[index + 1] + "=";
-				index += 2;
+			if (newLine[index] == "=") {
+				if (!allowed.includes(newLine[index-1])) {
+					temp += " "
+				}
+				temp += "="
+				if (!allowed.includes(newLine[index+1])) {
+					temp += " "
+				}
 			} else {
 				temp += newLine[index]
-				index++;
 			}
+			index++;
 		}
 		return temp
 	}
