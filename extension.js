@@ -97,7 +97,6 @@ function checkFuncNaming(line, rules) {
 	}
 	return "function " + funcName + "" + params.join(",") + " {\n";  
 }
-
 function checkWhiteSpaces(language, line) {
 	let index = 0;
 	let new_line = "";
@@ -134,7 +133,7 @@ function checkSpacing(line) {
 	}
 }
 
-function checkLine(language, line, varDeclarations, namingRules, lineNum, text) {
+function checkLine(language, line, varDeclarations, namingRules, commentingRules, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
 		return "}\n\n";
@@ -148,7 +147,14 @@ function checkLine(language, line, varDeclarations, namingRules, lineNum, text) 
 			array.shift()
 		}
 
-		if (array[0] == "function") {
+		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
+			if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
+			text[lineNum-1].includes(commentingRules["multiComment"][0]) || 
+			text[lineNum-1].includes(commentingRules["multiComment"][1])) {
+
+			} else {
+				logger.addToReport("JSDoc", lineNum, orginal = funcName)
+			}
 			return checkFuncNaming(array, namingRules)
 		} else if (varDeclarations.includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
@@ -232,7 +238,9 @@ function activate(context) {
 		const info = setup()
 		let new_text = [];
 		for (lineNum in info[1]) {
-			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], info[3]["conventions"][logger.conventions]["naming"], lineNum, info[1]))
+			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], 
+				info[3]["conventions"][logger.conventions]["naming"], 
+				info[3]["general"]["commenting"], lineNum, info[1]))
 		}
 		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
