@@ -5,8 +5,10 @@
             "semiColon": true,
             "classMemberIdentifier": "this",
             "methodDeclaration": "function",
-            "singleComment": "//",
-            "multiLineComment" : ["/*", "*/"]
+            "commenting": {
+                "singleComment": "//",
+                "multiLineComment" : ["/*", "*/"]
+            }
         },   
         "conventions": {
             "google": {
