@@ -95,7 +95,7 @@ function checkFuncNaming(line, rules) {
 			}
 		}
 	}
-	return "function " + funcName + "" + params.join(",") + " {\n";  
+	return new [funcName, params]  
 }
 function checkWhiteSpaces(language, line) {
 	let index = 0;
@@ -148,6 +148,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 		}
 
 		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
+			const info = checkFuncNaming(array, namingRules)
 			if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
 			text[lineNum-1].includes(commentingRules["multiComment"][0]) || 
 			text[lineNum-1].includes(commentingRules["multiComment"][1])) {
@@ -155,7 +156,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			} else {
 				logger.addToReport("JSDoc", lineNum, orginal = funcName)
 			}
-			return checkFuncNaming(array, namingRules)
+			return "function " + info[0] + "" + info[1].join(",") + " {\n";  
 		} else if (varDeclarations.includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
