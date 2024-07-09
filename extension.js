@@ -133,6 +133,20 @@ function checkSpacing(line) {
 	}
 }
 
+function checkJSDOC(text, commentingRules, funcLine, funcName) {
+	if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
+			text[lineNum-1].includes(commentingRules["multiComment"][0]) || 
+			text[lineNum-1].includes(commentingRules["multiComment"][1])) {
+		let index = funcLine;
+		while (text[index].startsWith(commentingRules["multiComment"][0])) {
+			index -= 1;
+		}
+		let jsdoc = text.slice(index, funcLine).join(" ")
+	} else {
+		logger.addToReport("JSDoc", funcLine, orginal = funcName)
+	}
+}
+
 function checkLine(language, line, varDeclarations, namingRules, commentingRules, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
@@ -149,13 +163,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 
 		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
 			const info = checkFuncNaming(array, namingRules)
-			if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
-			text[lineNum-1].includes(commentingRules["multiComment"][0]) || 
-			text[lineNum-1].includes(commentingRules["multiComment"][1])) {
-
-			} else {
-				logger.addToReport("JSDoc", lineNum, orginal = funcName)
-			}
+			checkJSDOC(text, commentingRules, lineNum, funcName);
 			return "function " + info[0] + "" + info[1].join(",") + " {\n";  
 		} else if (varDeclarations.includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
