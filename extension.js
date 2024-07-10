@@ -12,6 +12,7 @@ class Logger {
 		this.namingChanges = new Map();
 		this.report = {"naming": []};
 		this.conventions = convention;
+		this.imports = [];
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
@@ -176,6 +177,9 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			array[1] = logger.namingChanges.get(array[1])
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], namingRules, lineNum)
+		} else if (array[0] == "import") {
+			logger.imports.push(line)
+			return "";
 		}
 
 		for (word in array) {
@@ -249,7 +253,11 @@ function activate(context) {
 		for (lineNum in info[1]) {
 			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], 
 				info[3]["conventions"][logger.conventions]["naming"], 
-				info[3]["general"]["commenting"], lineNum, info[1]))
+				info[3]["general"]["commenting"], lineNum, info[1]));
+		}
+		while (logger.imports.length) {
+			new_text.splice(0, 0, logger.imports[0] + "\n");
+			logger.imports.shift();
 		}
 		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
