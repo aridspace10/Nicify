@@ -42,12 +42,24 @@ function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
 }
 
+String.prototype.isUpperCase = function() {
+	return !(this.filter((char) => {
+		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[0]
+	}).length)
+}
+
+String.prototype.isLowerCase = function() {
+	return !(this.filter((char) => {
+		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
+	}).length)
+}
+
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
-			if (name.charCodeAt(i) >= LOWER_CASE_EDGES[0] && name.charCodeAt(i) < LOWER_CASE_EDGES[1]) {
+			if (name[i].isLowerCase()) {
 				newName += "_" + name[i].toLowerCase()
 			}
 		}
@@ -68,10 +80,10 @@ function checkCasing(type, name, namingRules, lineNum) {
 }
 
 function checkNaming(type, name, namingRules, lineNum) {
-	if (namingRules[type] == "LowerCamel" && name.charCodeAt(0) >= LOWER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
+	if (namingRules[type] == "LowerCamel" && name.isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
-	if (namingRules[type] == "UpperCamel" && name.charCodeAt(0) >= UPPER_CASE_EDGES[0] && name.charCodeAt(0) < LOWER_CASE_EDGES[1]) {
+	if (namingRules[type] == "UpperCamel" && name.isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
 	return checkCasing(type, name, namingRules, lineNum);
