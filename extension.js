@@ -12,6 +12,7 @@ class Logger {
 		this.namingChanges = new Map();
 		this.report = {"naming": []};
 		this.conventions = convention;
+		this.starts = new Map()
 		this.imports = [];
 	}
 
@@ -42,17 +43,23 @@ function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
 }
 
-String.prototype.isUpperCase = function() {
+function isUpperCase() {
 	return !(this.filter((char) => {
 		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[0]
 	}).length)
 }
 
-String.prototype.isLowerCase = function() {
+String.prototype.isUpperCase = isUpperCase
+Array.prototype.isUpperCase = isUpperCase
+
+function isLowerCase() {
 	return !(this.filter((char) => {
 		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
 	}).length)
 }
+
+String.prototype.isLowerCase = isLowerCase
+Array.prototype.isLowerCase = isLowerCase
 
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
@@ -182,11 +189,13 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
 			}
-			if (line[0] != " ") {
-				//checkUse(array[1], text, lineNum)
-			}
 			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum))
 			array[1] = logger.namingChanges.get(array[1])
+			// Check if constant
+			if (array[1].split("").isUpperCase()) {
+				logger.constants.push(array.join(" "))
+				return "";
+			}
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], namingRules, lineNum)
 		} else if (array[0] == "import") {
@@ -267,10 +276,16 @@ function activate(context) {
 				info[3]["conventions"][logger.conventions]["naming"], 
 				info[3]["general"]["commenting"], lineNum, info[1]));
 		}
+		while (logger.constants.length) {
+			new_text.splice(0, 0, logger.constants[0] + "\n");
+			logger.constants.shift();
+		}
+		new_text.splice(0, 0, "// CONSTANTS //\n");
 		while (logger.imports.length) {
 			new_text.splice(0, 0, logger.imports[0] + "\n");
 			logger.imports.shift();
 		}
+		new_text.splice(0, 0, "// IMPORTS //\n");
 		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
 	});
