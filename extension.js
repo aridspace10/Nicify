@@ -14,6 +14,7 @@ class Logger {
 		this.conventions = convention;
 		this.starts = new Map()
 		this.imports = [];
+		this.constants = [];
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
@@ -167,12 +168,12 @@ function checkJSDOC(text, commentingRules, funcLine, funcName) {
 	}
 }
 
-function checkLine(language, line, varDeclarations, namingRules, commentingRules, lineNum, text) {
+function checkLine(language, line, varDeclarations, namingRules, commentingRules, lineNum, text, maxLineLength) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
 		return "}\n\n";
 	}
-
+	vscode.window.showInformationMessage('Line: ' + line);
 	if (line.trim() != "") {
 		let indentation = "";
 		const array = line.split(" ");
@@ -195,6 +196,12 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			if (array[1].split("").isUpperCase()) {
 				logger.constants.push(array.join(" "))
 				return "";
+			}
+
+			if (line.length > maxLineLength) {
+				if (array.slice(3).join(" ").length < maxLineLength) {
+					array[2] = "= \n"
+				}
 			}
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], namingRules, lineNum)
@@ -274,7 +281,7 @@ function activate(context) {
 		for (lineNum in info[1]) {
 			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], 
 				info[3]["conventions"][logger.conventions]["naming"], 
-				info[3]["general"]["commenting"], lineNum, info[1]));
+				info[3]["general"]["commenting"], lineNum, info[1], info[3]["conventions"][logger.conventions]["limits"]["column"]));
 		}
 		while (logger.constants.length) {
 			new_text.splice(0, 0, logger.constants[0] + "\n");
