@@ -44,23 +44,18 @@ function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
 }
 
-function isUpperCase() {
-	return this.every((char) => {
+String.prototype.isUpperCase = function() {
+	return [...this].every((char) => {
 		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
 	})
 }
 
-String.prototype.isUpperCase = isUpperCase
-Array.prototype.isUpperCase = isUpperCase
-
-function isLowerCase() {
-	return this.every((char) => {
+String.prototype.isLowerCase = function() {
+	return [...this].every((char) => {
 		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[1]
 	})
 }
 
-String.prototype.isLowerCase = isLowerCase
-Array.prototype.isLowerCase = isLowerCase
 
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
@@ -88,10 +83,10 @@ function checkCasing(type, name, namingRules, lineNum) {
 }
 
 function checkNaming(type, name, namingRules, lineNum) {
-	if (namingRules[type] == "LowerCamel" && name.isLowerCase()) {
+	if (namingRules[type] == "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
-	if (namingRules[type] == "UpperCamel" && name.isUpperCase()) {
+	if (namingRules[type] == "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
 	return checkCasing(type, name, namingRules, lineNum);
@@ -174,7 +169,8 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 		return "}\n\n";
 	}
 	vscode.window.showInformationMessage('Line: ' + line);
-	if (line && line.trim() != "") {
+	
+	if (line.length && line.trim() != "") {
 		let indentation = "";
 		const array = line.split(" ");
 		while (array[0] == "") {
