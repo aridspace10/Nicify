@@ -4,8 +4,8 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
-const LOWER_CASE_EDGES = [65, 90];
-const UPPER_CASE_EDGES = [97,122];
+const UPPER_CASE_EDGES = [65, 90];
+const LOWER_CASE_EDGES = [97, 122];
 
 class Logger {
 	constructor(convention) {
@@ -45,18 +45,18 @@ function addAtIndex(str, index, char) {
 }
 
 function isUpperCase() {
-	return !(this.filter((char) => {
-		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[0]
-	}).length)
+	return this.every((char) => {
+		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
+	})
 }
 
 String.prototype.isUpperCase = isUpperCase
 Array.prototype.isUpperCase = isUpperCase
 
 function isLowerCase() {
-	return !(this.filter((char) => {
-		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
-	}).length)
+	return this.every((char) => {
+		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[1]
+	})
 }
 
 String.prototype.isLowerCase = isLowerCase
@@ -174,7 +174,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 		return "}\n\n";
 	}
 	vscode.window.showInformationMessage('Line: ' + line);
-	if (line.trim() != "") {
+	if (line && line.trim() != "") {
 		let indentation = "";
 		const array = line.split(" ");
 		while (array[0] == "") {
