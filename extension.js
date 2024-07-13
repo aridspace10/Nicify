@@ -168,7 +168,10 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 	if (line[0] === "}" && line.length == 2) {
 		return "}\n\n";
 	}
-	vscode.window.showInformationMessage('Line: ' + line);
+	
+	if (line.includes("// CONSTANTS //") || line.includes("// IMPORTS //")) {
+		return "";
+	}
 	
 	if (line.length && line.trim() != "") {
 		let indentation = "";
@@ -189,7 +192,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum))
 			array[1] = logger.namingChanges.get(array[1])
 			// Check if constant
-			if (array[1].split("").isUpperCase()) {
+			if (array[1].isUpperCase()) {
 				logger.constants.push(array.join(" "))
 				return "";
 			}
