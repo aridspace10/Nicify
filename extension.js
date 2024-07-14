@@ -198,9 +198,13 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			}
 			
 			for (let index in array) {
-				if (language === "Javascript" && array[index - 1] === "new" && array[index].startsWith("Array")) {
-					array[index - 1] = "";
-					array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
+				if (language === "Javascript") {
+					if (array[index - 1] === "new" && array[index].startsWith("Array")) {
+						array[index - 1] = "";
+						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
+					}
+
+					array[index] = array[index].replace(",", ";\n" + array[0])
 				}
 			}
 
