@@ -151,10 +151,11 @@ function checkSpacing(line) {
 
 function checkJSDOC(text, commentingRules, funcLine, funcName) {
 	if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
-			text[lineNum-1].includes(commentingRules["multiComment"][0]) || 
-			text[lineNum-1].includes(commentingRules["multiComment"][1])) {
+		text[lineNum-1].includes(commentingRules["multiLineComment"][0]) || 
+		text[lineNum-1].includes(commentingRules["multiLineComment"][1])) 
+	{
 		let index = funcLine;
-		while (text[index].startsWith(commentingRules["multiComment"][0])) {
+		while (!text[index].startsWith(commentingRules["multiLineComment"][0])) {
 			index -= 1;
 		}
 		let jsdoc = text.slice(index, funcLine).join(" ")
@@ -182,7 +183,7 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 		}
 
 		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
-			const info = checkFuncNaming(array, namingRules)
+			const info = checkFuncNaming(array, namingRules);
 			checkJSDOC(text, commentingRules, lineNum, info[0]);
 			line = "function " + info[0] + "" + info[1].join(",") + " {\n";  
 			if (line.length > maxLineLength) {
