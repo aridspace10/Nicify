@@ -24,12 +24,12 @@ class Logger {
 	}
 	createReport() {
 		let content = "";
-		for (const key of this.report) {
-			content += key + "\n"
-			for (let change of this.report[key]) {
-				content += change + "\n"
-			}
-		}
+        for (const [key, changes] of Object.entries(this.report)) {
+            content += `${key}\n`;
+            for (const change of changes) {
+                content += `${change}\n`;
+            }
+        }
 		fs.writeFile("demo.txt", content, "utf8", (error, data) => {
 			console.log("Write complete");
 			console.log(error);
@@ -285,6 +285,7 @@ function editDocument(editor, document, text) {
 			vscode.window.showErrorMessage('Failed to replace document content.');
 		}
 	});
+	logger.createReport()
 }
 
 /**
