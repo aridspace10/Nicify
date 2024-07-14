@@ -111,7 +111,7 @@ function checkFuncNaming(line, rules) {
 			}
 		}
 	}
-	return new [funcName, params]
+	return [funcName, params];
 }
 function checkWhiteSpaces(language, line) {
 	let index = 0;
@@ -183,8 +183,14 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 
 		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
 			const info = checkFuncNaming(array, namingRules)
-			checkJSDOC(text, commentingRules, lineNum, funcName);
-			return "function " + info[0] + "" + info[1].join(",") + " {\n";  
+			checkJSDOC(text, commentingRules, lineNum, info[0]);
+			line = "function " + info[0] + "" + info[1].join(",") + " {\n";  
+			if (line.length > maxLineLength) {
+				if (line.slice(line.indexOf("(")).length < maxLineLength) {
+					line = line.slice(0, line.indexOf("(")) + "\n" + indentation + line.slice(line.indexOf("(") + 1);
+				}
+			}
+			return line
 		} else if (varDeclarations.includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
