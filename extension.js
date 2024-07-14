@@ -111,7 +111,7 @@ function checkFuncNaming(line, rules) {
 			}
 		}
 	}
-	return new [funcName, params]  
+	return new [funcName, params]
 }
 function checkWhiteSpaces(language, line) {
 	let index = 0;
@@ -189,17 +189,24 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
 			}
-			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum))
-			array[1] = logger.namingChanges.get(array[1])
+			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum));
+			array[1] = logger.namingChanges.get(array[1]);
 			// Check if constant
 			if (array[1].isUpperCase()) {
-				logger.constants.push(array.join(" "))
+				logger.constants.push(array.join(" "));
 				return "";
+			}
+			
+			for (let index in array) {
+				if (language === "Javascript" && array[index - 1] === "new" && array[index].startsWith("Array")) {
+					array[index - 1] = "";
+					array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
+				}
 			}
 
 			if (line.length > maxLineLength) {
 				if (array.slice(3).join(" ").length < maxLineLength) {
-					array[2] = "= \n"
+					array[2] = "= \n";
 				}
 			}
 		} else if (array[0] == "class") {
