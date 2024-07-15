@@ -56,6 +56,34 @@ String.prototype.isLowerCase = function() {
 	})
 }
 
+function convertToLiteral(str) {
+	let index = 1;
+	let mod = "\'";
+	while (index < str.length) {
+		if (str[index] == "\"" || str[index] == "\'") {
+			if (index + 1 === str.length) {
+				mod += "\'"
+			} else {
+				mod += "{"
+				while (str[index].toUpperCase() == str[index].toLowerCase()) {
+					index += 1
+				}
+				while (str[index] != " ") {
+					mod += str[index]
+					index += 1  
+				}
+				mod += "}"
+				while (str[index] != "\"") {
+					index += 1
+				}
+			}
+		} else {
+			mod += str[index]
+		}
+	}
+	return mod
+}
+
 
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
