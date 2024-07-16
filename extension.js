@@ -84,7 +84,6 @@ function convertToLiteral(str) {
 	return mod
 }
 
-
 function checkCasing(type, name, namingRules, lineNum) {
 	newName = "";
 	if (namingRules[type] == "SnakeCasing") {
@@ -256,11 +255,18 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 		}
 
 		for (word in array) {
-			if (logger.namingChanges.get(array[word]) !== undefined) {
-				array[word] = logger.namingChanges.get(array[word])
+			let progress = "";
+			let index = 0;
+			while (index <= array[word].length) {
+				progress += array[word][index]
+				index += 1
+				if (logger.namingChanges.get(progress) !== undefined) {
+					array[word] = logger.namingChanges.get(progress) + array[word].slice(index);
+					break;
+				}
 			}
-		} 
-
+		}
+		
 		let last = array[array.length - 1].slice(0,-1);
 		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 			array[array.length - 1] = last + ";\n";
