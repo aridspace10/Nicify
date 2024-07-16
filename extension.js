@@ -202,7 +202,7 @@ function checkLine(language, line, lineNum, text) {
 		return "}\n\n";
 	}
 	
-	if (line.includes("// CONSTANTS //") || line.includes("// IMPORTS //")) {
+	if (line.includes(logger.importHeader) || line.includes(logger.constantHeader)) {
 		return "";
 	}
 	
@@ -315,6 +315,8 @@ function setup() {
 		const data = jsonData[language]
 		logger.g_rules = data["general"]
 		logger.c_rules = data["conventions"][logger.conventions]
+		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
+		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
 		return [editor, text, language, data]
 	}
 }
@@ -351,12 +353,12 @@ function activate(context) {
 			new_text.splice(0, 0, logger.constants[0] + "\n");
 			logger.constants.shift();
 		}
-		new_text.splice(0, 0, "// CONSTANTS //\n");
+		new_text.splice(0, 0, logger.constantHeader + "\n");
 		while (logger.imports.length) {
 			new_text.splice(0, 0, logger.imports[0] + "\n");
 			logger.imports.shift();
 		}
-		new_text.splice(0, 0, "// IMPORTS //\n");
+		new_text.splice(0, 0, logger.importHeader + "\n");
 		new_text = new_text.join("")
 		editDocument(info[0], info[0].document, new_text);
 	});
