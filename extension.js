@@ -84,8 +84,9 @@ function convertToLiteral(str) {
 	return mod
 }
 
-function checkCasing(type, name, namingRules, lineNum) {
+function checkCasing(type, name, lineNum) {
 	newName = "";
+	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
@@ -109,31 +110,32 @@ function checkCasing(type, name, namingRules, lineNum) {
 	return newName;
 }
 
-function checkNaming(type, name, namingRules, lineNum) {
+function checkNaming(type, name, lineNum) {
+	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
 	if (namingRules[type] == "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
-	return checkCasing(type, name, namingRules, lineNum);
+	return checkCasing(type, name, lineNum);
 }
 
-function checkFuncNaming(line, rules) {
+function checkFuncNaming(line) {
 	const chars = line.join(" ").split("")
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
-	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""), rules);
+	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""));
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
 	let temp = "";
 	for (let char of raw_parameters) {
 		if (char == ",") {
-			params.push(checkNaming("variable", temp, rules));
+			params.push(checkNaming("variable", temp));
 			temp = "";
 		} else {
 			temp += char
 			if (char == ")") {
-				params.push(checkNaming("variable", temp, rules));
+				params.push(checkNaming("variable", temp));
 				break;
 			}
 		}
@@ -176,7 +178,8 @@ function checkSpacing(line) {
 	}
 }
 
-function checkJSDOC(text, commentingRules, funcLine, funcName) {
+function checkJSDOC(text, funcLine, funcName) {
+	let commentingRules = logger.g_rules["commenting"];
 	if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
 		text[lineNum-1].includes(commentingRules["multiLineComment"][0]) || 
 		text[lineNum-1].includes(commentingRules["multiLineComment"][1])) 
@@ -191,7 +194,7 @@ function checkJSDOC(text, commentingRules, funcLine, funcName) {
 	}
 }
 
-function checkLine(language, line, varDeclarations, namingRules, commentingRules, lineNum, text, maxLineLength) {
+function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
 		return "}\n\n";
@@ -209,9 +212,10 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 			array.shift()
 		}
 
+		let maxLineLength = logger.c_rules["limits"]["column"]
 		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
-			const info = checkFuncNaming(array, namingRules);
-			checkJSDOC(text, commentingRules, lineNum, info[0]);
+			const info = checkFuncNaming(array);
+			checkJSDOC(text, lineNum, info[0]);
 			line = "function " + info[0] + "" + info[1].join(",") + " {\n";  
 			if (line.length > maxLineLength) {
 				if (line.slice(line.indexOf("(")).length < maxLineLength) {
@@ -219,11 +223,11 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 				}
 			}
 			return line
-		} else if (varDeclarations.includes(array[0])) {
+		} else if (logger.g_rules["varDeclaration"].includes(array[0])) {
 			if (language == "Javascript" && array[0] == "var") {
 				array[0] = "let";
 			}
-			logger.namingChanges.set(array[1], checkNaming("variable", array[1], namingRules, lineNum));
+			logger.namingChanges.set(array[1], checkNaming("variable", array[1], lineNum));
 			array[1] = logger.namingChanges.get(array[1]);
 			// Check if constant
 			if (array[1].isUpperCase()) {
@@ -303,6 +307,8 @@ function setup() {
 		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
 		const data = jsonData[language]
+		logger.g_rules = data["general"]
+		logger.c_rules = data["conventions"][logger.conventions]
 		return [editor, text, language, data]
 	}
 }
@@ -333,9 +339,7 @@ function activate(context) {
 		const info = setup()
 		let new_text = [];
 		for (lineNum in info[1]) {
-			new_text.push(checkLine(info[2], info[1][lineNum], info[3]["general"]["varDeclaration"], 
-				info[3]["conventions"][logger.conventions]["naming"], 
-				info[3]["general"]["commenting"], lineNum, info[1], info[3]["conventions"][logger.conventions]["limits"]["column"]));
+			new_text.push(checkLine(info[2], info[1][lineNum], lineNum, info[1]));
 		}
 		while (logger.constants.length) {
 			new_text.splice(0, 0, logger.constants[0] + "\n");
