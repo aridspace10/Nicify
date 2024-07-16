@@ -38,7 +38,7 @@ class Logger {
 	}
 }
 
-const logger = new Logger("google");
+const logger = new Logger("PEP 8");
 
 function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
@@ -85,13 +85,15 @@ function convertToLiteral(str) {
 }
 
 function checkCasing(type, name, lineNum) {
-	newName = "";
+	newName = name[0];
 	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
-			if (name[i].isLowerCase()) {
+			if (name[i].isUpperCase()) {
 				newName += "_" + name[i].toLowerCase()
+			} else {
+				newName += name[i];
 			}
 		}
 	} else {
@@ -223,14 +225,17 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 			return line
-		} else if (logger.g_rules["varDeclaration"].includes(array[0])) {
-			if (language == "Javascript" && array[0] == "var") {
-				array[0] = "let";
+		} else if (array.includes("=")) {
+			let equalsIndex = array.indexOf("=")
+			if (logger.g_rules["varDeclaration"].includes(array[0])) {
+				if (language == "Javascript" && array[0] == "var") {
+					array[0] = "let";
+				}	
 			}
-			logger.namingChanges.set(array[1], checkNaming("variable", array[1], lineNum));
-			array[1] = logger.namingChanges.get(array[1]);
+			logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
+			array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
 			// Check if constant
-			if (array[1].isUpperCase()) {
+			if (array[equalsIndex - 1].isUpperCase()) {
 				logger.constants.push(array.join(" "));
 				return "";
 			}
@@ -252,7 +257,7 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 		} else if (array[0] == "class") {
-			array[1] = checkNaming("class", array[1], namingRules, lineNum)
+			array[1] = checkNaming("class", array[1], lineNum)
 		} else if (array[0] == "import") {
 			logger.imports.push(line)
 			return "";
