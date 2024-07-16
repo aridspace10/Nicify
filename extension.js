@@ -285,6 +285,8 @@ function checkLine(language, line, varDeclarations, namingRules, commentingRules
 				if (!allowed.includes(newLine[index+1])) {
 					temp += " "
 				}
+			} else if (newLine[index] === "\"") {
+				temp += "\'"
 			} else {
 				temp += newLine[index]
 			}
