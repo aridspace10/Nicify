@@ -213,10 +213,10 @@ function checkLine(language, line, lineNum, text) {
 		}
 
 		let maxLineLength = logger.c_rules["limits"]["column"]
-		if (array[0] == "function" || (array[0] == "async" && array[1] == "function")) {
+		if (array[0] == logger.g_rules["methodDeclaration"] || (array[0] == "async" && array[1] == logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
 			checkJSDOC(text, lineNum, info[0]);
-			line = "function " + info[0] + "" + info[1].join(",") + " {\n";  
+			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
 			if (line.length > maxLineLength) {
 				if (line.slice(line.indexOf("(")).length < maxLineLength) {
 					line = line.slice(0, line.indexOf("(")) + "\n" + indentation + line.slice(line.indexOf("(") + 1);
@@ -270,10 +270,11 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 		}
-		
-		let last = array[array.length - 1].slice(0,-1);
-		if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
-			array[array.length - 1] = last + ";\n";
+		if (logger.c_rules["rules"]["semiColonAlways"]) {
+			let last = array[array.length - 1].slice(0,-1);
+			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
+				array[array.length - 1] = last + ";\n";
+			}
 		}
 
 		let newLine = indentation + array.join(" ");
