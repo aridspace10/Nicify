@@ -321,6 +321,10 @@ function setup() {
 		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
 		const data = jsonData[language]
+		if (!(logger.conventions in data)) {
+			vscode.window.showErrorMessage('Failed to replace document content.');
+			process.exit();
+		}
 		logger.g_rules = data["general"]
 		logger.c_rules = data["conventions"][logger.conventions]
 		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
