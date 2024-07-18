@@ -180,7 +180,7 @@ function checkSpacing(line) {
 	}
 }
 
-function checkJSDOC(text, funcLine, funcName) {
+function checkJSDOC(text, funcLine, funcName, params) {
 	let commentingRules = logger.g_rules["commenting"];
 	if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
 		text[lineNum-1].includes(commentingRules["multiLineComment"][0]) || 
@@ -191,6 +191,13 @@ function checkJSDOC(text, funcLine, funcName) {
 			index -= 1;
 		}
 		let jsdoc = text.slice(index, funcLine).join(" ")
+		let position = 0;
+		while (jsdoc.indexOf("@param", position) !== -1) {
+			params.filter(item => item !== jsdoc[indexOf("@param", position)+1])
+		}
+		for (param of params) {
+			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param)
+		}
 	} else {
 		logger.addToReport("JSDoc", funcLine, orginal = funcName)
 	}
@@ -217,7 +224,7 @@ function checkLine(language, line, lineNum, text) {
 		let maxLineLength = logger.c_rules["limits"]["column"]
 		if (array[0] == logger.g_rules["methodDeclaration"] || (array[0] == "async" && array[1] == logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
-			checkJSDOC(text, lineNum, info[0]);
+			checkJSDOC(text, lineNum, info[0], info[1]);
 			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
 			if (line.length > maxLineLength) {
 				if (line.slice(line.indexOf("(")).length < maxLineLength) {
@@ -246,8 +253,9 @@ function checkLine(language, line, lineNum, text) {
 						array[index - 1] = "";
 						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
 					}
-
-					array[index] = array[index].replace(",", ";\n" + array[0])
+					if (!logger.c_rules["rules"]["multiVarDeclaration"]) {
+						array[index] = array[index].replace(",", ";\n" + array[0])
+					}
 				}
 			}
 
