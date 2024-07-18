@@ -2,7 +2,8 @@
     "Javascript": {
         "general": {
             "varDeclaration": ["var", "const", "let"],
-            "semiColon": true,
+            "semiColonBased": true,
+            "importMethod": ["import"],
             "classMemberIdentifier": "this",
             "methodDeclaration": "function",
             "commenting": {
@@ -23,7 +24,7 @@
                 },
                 "rules": {
                     "semiColonAlways": true,
-                    "multiDeclaration": false
+                    "multiVarDeclaration": false
                 },
                 "functionDoc": {
                     "position": "top",
@@ -35,11 +36,13 @@
     "Python": {
         "general": {
             "varDeclaration": [],
-            "semiColon": false,
+            "semiColonBased": false,
             "classMemberIdentifier": "self",
             "methodDeclaration": "def",
-            "singleComment": "#",
-            "multiLineComment": ["###","###"]
+            "commenting": {
+                "singleComment": "#",
+                "multiLineComment": ["###","###"]
+            }
         },
         "conventions": {
             "PEP 8": {
