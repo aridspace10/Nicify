@@ -38,7 +38,7 @@ class Logger {
 	}
 }
 
-const logger = new Logger("PEP 8");
+const logger = new Logger("google");
 
 function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
@@ -85,7 +85,7 @@ function convertToLiteral(str) {
 }
 
 function checkCasing(type, name, lineNum) {
-	newName = name[0];
+	newName = "";
 	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
@@ -306,9 +306,11 @@ function checkLine(language, line, lineNum, text) {
 				}
 			} else if (element === "\"") {
 				temp += "\'";
-			} else if (element === ";" && index + 1 !== newLine.lengh) {
-				temp += "\n";
-				temp += element;
+			} else if (element === ";" && index + 1 !== newLine.length) {
+				temp += ";\n";
+				if (newLine[index+1] === " ") {
+					index++;
+				}
 			} else {
 				temp += element
 			}
