@@ -291,22 +291,26 @@ function checkLine(language, line, lineNum, text) {
 		}
 
 		let newLine = indentation + array.join(" ");
-		let temp = ""
+		let temp = "";
 		let index = 0;
 		const allowed = ["<", ">", "!", " ", "="];
 		while (index < newLine.length) {
-			if (newLine[index] == "=") {
+			let element = newLine[index];
+			if (element == "=") {
 				if (!allowed.includes(newLine[index-1])) {
-					temp += " "
+					temp += " ";
 				}
-				temp += "="
+				temp += "=";
 				if (!allowed.includes(newLine[index+1])) {
-					temp += " "
+					temp += " ";
 				}
-			} else if (newLine[index] === "\"") {
-				temp += "\'"
+			} else if (element === "\"") {
+				temp += "\'";
+			} else if (element === ";" && index + 1 !== newLine.lengh) {
+				temp += "\n";
+				temp += element;
 			} else {
-				temp += newLine[index]
+				temp += element
 			}
 			index++;
 		}
