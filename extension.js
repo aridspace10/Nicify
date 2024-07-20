@@ -203,6 +203,21 @@ function checkJSDOC(text, funcLine, funcName, params) {
 	}
 }
 
+function checkLineLength(type, line) {
+	limit = logger.c_rules["limits"]["column"]
+	if (line.length <= limit) {
+		return line;
+	} else {
+		if (type === "variable") {
+			let split = line.split("=")
+			if (split[0].length <= limit && split[1].length <= limit) {
+				return split[0] + "\n=" + split[1]
+			}
+		}
+	}
+
+}
+
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
