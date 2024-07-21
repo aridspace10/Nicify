@@ -6,6 +6,7 @@ const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
+const OPERATORS = ["+","-","*","/","%", "**"];
 
 class Logger {
 	constructor(convention) {
@@ -204,18 +205,41 @@ function checkJSDOC(text, funcLine, funcName, params) {
 }
 
 function checkLineLength(type, line) {
-	limit = logger.c_rules["limits"]["column"]
+	let limit = logger.c_rules["limits"]["column"];
 	if (line.length <= limit) {
 		return line;
 	} else {
-		if (type === "variable") {
-			let split = line.split("=")
-			if (split[0].length <= limit && split[1].length <= limit) {
-				return split[0] + "\n=" + split[1]
+		let split = line.split("=")
+		if (type === "variable" && split[0].length <= limit && split[1].length <= limit) {
+			return split[0] + "\n=" + split[1]
+		} else {
+			let mod = "";
+			let current = "";
+			let array = line.split(" ");
+			let index = 0;
+			while (index < array.length) {
+				if ((current + array[index]).length < limit) {
+					if (OPERATORS.includes(array[index])) {
+						if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
+							mod += current;
+							current = array[index] + " ";
+						} else {
+							mod += current + array[index] + " "
+							current = "";
+						}
+					} else {
+						current += array[index] + " "
+					}
+				} else {
+					console.log("HEY");
+					mod += current + "\n";
+					current = array[index];
+				}
+        		index += 1
 			}
-		}
-	}
-
+			return mod
+    	}
+  	}
 }
 
 function checkLine(language, line, lineNum, text) {
