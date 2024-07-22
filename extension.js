@@ -204,6 +204,9 @@ function checkJSDOC(text, funcLine, funcName, params) {
 	}
 }
 
+/* checkLineLength
+
+*/
 function checkLineLength(type, line) {
 	let limit = logger.c_rules["limits"]["column"];
 	if (line.length <= limit) {
@@ -218,8 +221,11 @@ function checkLineLength(type, line) {
 			let array = line.split(" ");
 			let index = 0;
 			while (index < array.length) {
+				//if adding another element to the line doesn't cause it to go over
 				if ((current + array[index]).length < limit) {
+					//if element is an operation
 					if (OPERATORS.includes(array[index])) {
+						//if language roles say we should break before or after operation
 						if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
 							mod += current;
 							current = array[index] + " ";
@@ -231,13 +237,12 @@ function checkLineLength(type, line) {
 						current += array[index] + " "
 					}
 				} else {
-					console.log("HEY");
 					mod += current + "\n";
-					current = array[index];
+					current = array[index] + " ";
 				}
         		index += 1
 			}
-			return mod
+			return mod + current + '\n'
     	}
   	}
 }
