@@ -218,11 +218,14 @@ function checkLineLength(type, line) {
 		} else {
 			let mod = "";
 			let current = "";
+			let len = 0;
 			let array = line.split(" ");
 			let index = 0;
 			while (index < array.length) {
 				//if adding another element to the line doesn't cause it to go over
-				if ((current + array[index]).length < limit) {
+				if (len + array[index].length < limit) {
+					// added + 1 for " "
+					len += array[index].length + 1;
 					//if element is an operation
 					if (OPERATORS.includes(array[index])) {
 						//if language roles say we should break before or after operation
@@ -239,6 +242,7 @@ function checkLineLength(type, line) {
 				} else {
 					mod += current + "\n";
 					current = array[index] + " ";
+					len = current.length;
 				}
         		index += 1
 			}
