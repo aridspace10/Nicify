@@ -183,18 +183,24 @@ function checkSpacing(line) {
 
 function checkJSDOC(text, funcLine, funcName, params) {
 	let commentingRules = logger.g_rules["commenting"];
-	if (text[lineNum-1].includes(commentingRules["singleComment"]) || 
-		text[lineNum-1].includes(commentingRules["multiLineComment"][0]) || 
-		text[lineNum-1].includes(commentingRules["multiLineComment"][1])) 
+	if (text[funcLine-1].includes(commentingRules["singleComment"]) || 
+		text[funcLine-1].includes(commentingRules["multiLineComment"][0]) || 
+		text[funcLine-1].includes(commentingRules["multiLineComment"][1])) 
 	{
 		let index = funcLine;
 		while (!text[index].startsWith(commentingRules["multiLineComment"][0])) {
 			index -= 1;
 		}
 		let jsdoc = text.slice(index, funcLine).join(" ")
-		let position = 0;
-		while (jsdoc.indexOf("@param", position) !== -1) {
-			params.filter(item => item !== jsdoc[indexOf("@param", position)+1])
+		let position = 0
+		while (true) {
+			position = jsdoc.indexOf("@param", position)
+			// if no more @parmas exist
+			if (position === -1) {
+				break
+			}
+			// includes all except for the parameter found
+			params = params.filter(item => item !== jsdoc[position])
 		}
 		for (param of params) {
 			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param)
