@@ -276,17 +276,11 @@ function checkLine(language, line, lineNum, text) {
 			array.shift()
 		}
 
-		let maxLineLength = logger.c_rules["limits"]["column"]
 		if (array[0] == logger.g_rules["methodDeclaration"] || (array[0] == "async" && array[1] == logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
 			checkJSDOC(text, lineNum, info[0], info[1]);
 			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
-			if (line.length > maxLineLength) {
-				if (line.slice(line.indexOf("(")).length < maxLineLength) {
-					line = line.slice(0, line.indexOf("(")) + "\n" + indentation + line.slice(line.indexOf("(") + 1);
-				}
-			}
-			return line
+			return checkLineLength(line);
 		} else if (array.includes("=")) {
 			let equalsIndex = array.indexOf("=")
 			if (logger.g_rules["varDeclaration"].includes(array[0])) {
@@ -314,11 +308,7 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 
-			if (line.length > maxLineLength) {
-				if (array.slice(3).join(" ").length < maxLineLength) {
-					array[2] = "= \n";
-				}
-			}
+			line = checkLineLength(line);
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], lineNum)
 		} else if (array[0] == "import") {
@@ -326,7 +316,7 @@ function checkLine(language, line, lineNum, text) {
 			return "";
 		}
 
-		for (word in array) {
+		for (let word in array) {
 			let progress = "";
 			let index = 0;
 			while (index <= array[word].length) {
@@ -421,7 +411,7 @@ function activate(context) {
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup()
 		let new_text = [];
-		for (lineNum in info[1]) {
+		for (let lineNum in info[1]) {
 			new_text.push(checkLine(info[2], info[1][lineNum], lineNum, info[1]));
 		}
 		while (logger.constants.length) {
