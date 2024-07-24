@@ -10,14 +10,18 @@
     "Other"
   ],
   "activationEvents": [
-    "onCommand:nicify.helloWorld"
+    "onCommand:nicify.styleFix"
   ],
   "main": "./extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "nicify.helloWorld",
-        "title": "Hello World"
+        "command": "nicify.styleFix",
+        "title": "Style Fix"
+      },
+      {
+        "command": "nicify.styleNaming",
+        "title": "Style Naming Fix"
       }
     ]
   },
