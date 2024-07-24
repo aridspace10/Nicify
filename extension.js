@@ -6,7 +6,7 @@ const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
-const OPERATORS = ["+","-","*","/","%", "**"];
+const OPERATORS = ["+","-","*","/","%", "**", "&&", "||"];
 
 class Logger {
 	constructor(convention) {
@@ -214,47 +214,51 @@ function checkJSDOC(text, funcLine, funcName, params) {
 /* checkLineLength
 
 */
-function checkLineLength(type, line) {
+function checkLineLength(type, line, lineNum) {
 	let limit = logger.c_rules["limits"]["column"];
 	if (line.length <= limit) {
 		return line;
 	} else {
-		let split = line.split("=")
-		if (type === "variable" && split[0].length <= limit && split[1].length <= limit) {
-			return split[0] + "\n=" + split[1]
-		} else {
-			let mod = "";
-			let current = "";
-			let len = 0;
-			let array = line.split(" ");
-			let index = 0;
-			while (index < array.length) {
-				//if adding another element to the line doesn't cause it to go over
-				if (len + array[index].length < limit) {
-					// added + 1 for " "
-					len += array[index].length + 1;
-					//if element is an operation
-					if (OPERATORS.includes(array[index])) {
-						//if language roles say we should break before or after operation
-						if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
-							mod += current;
-							current = array[index] + " ";
+		if (logger.replace) {
+			let split = line.split("=")
+			if (type === "variable" && split[0].length <= limit && split[1].length <= limit) {
+				return split[0] + "\n=" + split[1]
+			} else {
+				let mod = "";
+				let current = "";
+				let len = 0;
+				let array = line.split(" ");
+				let index = 0;
+				while (index < array.length) {
+					//if adding another element to the line doesn't cause it to go over
+					if (len + array[index].length < limit) {
+						// added + 1 for " "
+						len += array[index].length + 1;
+						//if element is an operation
+						if (OPERATORS.includes(array[index])) {
+							//if language roles say we should break before or after operation
+							if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
+								mod += current;
+								current = array[index] + " ";
+							} else {
+								mod += current + array[index] + " "
+								current = "";
+							}
 						} else {
-							mod += current + array[index] + " "
-							current = "";
+							current += array[index] + " "
 						}
 					} else {
-						current += array[index] + " "
+						mod += current + "\n";
+						current = array[index] + " ";
+						len = current.length;
 					}
-				} else {
-					mod += current + "\n";
-					current = array[index] + " ";
-					len = current.length;
+					index += 1
 				}
-        		index += 1
+				return mod + current + '\n'
 			}
-			return mod + current + '\n'
-    	}
+		} else {
+			logger.report.addToReport("columnLength", lineNum)
+		}
   	}
 }
 
@@ -280,7 +284,7 @@ function checkLine(language, line, lineNum, text) {
 			const info = checkFuncNaming(array);
 			checkJSDOC(text, lineNum, info[0], info[1]);
 			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
-			return checkLineLength(line);
+			return checkLineLength("function", line, lineNum);
 		} else if (array.includes("=")) {
 			let equalsIndex = array.indexOf("=")
 			if (logger.g_rules["varDeclaration"].includes(array[0])) {
@@ -307,14 +311,13 @@ function checkLine(language, line, lineNum, text) {
 					}
 				}
 			}
-
-			line = checkLineLength(line);
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], lineNum)
 		} else if (array[0] == "import") {
 			logger.imports.push(line)
 			return "";
 		}
+		line = checkLineLength("variable", line, lineNum);
 
 		for (let word in array) {
 			let progress = "";
