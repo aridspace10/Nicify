@@ -20,7 +20,7 @@ class Logger {
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
 		if (typeChange == "Naming") {
-			this.report["naming"].push("Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}");
+			this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
 		}
 	}
 	createReport() {
@@ -59,7 +59,7 @@ String.prototype.isLowerCase = function() {
 
 function convertToLiteral(str) {
 	let index = 1;
-	let mod = "\'";
+	let mod = "\`";
 	while (index < str.length) {
 		if (str[index] == "\"" || str[index] == "\'") {
 			if (index + 1 === str.length) {
@@ -82,11 +82,11 @@ function convertToLiteral(str) {
 			mod += str[index]
 		}
 	}
-	return mod
+	return mod + "\`"
 }
 
 function checkCasing(type, name, lineNum) {
-	newName = "";
+	let newName = "";
 	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
