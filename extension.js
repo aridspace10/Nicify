@@ -16,6 +16,7 @@ class Logger {
 		this.starts = new Map()
 		this.imports = [];
 		this.constants = [];
+		this.replace = true;
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
@@ -389,6 +390,8 @@ function setup() {
 		logger.c_rules = data["conventions"][logger.conventions]
 		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
 		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
+		const settings = vscode.workspace.getConfiguration('myExtension');
+		logger.replace = settings.get("replace")
 		return [editor, text, language, data]
 	}
 }
