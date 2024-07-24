@@ -256,9 +256,8 @@ function checkLineLength(type, line, lineNum) {
 				}
 				return mod + current + '\n'
 			}
-		} else {
-			logger.report.addToReport("columnLength", lineNum)
 		}
+		logger.report.addToReport("columnLength", lineNum)
   	}
 }
 
@@ -290,6 +289,7 @@ function checkLine(language, line, lineNum, text) {
 			if (logger.g_rules["varDeclaration"].includes(array[0])) {
 				if (language == "Javascript" && array[0] == "var") {
 					array[0] = "let";
+					logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const")
 				}	
 			}
 			logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
@@ -403,32 +403,34 @@ function editDocument(editor, document, text) {
 			vscode.window.showErrorMessage('Failed to replace document content.');
 		}
 	});
-	logger.createReport()
 }
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-	commands = ["nicify.styleFix", "nicify.styleNaming"];
+	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup()
 		let new_text = [];
 		for (let lineNum in info[1]) {
 			new_text.push(checkLine(info[2], info[1][lineNum], lineNum, info[1]));
 		}
-		while (logger.constants.length) {
-			new_text.splice(0, 0, logger.constants[0] + "\n");
-			logger.constants.shift();
+		if (logger.replace) {
+			while (logger.constants.length) {
+				new_text.splice(0, 0, logger.constants[0] + "\n");
+				logger.constants.shift();
+			}
+			new_text.splice(0, 0, logger.constantHeader + "\n");
+			while (logger.imports.length) {
+				new_text.splice(0, 0, logger.imports[0] + "\n");
+				logger.imports.shift();
+			}
+			new_text.splice(0, 0, logger.importHeader + "\n");
+			new_text = new_text.join("")
+			editDocument(info[0], info[0].document, new_text);
 		}
-		new_text.splice(0, 0, logger.constantHeader + "\n");
-		while (logger.imports.length) {
-			new_text.splice(0, 0, logger.imports[0] + "\n");
-			logger.imports.shift();
-		}
-		new_text.splice(0, 0, logger.importHeader + "\n");
-		new_text = new_text.join("")
-		editDocument(info[0], info[0].document, new_text);
+		logger.createReport()
 	});
 	context.subscriptions.push(disposable);
 }
