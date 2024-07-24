@@ -203,7 +203,7 @@ function checkJSDOC(text, funcLine, funcName, params) {
 			// includes all except for the parameter found
 			params = params.filter(item => item !== jsdoc[position])
 		}
-		for (param of params) {
+		for (let param of params) {
 			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param)
 		}
 	} else {
@@ -276,7 +276,7 @@ function checkLine(language, line, lineNum, text) {
 			array.shift()
 		}
 
-		if (array[0] == logger.g_rules["methodDeclaration"] || (array[0] == "async" && array[1] == logger.g_rules["methodDeclaration"])) {
+		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
 			checkJSDOC(text, lineNum, info[0], info[1]);
 			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
@@ -372,7 +372,7 @@ function setup() {
 		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
 		const data = jsonData[language]
-		if (!(logger.conventions in data)) {
+		if (!(data.includes(logger.conventions))) {
 			vscode.window.showErrorMessage('Failed to replace document content.');
 			process.exit();
 		}
