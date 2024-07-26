@@ -335,6 +335,7 @@ function checkLine(language, line, lineNum, text) {
 
 				if (language === "Javascript" && progress == "require(") {
 					logger.imports.push(line)
+					return "";
 				}
 			}
 		}
@@ -361,6 +362,15 @@ function checkLine(language, line, lineNum, text) {
 				}
 			} else if (element === "\"") {
 				temp += "\'";
+			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
+				let num = "";
+				while (!isNaN(parseInt(newLine[index]))) {
+					temp += newLine[index];
+					num += newLine[index++];
+				}
+				vscode.window.showInformationMessage(`${num} should be defined`);
+				logger.addToReport("misc", lineNum, orginal = `${num} should be defined`);
+				continue;
 			} else {
 				temp += element
 			}
