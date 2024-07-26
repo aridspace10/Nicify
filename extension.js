@@ -9,10 +9,10 @@ const LOWER_CASE_EDGES = [97, 122];
 const OPERATORS = ["+","-","*","/","%", "**", "&&", "||"];
 
 class Logger {
-	constructor(convention) {
+	constructor() {
 		this.namingChanges = new Map();
 		this.report = {"naming": []};
-		this.conventions = convention;
+		this.conventions = "";
 		this.starts = new Map()
 		this.imports = [];
 		this.constants = [];
@@ -40,7 +40,7 @@ class Logger {
 	}
 }
 
-const logger = new Logger("google");
+const logger = new Logger();
 
 function addAtIndex(str, index, char) {
 	return str.slice(0, index) + char + str.slice(index, str.length);
@@ -387,6 +387,7 @@ function setup() {
 		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
 		const settings = vscode.workspace.getConfiguration('nicify');
 		logger.replace = settings.get("replace")
+		logger.conventions = logger.conventions ? logger.conventions : settings.get("convention")
 		return [editor, text, language, data]
 	}
 }
@@ -442,6 +443,7 @@ function deactivate() {}
 
 function determineLanguage(editor) {
 	if (editor.document.fileName.endsWith('.js')) {
+		logger.conventions = "google";
 		return "Javascript";
 	} else if (editor.document.fileName.endsWith('.py')) {
 		return "Python";
