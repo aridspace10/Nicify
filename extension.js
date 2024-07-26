@@ -264,7 +264,10 @@ function checkLineLength(type, line, lineNum) {
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.length == 2) {
-		return "}\n\n";
+		if (text[lineNum + 1] && text[lineNum + 1].length) {
+			return "}\n\n"
+		}
+		return "}\n";
 	}
 	
 	if (line.includes(logger.importHeader) || line.includes(logger.constantHeader)) {
@@ -354,11 +357,6 @@ function checkLine(language, line, lineNum, text) {
 				}
 			} else if (element === "\"") {
 				temp += "\'";
-			} else if (element === ";" && index + 1 !== newLine.length) {
-				temp += ";\n";
-				if (newLine[index+1] === " ") {
-					index++;
-				}
 			} else {
 				temp += element
 			}
@@ -411,7 +409,7 @@ function editDocument(editor, document, text) {
 function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
-		const info = setup()
+		const info = setup();
 		let new_text = [];
 		for (let lineNum in info[1]) {
 			new_text.push(checkLine(info[2], info[1][lineNum], lineNum, info[1]));
