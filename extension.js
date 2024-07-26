@@ -332,6 +332,10 @@ function checkLine(language, line, lineNum, text) {
 					array[word] = logger.namingChanges.get(progress) + array[word].slice(index);
 					break;
 				}
+
+				if (language === "Javascript" && progress == "require(") {
+					logger.imports.push(line)
+				}
 			}
 		}
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
