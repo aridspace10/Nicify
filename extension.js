@@ -70,21 +70,17 @@ String.prototype.count = function(search) {
 
 function convertToLiteral(str) {
 	let index = 1;
-	let mod = "\`";
+	let mod = "`";
 	let instring = true;
 	let opened = false;
-	vscode.window.showInformationMessage('string' + str);
 	while (index < str.length) {
-		vscode.window.showInformationMessage("Hello " + index);
-		if (str[index] === "\"" || str[index] === "\'") {
+		if (str[index] === "\"" || str[index] === "'") {
       		instring = !instring
-			if (index + 1 === str.length) {
-				mod += "\`"
-        		return mod;
-      		}
 			index += 1
 		} else {
-			if (instring) {
+			if (str[index] == ";") {
+				return mod + "\`;\n"
+			} else if (instring) {
 				mod += str[index++];
 			} else {
 				if (str[index] === "+") {
@@ -97,15 +93,16 @@ function convertToLiteral(str) {
 					}
 					index += 1
 				} else if (str[index] === " ") {
-						index += 1
+					index += 1
 				} else {
 					mod += str[index++];
 				}
 			}
 		}
-		
 	}
-	return (mod + "\`")
+	mod += "`";
+	vscode.window.showInformationMessage("Hello " + mod);
+	return (mod);
 }
 
 
@@ -329,9 +326,8 @@ function checkLine(language, line, lineNum, text) {
 			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
 				array.splice(equalsIndex + 1)
 				array.push(convertToLiteral(subject));
-				vscode.window.showInformationMessage('array' + array);
+				return indentation + array.join(" ")
 			}
-
 			
 			for (let index in array) {
 				if (language === "Javascript") {
