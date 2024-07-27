@@ -322,11 +322,17 @@ function checkLine(language, line, lineNum, text) {
 				logger.constants.push(array.join(" "));
 				return "";
 			}
+
 			let subject = array.slice(equalsIndex + 1).join(" ");
 			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
-				array.splice(equalsIndex + 1)
+				array.splice(equalsIndex + 1);
 				array.push(convertToLiteral(subject));
 				return indentation + array.join(" ")
+			}
+
+			if (/((let|const|var)\s(\w*)\s([=])\s(\S)[,])/.test(subject)) {
+				array.splice(equalsIndex + 1);
+				array.push(subject.replace(",", `;\n${array[0]}`))
 			}
 			
 			for (let index in array) {
@@ -334,9 +340,6 @@ function checkLine(language, line, lineNum, text) {
 					if (array[index - 1] === "new" && array[index].startsWith("Array")) {
 						array[index - 1] = "";
 						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
-					}
-					if (!logger.c_rules["rules"]["multiVarDeclaration"]) {
-						array[index] = array[index].replace(",", ";\n" + array[0])
 					}
 				}
 			}
