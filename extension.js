@@ -58,7 +58,7 @@ String.prototype.isLowerCase = function() {
 	})
 }
 
-String.prototype.count() = function(search) {
+String.prototype.count = function(search) {
 	let sum = 0;
     [...this].forEach((item) => {
         if (item === search) {
@@ -73,34 +73,39 @@ function convertToLiteral(str) {
 	let mod = "\`";
 	let instring = true;
 	let opened = false;
-	while (true) {
+	vscode.window.showInformationMessage('string' + str);
+	while (index < str.length) {
+		vscode.window.showInformationMessage("Hello " + index);
 		if (str[index] === "\"" || str[index] === "\'") {
       		instring = !instring
 			if (index + 1 === str.length) {
 				mod += "\`"
         		return mod;
       		}
-		index += 1
-    } else {
-		if (instring) {
-			mod += str[index++];
+			index += 1
 		} else {
-			if (str[index] === "+") {
-				if (!opened) {
-					mod += "${"
-					opened = true;
-				} else {
-					mod += "}"
-				}
-				index += 1
-				} else if (str[index] === " ") {
+			if (instring) {
+				mod += str[index++];
+			} else {
+				if (str[index] === "+") {
+					if (!opened) {
+						mod += "${"
+						opened = true;
+					} else {
+						mod += "}"
+						opened = false;   
+					}
 					index += 1
+				} else if (str[index] === " ") {
+						index += 1
 				} else {
 					mod += str[index++];
 				}
 			}
-    	}
+		}
+		
 	}
+	return (mod + "\`")
 }
 
 
@@ -320,6 +325,13 @@ function checkLine(language, line, lineNum, text) {
 				logger.constants.push(array.join(" "));
 				return "";
 			}
+			let subject = array.slice(equalsIndex + 1).join(" ");
+			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
+				array.splice(equalsIndex + 1)
+				array.push(convertToLiteral(subject));
+				vscode.window.showInformationMessage('array' + array);
+			}
+
 			
 			for (let index in array) {
 				if (language === "Javascript") {
