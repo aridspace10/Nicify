@@ -58,6 +58,16 @@ String.prototype.isLowerCase = function() {
 	})
 }
 
+String.prototype.count() = function(search) {
+	let sum = 0;
+    [...this].forEach((item) => {
+        if (item === search) {
+            sum++;
+        }
+    });
+    return sum;
+}
+
 function convertToLiteral(str) {
 	let index = 1;
 	let mod = "\`";
