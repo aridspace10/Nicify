@@ -422,8 +422,8 @@ function checkLine(language, line, lineNum, text) {
 				if (!allowed.includes(newLine[index+1])) {
 					temp += " ";
 				}
-			} else if (element === "\"") {
-				temp += "\'";
+			} else if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
+				temp += logger.c_rules["rules"]["preferQuotes"];
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
 				let num = "";
 				while (!isNaN(parseInt(newLine[index]))) {
