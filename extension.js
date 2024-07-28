@@ -8,6 +8,31 @@ const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
 const OPERATORS = ["+","-","*","/","%", "**", "&&", "||"];
 
+class Stack {
+	constructor() {
+		this.data = [];
+		this.length = 0;
+	}
+	push(item) {
+		this.data.unshift(item);
+		this.length++;
+	}
+	pop() {
+		if (!this.length) {
+			throw new Error("List is already empty")
+		}
+		let removed = this.data.shift();
+		this.length--;
+		return removed;
+	}
+	peek() {
+		if (!this.length) {
+			throw new Error("List is empty")
+		}
+		return this.data[0]
+	}
+}
+
 class Logger {
 	constructor() {
 		this.namingChanges = new Map();
@@ -432,7 +457,7 @@ function checkLine(language, line, lineNum, text) {
 				}
 				while (newLine[++index] === " ");
 				continue;
-			} else if (element === "(" || element === ")") {
+			} else if (element === "(" || element === ")" || element === "[" || element === "]") {
 				opened = !opened;
 				temp += element
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
