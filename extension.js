@@ -210,7 +210,7 @@ function checkFuncNaming(line) {
 		if (char == ",") {
 			params.push(checkNaming("variable", temp));
 			temp = "";
-		} else {
+		} else if (char !== " ") {
 			temp += char
 			if (char == ")") {
 				params.push(checkNaming("variable", temp));
@@ -324,7 +324,7 @@ function checkLine(language, line, lineNum, text) {
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
 			checkJSDOC(text, lineNum, info[0], info[1]);  
-			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n", lineNum);
+			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
 			if (line !== array.join) {
 				logger.addToReport("funcDec", lineNum, orginal, processed)
 			}
