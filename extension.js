@@ -22,14 +22,34 @@ class Logger {
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
 		switch (typeChange) {
 			case "Naming":
-				this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+				if (logger.replace) {
+					this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+				} else {
+					this.report["naming"].push(`You should change ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+				}
 			case "Misc":
 				this.report["Misc"].push(`${orginal} (declared at line: ${lineNum})`);
 			case "Literal":
-				this.report["Misc"].push(`Changed string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+				if (this.replace) {
+					this.report["Misc"].push(`Changed string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+				} else {
+					this.report["Misc"].push(`Should change string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+				}
 			case "funcDec":
-				this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
-		}
+				if (logger.replace) {
+					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
+				} else {
+					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`)
+				}
+			case "language":
+				if (original === "JS_ARRAY") {
+					if (logger.replace) {
+						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
+					} else {
+						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
+					}
+				} 
+			}
 	}
 	createReport() {
 		let content = "";
@@ -352,6 +372,7 @@ function checkLine(language, line, lineNum, text) {
 					if (array[index - 1] === "new" && array[index].startsWith("Array")) {
 						array[index - 1] = "";
 						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
+						logger.addToReport("Language", lineNum, original = "JS_ARRAY")
 					}
 				}
 			}
