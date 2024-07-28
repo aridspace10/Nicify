@@ -11,7 +11,7 @@ const OPERATORS = ["+","-","*","/","%", "**", "&&", "||"];
 class Logger {
 	constructor() {
 		this.namingChanges = new Map();
-		this.report = {"naming": []};
+		this.report = {"naming": [], "Misc": []};
 		this.conventions = "";
 		this.starts = new Map()
 		this.imports = [];
@@ -20,8 +20,15 @@ class Logger {
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
-		if (typeChange == "Naming") {
-			this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+		switch (typeChange) {
+			case "Naming":
+				this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+			case "Misc":
+				this.report["Misc"].push(`${orginal} (declared at line: ${lineNum})`);
+			case "Literal":
+				this.report["Misc"].push(`Changed string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+			case "funcDec":
+				this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
 		}
 	}
 	createReport() {
@@ -68,7 +75,7 @@ String.prototype.count = function(search) {
     return sum;
 }
 
-function convertToLiteral(str) {
+function convertToLiteral(str, lineNum) {
 	let index = 1;
 	let mod = "`";
 	let instring = true;
@@ -101,7 +108,7 @@ function convertToLiteral(str) {
 		}
 	}
 	mod += "`";
-	vscode.window.showInformationMessage("Hello " + mod);
+	logger.addToReport("Literal", lineNum, str, mod)
 	return (mod);
 }
 
@@ -133,7 +140,9 @@ function checkCasing(type, name, lineNum) {
 	}
 	return newName;
 }
-
+/* checkNaming
+This function checks the naming of the function for the first letter and runs check casing function to check rest of name
+*/
 function checkNaming(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"]
 	if (namingRules[type] == "LowerCamel" && name[0].isLowerCase()) {
@@ -304,9 +313,12 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
-			checkJSDOC(text, lineNum, info[0], info[1]);
-			line = logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n";  
-			return checkLineLength("function", line, lineNum);
+			checkJSDOC(text, lineNum, info[0], info[1]);  
+			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(",") + " {\n", lineNum);
+			if (line !== array.join) {
+				logger.addToReport("funcDec", lineNum, orginal, processed)
+			}
+			return line
 		} else if (array.includes("=")) {
 			let equalsIndex = array.indexOf("=")
 			if (logger.g_rules["varDeclaration"].includes(array[0])) {
@@ -326,7 +338,7 @@ function checkLine(language, line, lineNum, text) {
 			let subject = array.slice(equalsIndex + 1).join(" ");
 			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
 				array.splice(equalsIndex + 1);
-				array.push(convertToLiteral(subject));
+				array.push(convertToLiteral(subject, lineNum));
 				return indentation + array.join(" ")
 			}
 
@@ -397,8 +409,7 @@ function checkLine(language, line, lineNum, text) {
 					temp += newLine[index];
 					num += newLine[index++];
 				}
-				vscode.window.showInformationMessage(`${num} should be defined`);
-				logger.addToReport("misc", lineNum, orginal = `${num} should be defined`);
+				logger.addToReport("Misc", lineNum, orginal = `${num} should be defined`);
 				continue;
 			} else {
 				temp += element
