@@ -437,7 +437,7 @@ function checkLine(language, line, lineNum, text) {
 		let temp = "";
 		let index = 0;
 		const allowed = ["<", ">", "!", " ", "="];
-		let opened = false;
+		let opened = new Stack();
 		while (index < newLine.length) {
 			let element = newLine[index];
 			if (element == "=") {
@@ -450,15 +450,18 @@ function checkLine(language, line, lineNum, text) {
 				}
 			} else if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
 				temp += logger.c_rules["rules"]["preferQuotes"];
-			} else if ((element == ";" && index + 2 < newLine.length) || (element === "," && !opened)) {
+			} else if ((element == ";" && index + 2 < newLine.length) || (element === "," && !opened.length)) {
 				temp += ";\n" + indentation;
 				if (logger.g_rules["varDeclaration"]) {
 					temp += array[0] + " "
 				}
 				while (newLine[++index] === " ");
 				continue;
-			} else if (element === "(" || element === ")" || element === "[" || element === "]") {
-				opened = !opened;
+			} else if (element === "(" || element === "[") {
+				opened.push(element)
+				temp += element
+			} else if (element === "(" || element === "[") {
+				opened.pop()
 				temp += element
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
 				let num = "";
