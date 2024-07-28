@@ -37,12 +37,12 @@ class Logger {
 				}
 			case "funcDec":
 				if (logger.replace) {
-					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Changed function ${orginal} to ${processed} (declared at line: ${lineNum})`)
 				} else {
-					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Should change function ${orginal} to ${processed} (declared at line: ${lineNum})`)
 				}
 			case "language":
-				if (original === "JS_ARRAY") {
+				if (orginal === "JS_ARRAY") {
 					if (logger.replace) {
 						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
 					} else {
@@ -372,7 +372,7 @@ function checkLine(language, line, lineNum, text) {
 					if (array[index - 1] === "new" && array[index].startsWith("Array")) {
 						array[index - 1] = "";
 						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
-						logger.addToReport("Language", lineNum, original = "JS_ARRAY")
+						logger.addToReport("Language", lineNum, orginal = "JS_ARRAY")
 					}
 				}
 			}
@@ -424,6 +424,13 @@ function checkLine(language, line, lineNum, text) {
 				}
 			} else if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
 				temp += logger.c_rules["rules"]["preferQuotes"];
+			} else if (element == ";" && index + 2 < newLine.length) {
+				temp += ";\n" + indentation;
+				if (logger.g_rules["varDeclaration"]) {
+					temp += array[0] + " "
+				}
+				while (newLine[++index] === " ");
+				continue;
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
 				let num = "";
 				while (!isNaN(parseInt(newLine[index]))) {
