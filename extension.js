@@ -220,41 +220,6 @@ function checkFuncNaming(line) {
 	}
 	return [funcName, params];
 }
-function checkWhiteSpaces(language, line) {
-	let index = 0;
-	let new_line = "";
-	while (index != line.length) {
-		if (["+","=","-"].includes(line[index])) {
-			if (line[index - 1] != " ") {
-				new_line += " "
-			}
-			new_line += line[index]
-			if (line[index + 1] != " ") {
-				new_line += " "
-			}
-		} else {
-			new_line += line[index]
-		}
-		index++;
-	}
-	return new_line
-}
-
-function checkSpacing(line) {
-	let modified = "";
-	for (let i in line) {
-		let index = line[i].indexOf("=")
-		if (index === -1 || line[i] == "=") {
-			modified += line[i]
-		} else {
-			if (index === 0) {
-				modified += "= " + line[i].slice(1)
-			} else if (index == line[i].length - 1) {
-				modified += line[i].slice(0, line[i].length - 1) + " ="
-			}
-		}
-	}
-}
 
 function checkJSDOC(text, funcLine, funcName, params) {
 	let commentingRules = logger.g_rules["commenting"];
@@ -460,7 +425,7 @@ function checkLine(language, line, lineNum, text) {
 			} else if (element === "(" || element === "[") {
 				opened.push(element)
 				temp += element
-			} else if (element === "(" || element === "[") {
+			} else if (element === ")" || element === "]") {
 				opened.pop()
 				temp += element
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
