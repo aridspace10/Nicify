@@ -84,11 +84,13 @@ class Logger {
                 content += `${change}\n`;
             }
         }
-		fs.writeFile("demo.txt", content, "utf8", (error, data) => {
-			console.log("Write complete");
-			console.log(error);
-			console.log(data);
-		});
+		vscode.window.showInformationMessage('HEREEEEE');
+		try {
+			fs.writeFileSync('HelloThere.txt', 'Hello, world!');
+			console.log('File created and data written!');
+		} catch (err) {
+			console.error('Error creating file:', err);
+		}
 	}
 }
 
@@ -371,6 +373,14 @@ function checkLine(language, line, lineNum, text) {
 		} else if (array[0] == "import") {
 			logger.imports.push(line)
 			return "";
+		} else {
+			if (array.includes("return")) {
+				let nextLine = (text[lineNum + 1]).split(" ")
+				if (nextLine.includes("else") && !nextLine.includes("if")) {
+					vscode.window.showInformationMessage('Shoudn;t else after return');
+					logger.addToReport("Misc", lineNum, "ElseReturn");
+				}
+			}
 		}
 		line = checkLineLength("variable", line, lineNum);
 
@@ -492,7 +502,7 @@ function activate(context) {
 		const info = setup();
 		let new_text = [];
 		for (let lineNum in info[1]) {
-			new_text.push(checkLine(info[2], info[1][lineNum], lineNum, info[1]));
+			new_text.push(checkLine(info[2], info[1][parseInt(lineNum)], parseInt(lineNum), info[1]));
 		}
 		if (logger.replace) {
 			while (logger.constants.length) {
