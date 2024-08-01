@@ -122,6 +122,29 @@ String.prototype.count = function(search) {
     return sum;
 }
 
+function clangFormat(text) {
+	const formatted_text = [];
+	for (let line of text) {
+		let index = 0;
+		let modified = "";
+		while (index < line.length) {
+			if (line[index] === "i" && line[index + 1] === "f" && line[index + 2] !== " ") {
+				modified += "if "
+				index += 2
+			} else if (line[index] === "f" && line[index + 1] === "o" && line[index + 2] === "r" && line[index + 3] !== " ") {
+				modified += "for "
+				index += 3
+			} else if (line[index] === "w" && line[index + 1] === "h" && line[index + 2] === "i" && line[index + 3] === "l" 
+				&& line[index + 4] === "e" && line[index + 5] !== " ") {
+				modified += "while "
+				index += 5
+			}
+		}
+		formatted_text.push(modified)
+	}
+	return formatted_text;
+}
+
 function convertToLiteral(str, lineNum) {
 	let index = 1;
 	let mod = "`";
