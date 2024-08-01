@@ -269,8 +269,12 @@ function checkLineLength(type, line, lineNum) {
 				let current = "";
 				let len = 0;
 				let array = line.split(" ");
+				let instring = false;
 				let index = 0;
 				while (index < array.length) {
+					if (array[index].includes('"')) {
+						instring = !instring
+					}
 					//if adding another element to the line doesn't cause it to go over
 					if (len + array[index].length < limit) {
 						// added + 1 for " "
@@ -289,7 +293,11 @@ function checkLineLength(type, line, lineNum) {
 							current += array[index] + " "
 						}
 					} else {
-						mod += current + "\n";
+						if (instring) {
+							mod += current + "\"" + " + " + "\n"
+						} else {
+              				mod += current + "\n";
+            			}
 						current = array[index] + " ";
 						len = current.length;
 					}
