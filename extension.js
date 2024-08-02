@@ -42,6 +42,7 @@ class Logger {
 		this.imports = [];
 		this.constants = [];
 		this.replace = true;
+		this.exp_indentation = [];
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
@@ -284,7 +285,7 @@ function checkLineLength(type, line, lineNum) {
 		return line;
 	} else {
 		if (logger.replace) {
-			let split = line.split("=")
+			let split = line.split("=");
 			if (type === "variable" && split[0].length <= limit && split[1].length <= limit) {
 				return split[0] + "\n=" + split[1]
 			} else {
@@ -309,15 +310,15 @@ function checkLineLength(type, line, lineNum) {
 								mod += current;
 								current = array[index] + " ";
 							} else {
-								mod += current + array[index] + " "
+								mod += current + array[index] + " ";
 								current = "";
 							}
 						} else {
-							current += array[index] + " "
+							current += array[index] + " ";
 						}
 					} else {
 						if (instring) {
-							mod += current + "\"" + " + " + "\n"
+							mod += current + "\"" + " + " + "\n";
 						} else {
               				mod += current + "\n";
             			}
@@ -326,7 +327,7 @@ function checkLineLength(type, line, lineNum) {
 					}
 					index += 1
 				}
-				return mod + current + '\n'
+				return mod + current + '\n';
 			}
 		}
 		logger.report.addToReport("columnLength", lineNum)
@@ -335,6 +336,8 @@ function checkLineLength(type, line, lineNum) {
 
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
+	vscode.window.showInformationMessage(`${lineNum}: ${logger.exp_indentation.length}`)
+
 	if (line[0] === "}" && line.length == 2) {
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
 			return "}\n\n"
@@ -347,11 +350,24 @@ function checkLine(language, line, lineNum, text) {
 	}
 	
 	if (line.length && line.trim() != "") {
-		let indentation = "";
+		let indentation = [];
 		const array = line.split(" ");
 		while (array[0] == "") {
-			indentation += " "
+			indentation.push(" ")
 			array.shift()
+		}
+
+		if (indentation.length !== logger.exp_indentation.length) {
+			if (logger.replace) {
+				indentation = logger.exp_indentation;
+			}
+			logger.addToReport("Indentation", lineNum);
+		}
+
+		if (line.includes("}")) {
+			for (let i = 0; i < 4; i++) {
+				logger.exp_indentation.shift();
+			}
 		}
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
@@ -382,7 +398,7 @@ function checkLine(language, line, lineNum, text) {
 			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
 				array.splice(equalsIndex + 1);
 				array.push(convertToLiteral(subject, lineNum));
-				return indentation + array.join(" ")
+				return indentation.join("") + array.join(" ")
 			}
 
 			if (/((let|const|var)\s(\w*)\s([=])\s(\S)[,])/.test(subject)) {
@@ -408,7 +424,7 @@ function checkLine(language, line, lineNum, text) {
 			if (array.includes("return")) {
 				let nextLine = (text[lineNum + 1]).split(" ")
 				if (nextLine.includes("else") && !nextLine.includes("if")) {
-					vscode.window.showInformationMessage('Shoudn;t else after return');
+					vscode.window.showInformationMessage('Shoudn\'t else after return');
 					logger.addToReport("Misc", lineNum, "ElseReturn");
 				}
 			}
@@ -439,7 +455,12 @@ function checkLine(language, line, lineNum, text) {
 			}
 		}
 
-		let newLine = indentation + array.join(" ");
+		let newLine = indentation.join("") + array.join(" ");
+
+		if (line.includes("{")) {
+			logger.exp_indentation.push(" ".repeat(4))
+		}
+
 		let temp = "";
 		let index = 0;
 		const allowed = ["<", ">", "!", " ", "="];
