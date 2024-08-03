@@ -336,9 +336,9 @@ function checkLineLength(type, line, lineNum) {
 
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-	vscode.window.showInformationMessage(`${lineNum}: ${logger.exp_indentation.length}`)
 
-	if (line[0] === "}" && line.length == 2) {
+	if (line[0] === "}" && line.trim().length === 2) {
+		logger.exp_indentation = []
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
 			return "}\n\n"
 		}
@@ -357,17 +357,18 @@ function checkLine(language, line, lineNum, text) {
 			array.shift()
 		}
 
+		if (line.includes("}")) {
+			for (let i = 0; i < 4; i++) {
+				logger.exp_indentation.pop();
+				vscode.window.showInformationMessage("Expected indentation: " + logger.exp_indentation.length)
+			}
+		}
+
 		if (indentation.length !== logger.exp_indentation.length) {
 			if (logger.replace) {
 				indentation = logger.exp_indentation;
 			}
 			logger.addToReport("Indentation", lineNum);
-		}
-
-		if (line.includes("}")) {
-			for (let i = 0; i < 4; i++) {
-				logger.exp_indentation.shift();
-			}
 		}
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
@@ -458,7 +459,10 @@ function checkLine(language, line, lineNum, text) {
 		let newLine = indentation.join("") + array.join(" ");
 
 		if (line.includes("{")) {
-			logger.exp_indentation.push(" ".repeat(4))
+			for (let i = 0; i < 4; i++) {
+				logger.exp_indentation.push(" ".repeat(4))
+				vscode.window.showInformationMessage('Expect Length: ' + logger.exp_indentation.length);
+			}
 		}
 
 		let temp = "";
