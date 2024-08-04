@@ -130,30 +130,34 @@ function clangFormat(text) {
 		let modified = "";
 		let len = line.length;
 		while (index < len) {
-			if (len > index + 2 && line[index] === "i" && line[index + 1] === "f" && line[index + 2] !== " ") {
+			if (len > index + 2 && line.substr(index, index + 2) === "if" && line[index + 2] !== " ") {
 				modified += "if "
 				index += 2
-			} else if (len > index + 3 && line[index] === "f" && line[index + 1] === "o" && 
-				line[index + 2] === "r" && line[index + 3] !== " ") {
+			} else if (len > index + 3 && line.substr(index, index + 3) === "for" && line[index + 3] !== " ") {
 				modified += "for "
 				index += 3
-			} else if (len > index + 5 && line[index] === "w" && line[index + 1] === "h" && line[index + 2] === "i" 
-				&& line[index + 3] === "l" && line[index + 4] === "e" && line[index + 5] !== " ") {
+			} else if (len > index + 5 && line.substr(index, index + 5) === "while" && line[index + 5] !== " ") {
 				modified += "while "
 				index += 5
 			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
 				index++;
 			} else if (OPERATORS.includes(line[index])) {
-				if (!OPERATORS.includes(line[index-1] && line[index-1] !== " ")) {
-					modified += " ";
-				}
-
-				modified += line[index++]
-
+				if (line[index-1] != " ") {
+          modified += " "
+        }
+        while (OPERATORS.includes(line[index])) {
+          modified += line[index++]
+        }
 				if (!OPERATORS.includes(line[index] && line[index] !== " ")) {
 					modified += " ";
 				}
-			}
+			} else if (line[index] === ")" && line[index+1] === "{") {
+        modified += ") "
+        index++;
+
+      } else {
+        modified += line[index++]
+      }
 		}
 		formatted_text.push(modified)
 	}
@@ -441,12 +445,6 @@ function checkLine(language, line, lineNum, text) {
 				array.splice(equalsIndex + 1);
 				array.push(convertToLiteral(subject, lineNum));
 				return indentation.join("") + array.join(" ")
-			}
-
-			// check for multi decleration using regex
-			if (/((let|const|var)\s(\w*)\s([=])\s(\S)[,])/.test(subject)) {
-				array.splice(equalsIndex + 1);
-				array.push(subject.replace(",", `;\n${array[0]}`))
 			}
 			
 			for (let index in array) {
