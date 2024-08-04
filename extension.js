@@ -128,17 +128,31 @@ function clangFormat(text) {
 	for (let line of text) {
 		let index = 0;
 		let modified = "";
-		while (index < line.length) {
-			if (line[index] === "i" && line[index + 1] === "f" && line[index + 2] !== " ") {
+		let len = line.length;
+		while (index < len) {
+			if (len > index + 2 && line[index] === "i" && line[index + 1] === "f" && line[index + 2] !== " ") {
 				modified += "if "
 				index += 2
-			} else if (line[index] === "f" && line[index + 1] === "o" && line[index + 2] === "r" && line[index + 3] !== " ") {
+			} else if (len > index + 3 && line[index] === "f" && line[index + 1] === "o" && 
+				line[index + 2] === "r" && line[index + 3] !== " ") {
 				modified += "for "
 				index += 3
-			} else if (line[index] === "w" && line[index + 1] === "h" && line[index + 2] === "i" && line[index + 3] === "l" 
-				&& line[index + 4] === "e" && line[index + 5] !== " ") {
+			} else if (len > index + 5 && line[index] === "w" && line[index + 1] === "h" && line[index + 2] === "i" 
+				&& line[index + 3] === "l" && line[index + 4] === "e" && line[index + 5] !== " ") {
 				modified += "while "
 				index += 5
+			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
+				index++;
+			} else if (OPERATORS.includes(line[index])) {
+				if (!OPERATORS.includes(line[index-1] && line[index-1] !== " ")) {
+					modified += " ";
+				}
+
+				modified += line[index++]
+
+				if (!OPERATORS.includes(line[index] && line[index] !== " ")) {
+					modified += " ";
+				}
 			}
 		}
 		formatted_text.push(modified)
