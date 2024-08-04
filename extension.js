@@ -160,6 +160,12 @@ function clangFormat(text) {
 	return formatted_text;
 }
 
+/* convertToLiteral
+This function will take in a string and convert it to a template literal
+Parameters:
+ @param str - the string to be modifed
+ @param lineNum - the number of the line where str defined
+*/
 function convertToLiteral(str, lineNum) {
 	let index = 1;
 	let mod = "`";
@@ -197,7 +203,13 @@ function convertToLiteral(str, lineNum) {
 	return (mod);
 }
 
-
+/* checkCasing
+This function will check the casing of the variable name and its conforms to given rules
+Parameters:
+ @param type - a string representing the type of name
+ @param name - the name of the variable
+ @param lineNum - the number of the line where the variable was declared
+*/
 function checkCasing(type, name, lineNum) {
 	let newName = "";
 	let namingRules = logger.c_rules["naming"]
@@ -238,7 +250,9 @@ function checkNaming(type, name, lineNum) {
 	}
 	return checkCasing(type, name, lineNum);
 }
-
+/* checkFuncNaming
+This function checks the naming of function and also the parameters given in
+*/
 function checkFuncNaming(line) {
 	const chars = line.join(" ").split("")
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
@@ -291,7 +305,12 @@ function checkJSDOC(text, funcLine, funcName, params) {
 }
 
 /* checkLineLength
-
+This function which will take in a line and will validate the line number and 
+implent line wrapping if needed
+Parameters:
+ @param type - the type of code decleration given in
+ @param line - the line which will be check
+ @param lineNum - the number of the line it is on in the codebase
 */
 function checkLineLength(type, line, lineNum) {
 	let limit = logger.c_rules["limits"]["column"];
@@ -348,6 +367,14 @@ function checkLineLength(type, line, lineNum) {
   	}
 }
 
+/* checkLine
+This function checks a given line for incorrect styling and will return a reformatted text
+Parameters:
+ @param language - A string which is the language the code is written in
+ @param line - A string the content of the line which will be checked
+ @param lineNum - An integer which is the number of the line 
+ @param text - An array which conistr of the entire code text split by line
+*/
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 
@@ -416,6 +443,7 @@ function checkLine(language, line, lineNum, text) {
 				return indentation.join("") + array.join(" ")
 			}
 
+			// check for multi decleration using regex
 			if (/((let|const|var)\s(\w*)\s([=])\s(\S)[,])/.test(subject)) {
 				array.splice(equalsIndex + 1);
 				array.push(subject.replace(",", `;\n${array[0]}`))
