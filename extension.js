@@ -143,28 +143,28 @@ function clangFormat(text) {
 				index++;
 			} else if (OPERATORS.includes(line[index])) {
 				if (line[index-1] != " ") {
-          modified += " "
-        }
-        while (OPERATORS.includes(line[index])) {
-          modified += line[index++]
-        }
+          			modified += " "
+				}
+				while (OPERATORS.includes(line[index])) {
+					modified += line[index++]
+				}
 				if (!OPERATORS.includes(line[index] && line[index] !== " ")) {
 					modified += " ";
 				}
 			} else if (line[index] === ")" && line[index+1] === "{") {
-        modified += ") "
-        index++;
+				modified += ") "
+				index++;
 
-      } else {
-        modified += line[index++]
-      }
+			} else {
+				modified += line[index++]
+			}
 		}
 		formatted_text.push(modified)
 	}
 	return formatted_text;
 }
 
-/* convertToLiteral
+/** convertToLiteral
 This function will take in a string and convert it to a template literal
 Parameters:
  @param str - the string to be modifed
@@ -241,7 +241,7 @@ function checkCasing(type, name, lineNum) {
 	}
 	return newName;
 }
-/* checkNaming
+/** checkNaming
 This function checks the naming of the function for the first letter and runs check casing function to check rest of name
 */
 function checkNaming(type, name, lineNum) {
@@ -308,7 +308,7 @@ function checkJSDOC(text, funcLine, funcName, params) {
 	}
 }
 
-/* checkLineLength
+/** checkLineLength
 This function which will take in a line and will validate the line number and 
 implent line wrapping if needed
 Parameters:
@@ -371,7 +371,7 @@ function checkLineLength(type, line, lineNum) {
   	}
 }
 
-/* checkLine
+/** checkLine
 This function checks a given line for incorrect styling and will return a reformatted text
 Parameters:
  @param language - A string which is the language the code is written in
@@ -410,9 +410,9 @@ function checkLine(language, line, lineNum, text) {
 		}
 
 		if (indentation.length !== logger.exp_indentation.length) {
-			if (logger.replace) {
+			/*if (logger.replace) {
 				indentation = logger.exp_indentation;
-			}
+			}*/
 			logger.addToReport("Indentation", lineNum);
 		}
 
@@ -432,8 +432,10 @@ function checkLine(language, line, lineNum, text) {
 					logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const")
 				}	
 			}
+
 			logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
 			array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
+
 			// Check if constant
 			if (array[equalsIndex - 1].isUpperCase()) {
 				logger.constants.push(array.join(" "));
@@ -487,6 +489,10 @@ function checkLine(language, line, lineNum, text) {
 					logger.imports.push(line)
 					return "";
 				}
+			}
+
+			if (language === "Javascript" && (word === "==" || word === "!=")) {
+				array[word] += "="
 			}
 		}
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
@@ -596,8 +602,10 @@ function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup();
+		const formatted_text = clangFormat(info[1]);
+		vscode.window.showInformationMessage("Formatted Text: " + formatted_text)
 		let new_text = [];
-		for (let lineNum in info[1]) {
+		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], info[1][parseInt(lineNum)], parseInt(lineNum), info[1]));
 		}
 		if (logger.replace) {
