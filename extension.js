@@ -382,6 +382,43 @@ function checkLineLength(type, line, lineNum) {
   	}
 }
 
+function checkVarDecleration(array, language, lineNum, indentation) {
+	let equalsIndex = array.indexOf("=")
+	if (logger.g_rules["varDeclaration"].includes(array[0])) {
+		if (language == "Javascript" && array[0] == "var") {
+			array[0] = "let";
+			logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const");
+		}	
+	}
+	
+	logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
+	array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
+
+	// Check if constant
+	if (array[equalsIndex - 1].isUpperCase()) {
+		logger.constants.push(array.join(" "));
+		return "";
+	}
+
+	let subject = array.slice(equalsIndex + 1).join(" ");
+	if (subject.count("\"") > 2 || subject.count("\'") > 2) {
+		array.splice(equalsIndex + 1);
+		array.push(convertToLiteral(subject, lineNum));
+		return indentation.join("") + array.join(" ");
+	}
+	
+	for (let index in array) {
+		if (language === "Javascript") {
+			if (array[index - 1] === "new" && array[index].startsWith("Array")) {
+				array[index - 1] = "";
+				array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
+				logger.addToReport("Language", lineNum, orginal = "JS_ARRAY");
+			}
+		}
+	}
+	return array
+}
+
 /** checkLine
 This function checks a given line for incorrect styling and will return a reformatted text
 Parameters:
@@ -407,7 +444,7 @@ function checkLine(language, line, lineNum, text) {
 	
 	if (line.length && line.trim() != "") {
 		let indentation = [];
-		const array = line.split(" ");
+		let array = line.split(" ");
 		while (array[0] == "") {
 			indentation.push(" ")
 			array.shift()
@@ -432,47 +469,15 @@ function checkLine(language, line, lineNum, text) {
 			checkJSDOC(text, lineNum, info[0], info[1]);  
 			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
 			if (line !== array.join) {
-				logger.addToReport("funcDec", lineNum)
+				logger.addToReport("funcDec", lineNum);
 			}
 			return line
 		} else if (array.includes("=")) {
-			let equalsIndex = array.indexOf("=")
-			if (logger.g_rules["varDeclaration"].includes(array[0])) {
-				if (language == "Javascript" && array[0] == "var") {
-					array[0] = "let";
-					logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const")
-				}	
-			}
-			
-			logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
-			array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
-
-			// Check if constant
-			if (array[equalsIndex - 1].isUpperCase()) {
-				logger.constants.push(array.join(" "));
-				return "";
-			}
-
-			let subject = array.slice(equalsIndex + 1).join(" ");
-			if (subject.count("\"") > 2 || subject.count("\'") > 2) {
-				array.splice(equalsIndex + 1);
-				array.push(convertToLiteral(subject, lineNum));
-				return indentation.join("") + array.join(" ")
-			}
-			
-			for (let index in array) {
-				if (language === "Javascript") {
-					if (array[index - 1] === "new" && array[index].startsWith("Array")) {
-						array[index - 1] = "";
-						array[index] = "[" + array[index].slice("Array(".length, array[index].indexOf(")")) + "];";
-						logger.addToReport("Language", lineNum, orginal = "JS_ARRAY")
-					}
-				}
-			}
+			array = checkVarDecleration(array, language, lineNum, indentation)
 		} else if (array[0] == "class") {
 			array[1] = checkNaming("class", array[1], lineNum)
 		} else if (array[0] == "import") {
-			logger.imports.push(line)
+			logger.imports.push(line);
 			return "";
 		} else {
 			if (array.includes("return")) {
@@ -518,7 +523,6 @@ function checkLine(language, line, lineNum, text) {
 		if (line.includes("{")) {
 			for (let i = 0; i < 4; i++) {
 				logger.exp_indentation.push(" ".repeat(4))
-				vscode.window.showInformationMessage('Expect Length: ' + logger.exp_indentation.length);
 			}
 		}
 
@@ -567,10 +571,6 @@ function setup() {
 		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
 		const data = jsonData[language]
-		/*if (!(data.hasOwnProperty(logger.conventions))) {
-			vscode.window.showErrorMessage('Failed to replace document content.');
-			process.exit();
-		}*/
 		logger.g_rules = data["general"]
 		logger.c_rules = data["conventions"][logger.conventions]
 		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
