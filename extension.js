@@ -151,13 +151,13 @@ function clangFormat(text) {
 			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
 				index++;
 			} else if (OPERATORS.includes(line[index])) {
-				if (line[index-1] != " ") {
+				if (line[index-1] !== " ") {
           			modified += " "
 				}
 				while (OPERATORS.includes(line[index])) {
 					modified += line[index++]
 				}
-				if (!OPERATORS.includes(line[index] && line[index] !== " ")) {
+				if (!OPERATORS.includes(line[index]) && line[index] !== " ") {
 					modified += " ";
 				}
 			} else if (line[index] !== " " && line[index+1] === "{") {
@@ -453,7 +453,7 @@ function checkLine(language, line, lineNum, text) {
 		if (line.includes("}")) {
 			for (let i = 0; i < 4; i++) {
 				logger.exp_indentation.pop();
-				vscode.window.showInformationMessage("Expected indentation: " + logger.exp_indentation.length)
+				//vscode.window.showInformationMessage("Expected indentation: " + logger.exp_indentation.length)
 			}
 		}
 
