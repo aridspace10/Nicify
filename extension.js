@@ -6,7 +6,7 @@ const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
-const OPERATORS = ["+","-","*","/","%", "**", "&&", "||"];
+const OPERATORS = ["=","+","-","*","/","%", "**", "&&", "||"];
 
 class Stack {
 	constructor() {
@@ -128,15 +128,24 @@ function clangFormat(text) {
 	for (let line of text) {
 		let index = 0;
 		let modified = "";
+		let charFound = false;
 		let len = line.length;
+		let indentation = [];
 		while (index < len) {
-			if (len > index + 2 && line.substr(index, index + 2) === "if" && line[index + 2] !== " ") {
+			if (!charFound) {
+				if (line[index] === " ") {
+					indentation.push(" ")
+					index++;
+				} else {
+					charFound = true;
+				}
+		 	} else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
 				modified += "if "
 				index += 2
-			} else if (len > index + 3 && line.substr(index, index + 3) === "for" && line[index + 3] !== " ") {
+			} else if (len > index + 3 && line.substr(index, 3) === "for" && line[index + 3] !== " ") {
 				modified += "for "
 				index += 3
-			} else if (len > index + 5 && line.substr(index, index + 5) === "while" && line[index + 5] !== " ") {
+			} else if (len > index + 5 && line.substr(index, 5) === "while" && line[index + 5] !== " ") {
 				modified += "while "
 				index += 5
 			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
@@ -151,15 +160,17 @@ function clangFormat(text) {
 				if (!OPERATORS.includes(line[index] && line[index] !== " ")) {
 					modified += " ";
 				}
-			} else if (line[index] === ")" && line[index+1] === "{") {
-				modified += ") "
+			} else if (line[index] !== " " && line[index+1] === "{") {
+				modified += line[index] + " "
 				index++;
-
+			} else if (line[index] === "}" && line[index + 1] !== " ") {
+				modified += "} "
+				index++;
 			} else {
 				modified += line[index++]
 			}
 		}
-		formatted_text.push(modified)
+		formatted_text.push(indentation.join("") + modified.trim())
 	}
 	return formatted_text;
 }
@@ -421,7 +432,7 @@ function checkLine(language, line, lineNum, text) {
 			checkJSDOC(text, lineNum, info[0], info[1]);  
 			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
 			if (line !== array.join) {
-				logger.addToReport("funcDec", lineNum, orginal, processed)
+				logger.addToReport("funcDec", lineNum)
 			}
 			return line
 		} else if (array.includes("=")) {
@@ -432,7 +443,7 @@ function checkLine(language, line, lineNum, text) {
 					logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const")
 				}	
 			}
-
+			
 			logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
 			array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
 
@@ -517,15 +528,7 @@ function checkLine(language, line, lineNum, text) {
 		let opened = new Stack();
 		while (index < newLine.length) {
 			let element = newLine[index];
-			if (element == "=") {
-				if (!allowed.includes(newLine[index-1])) {
-					temp += " ";
-				}
-				temp += "=";
-				if (!allowed.includes(newLine[index+1])) {
-					temp += " ";
-				}
-			} else if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
+			if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
 				temp += logger.c_rules["rules"]["preferQuotes"];
 			} else if ((element == ";" && index + 2 < newLine.length) || (element === "," && !opened.length)) {
 				temp += ";\n" + indentation;
@@ -606,7 +609,7 @@ function activate(context) {
 		vscode.window.showInformationMessage("Formatted Text: " + formatted_text)
 		let new_text = [];
 		for (let lineNum in formatted_text) {
-			new_text.push(checkLine(info[2], info[1][parseInt(lineNum)], parseInt(lineNum), info[1]));
+			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
 		}
 		if (logger.replace) {
 			while (logger.constants.length) {
