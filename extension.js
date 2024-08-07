@@ -512,10 +512,12 @@ function checkLine(language, line, lineNum, text) {
 			}
 		}
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
-			let last = array[array.length - 1].slice(0,-1);
+			let last = array.at(-1);
+			vscode.window.showInformationMessage(`line: ${lineNum} last: ${last}`)
 			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
-				array[array.length - 1] = last + ";\n";
+				array[array.length-1] = last + ";";
 			}
+			array[array.length-1] += "\n"
 		}
 
 		let newLine = indentation.join("") + array.join(" ");
