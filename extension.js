@@ -6,7 +6,7 @@ const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
-const OPERATORS = ["=","+","-","*","/","%", "**", "&&", "||"];
+const OPERATORS = ["=",">","+","-","*","/","%", "**", "&&", "||"];
 
 class Stack {
 	constructor() {
@@ -502,20 +502,21 @@ function checkLine(language, line, lineNum, text) {
 					break;
 				}
 
-				if (language === "Javascript" && progress == "require(") {
+				if (language === "Javascript" && progress === "require(") {
 					logger.imports.push(line)
 					return "";
 				}
 			}
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
-				vscode.window.showInformationMessage("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ")
 				array[word] += "="
 			}
 		}
+
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
 			let last = array.at(-1);
-			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
+			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}") && 
+			!last.endsWith("(") && !(text[lineNum + 1].trim()[0] === ".")) {
 				array[array.length-1] = last + ";";
 			}
 			array[array.length-1] += "\n"
