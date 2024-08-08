@@ -103,13 +103,13 @@ function addAtIndex(str, index, char) {
 
 String.prototype.isUpperCase = function() {
 	return [...this].every((char) => {
-		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]
+		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1];
 	})
 }
 
 String.prototype.isLowerCase = function() {
 	return [...this].every((char) => {
-		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[1]
+		return char.charCodeAt(0) >= LOWER_CASE_EDGES[0] && char.charCodeAt(0) < LOWER_CASE_EDGES[1];
 	})
 }
 
@@ -140,37 +140,37 @@ function clangFormat(text) {
 					charFound = true;
 				}
 		 	} else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
-				modified += "if "
-				index += 2
+				modified += "if ";
+				index += 2;
 			} else if (len > index + 3 && line.substr(index, 3) === "for" && line[index + 3] !== " ") {
-				modified += "for "
-				index += 3
+				modified += "for ";
+				index += 3;
 			} else if (len > index + 5 && line.substr(index, 5) === "while" && line[index + 5] !== " ") {
-				modified += "while "
-				index += 5
+				modified += "while ";
+				index += 5;
 			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
 				index++;
 			} else if (OPERATORS.includes(line[index])) {
 				if (line[index-1] !== " ") {
-          			modified += " "
+          			modified += " ";
 				}
 				while (OPERATORS.includes(line[index])) {
-					modified += line[index++]
+					modified += line[index++];
 				}
 				if (!OPERATORS.includes(line[index]) && line[index] !== " ") {
 					modified += " ";
 				}
 			} else if (line[index] !== " " && line[index+1] === "{") {
-				modified += line[index] + " "
+				modified += line[index] + " ";
 				index++;
 			} else if (line[index] === "}" && line[index + 1] !== " ") {
-				modified += "} "
+				modified += "} ";
 				index++;
 			} else {
-				modified += line[index++]
+				modified += line[index++];
 			}
 		}
-		formatted_text.push(indentation.join("") + modified.trim())
+		formatted_text.push(indentation.join("") + modified.trim());
 	}
 	return formatted_text;
 }
@@ -188,25 +188,25 @@ function convertToLiteral(str, lineNum) {
 	let opened = false;
 	while (index < str.length) {
 		if (str[index] === "\"" || str[index] === "'") {
-      		instring = !instring
-			index += 1
+      		instring = !instring;
+			index += 1;
 		} else {
 			if (str[index] == ";") {
-				return mod + "\`;\n"
+				return mod + "\`;\n";
 			} else if (instring) {
 				mod += str[index++];
 			} else {
 				if (str[index] === "+") {
 					if (!opened) {
-						mod += "${"
+						mod += "${";
 						opened = true;
 					} else {
-						mod += "}"
+						mod += "}";
 						opened = false;   
 					}
-					index += 1
+					index += 1;
 				} else if (str[index] === " ") {
-					index += 1
+					index += 1;
 				} else {
 					mod += str[index++];
 				}
@@ -214,7 +214,7 @@ function convertToLiteral(str, lineNum) {
 		}
 	}
 	mod += "`";
-	logger.addToReport("Literal", lineNum, str, mod)
+	logger.addToReport("Literal", lineNum, str, mod);
 	return (mod);
 }
 
@@ -227,12 +227,12 @@ Parameters:
 */
 function checkCasing(type, name, lineNum) {
 	let newName = "";
-	let namingRules = logger.c_rules["naming"]
+	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] == "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
 			if (name[i].isUpperCase()) {
-				newName += "_" + name[i].toLowerCase()
+				newName += "_" + name[i].toLowerCase();
 			} else {
 				newName += name[i];
 			}
@@ -300,22 +300,22 @@ function checkJSDOC(text, funcLine, funcName, params) {
 		while (!text[index].startsWith(commentingRules["multiLineComment"][0])) {
 			index -= 1;
 		}
-		let jsdoc = text.slice(index, funcLine).join(" ")
-		let position = 0
+		let jsdoc = text.slice(index, funcLine).join(" ");
+		let position = 0;
 		while (true) {
-			position = jsdoc.indexOf("@param", position)
+			position = jsdoc.indexOf("@param", position);
 			// if no more @parmas exist
 			if (position === -1) {
-				break
+				break;
 			}
 			// includes all except for the parameter found
-			params = params.filter(item => item !== jsdoc[position])
+			params = params.filter(item => item !== jsdoc[position]);
 		}
 		for (let param of params) {
-			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param)
+			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param);
 		}
 	} else {
-		logger.addToReport("JSDoc", funcLine, orginal = funcName)
+		logger.addToReport("JSDoc", funcLine, orginal = funcName);
 	}
 }
 
@@ -335,7 +335,7 @@ function checkLineLength(type, line, lineNum) {
 		if (logger.replace) {
 			let split = line.split("=");
 			if (type === "variable" && split[0].length <= limit && split[1].length <= limit) {
-				return split[0] + "\n=" + split[1]
+				return split[0] + "\n=" + split[1];
 			} else {
 				let mod = "";
 				let current = "";
@@ -345,7 +345,7 @@ function checkLineLength(type, line, lineNum) {
 				let index = 0;
 				while (index < array.length) {
 					if (array[index].includes('"')) {
-						instring = !instring
+						instring = !instring;
 					}
 					//if adding another element to the line doesn't cause it to go over
 					if (len + array[index].length < limit) {
@@ -373,12 +373,12 @@ function checkLineLength(type, line, lineNum) {
 						current = array[index] + " ";
 						len = current.length;
 					}
-					index += 1
+					index += 1;
 				}
 				return mod + current + '\n';
 			}
 		}
-		logger.report.addToReport("columnLength", lineNum)
+		logger.report.addToReport("columnLength", lineNum);
   	}
 }
 
@@ -391,6 +391,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		}	
 	}
 	
+	// add variable to naming changes to keep track of naming changes and change as needed
 	logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
 	array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
 
@@ -400,6 +401,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		return "";
 	}
 
+	// check for use of not using template literal
 	let subject = array.slice(equalsIndex + 1).join(" ");
 	if (subject.count("\"") > 2 || subject.count("\'") > 2) {
 		array.splice(equalsIndex + 1);
@@ -519,6 +521,7 @@ function checkLine(language, line, lineNum, text) {
 
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
 			let last = array.at(-1);
+			// check if there should be a ; added at the end 
 			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}") && 
 			!last.endsWith("(") && !(text[lineNum + 1].trim()[0] === ".")) {
 				array[array.length-1] = last + ";";
