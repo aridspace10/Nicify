@@ -449,6 +449,7 @@ function checkLine(language, line, lineNum, text) {
 			indentation.push(" ")
 			array.shift()
 		}
+		vscode.window.showInformationMessage("Array: " + array)
 
 		if (line.includes("}")) {
 			for (let i = 0; i < 4; i++) {
@@ -507,13 +508,13 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 
-			if (language === "Javascript" && (word === "==" || word === "!=")) {
+			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
+				vscode.window.showInformationMessage("HEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE ")
 				array[word] += "="
 			}
 		}
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
 			let last = array.at(-1);
-			vscode.window.showInformationMessage(`line: ${lineNum} last: ${last}`)
 			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}")) {
 				array[array.length-1] = last + ";";
 			}
