@@ -431,9 +431,9 @@ function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 
 	if (line[0] === "}" && line.trim().length === 2) {
-		logger.exp_indentation = []
+		logger.exp_indentation = [];
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
-			return "}\n\n"
+			return "}\n\n";
 		}
 		return "}\n";
 	}
@@ -446,10 +446,10 @@ function checkLine(language, line, lineNum, text) {
 		let indentation = [];
 		let array = line.split(" ");
 		while (array[0] == "") {
-			indentation.push(" ")
-			array.shift()
+			indentation.push(" ");
+			array.shift();
 		}
-		vscode.window.showInformationMessage("Array: " + array)
+		vscode.window.showInformationMessage("Array: " + array);
 
 		if (line.includes("}")) {
 			for (let i = 0; i < 4; i++) {
@@ -474,9 +474,9 @@ function checkLine(language, line, lineNum, text) {
 			}
 			return line
 		} else if (array.includes("=")) {
-			array = checkVarDecleration(array, language, lineNum, indentation)
+			array = checkVarDecleration(array, language, lineNum, indentation);
 		} else if (array[0] == "class") {
-			array[1] = checkNaming("class", array[1], lineNum)
+			array[1] = checkNaming("class", array[1], lineNum);
 		} else if (array[0] == "import") {
 			logger.imports.push(line);
 			return "";
@@ -495,21 +495,25 @@ function checkLine(language, line, lineNum, text) {
 			let progress = "";
 			let index = 0;
 			while (index <= array[word].length) {
-				progress += array[word][index]
-				index += 1
+				progress += array[word][index];
+				index += 1;
 				if (logger.namingChanges.get(progress) !== undefined) {
 					array[word] = logger.namingChanges.get(progress) + array[word].slice(index);
 					break;
 				}
 
 				if (language === "Javascript" && progress === "require(") {
-					logger.imports.push(line)
+					logger.imports.push(line);
 					return "";
+				}
+
+				if (progress === "//") {
+					return indentation.join("") + array.join(" ") + "\n";
 				}
 			}
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
-				array[word] += "="
+				array[word] += "=";
 			}
 		}
 
@@ -526,7 +530,7 @@ function checkLine(language, line, lineNum, text) {
 
 		if (line.includes("{")) {
 			for (let i = 0; i < 4; i++) {
-				logger.exp_indentation.push(" ".repeat(4))
+				logger.exp_indentation.push(" ".repeat(4));
 			}
 		}
 
@@ -541,16 +545,16 @@ function checkLine(language, line, lineNum, text) {
 			} else if ((element == ";" && index + 2 < newLine.length) || (element === "," && !opened.length)) {
 				temp += ";\n" + indentation;
 				if (logger.g_rules["varDeclaration"]) {
-					temp += array[0] + " "
+					temp += array[0] + " ";
 				}
 				while (newLine[++index] === " ");
 				continue;
 			} else if (element === "(" || element === "[") {
-				opened.push(element)
-				temp += element
+				opened.push(element);
+				temp += element;
 			} else if (element === ")" || element === "]") {
-				opened.pop()
-				temp += element
+				opened.pop();
+				temp += element;
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
 				let num = "";
 				while (!isNaN(parseInt(newLine[index]))) {
@@ -560,13 +564,13 @@ function checkLine(language, line, lineNum, text) {
 				logger.addToReport("Misc", lineNum, orginal = `${num} should be defined`);
 				continue;
 			} else {
-				temp += element
+				temp += element;
 			}
 			index++;
 		}
-		return temp
+		return temp;
 	}
-	return line
+	return line;
 }
 
 function setup() {
@@ -574,15 +578,15 @@ function setup() {
 	if (editor) {
 		const text = editor.document.getText().split("\n");
 		const language = determineLanguage(editor);
-		const data = jsonData[language]
-		logger.g_rules = data["general"]
-		logger.c_rules = data["conventions"][logger.conventions]
-		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
-		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2)
+		const data = jsonData[language];
+		logger.g_rules = data["general"];
+		logger.c_rules = data["conventions"][logger.conventions];
+		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
 		const settings = vscode.workspace.getConfiguration('nicify');
-		logger.replace = settings.get("replace")
-		logger.conventions = logger.conventions ? logger.conventions : settings.get("convention")
-		return [editor, text, language, data]
+		logger.replace = settings.get("replace");
+		logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
+		return [editor, text, language, data];
 	}
 }
 
@@ -626,10 +630,10 @@ function activate(context) {
 				logger.imports.shift();
 			}
 			new_text.splice(0, 0, logger.importHeader + "\n");
-			new_text = new_text.join("")
+			new_text = new_text.join("");
 			editDocument(info[0], info[0].document, new_text);
 		}
-		logger.createReport()
+		logger.createReport();
 	});
 	context.subscriptions.push(disposable);
 }
@@ -648,9 +652,9 @@ function determineLanguage(editor) {
 	} else if (editor.document.fileName.endsWith(".c")) {
 		return "C";
 	} else if (editor.document.fileName.endsWith(".java")) {
-		return "Java"
+		return "Java";
 	} else if (editor.document.fileName.endsWith(".css")) {
-		return "CSS"
+		return "CSS";
 	}
 }
 
