@@ -123,6 +123,16 @@ String.prototype.count = function(search) {
     return sum;
 }
 
+String.prototype.nextChar = function(start) {
+	while (this[start] === " ") {
+		start++;
+		if (start === this.length - 1) {
+			return 0;
+		}
+	}
+	return start;
+}
+
 function clangFormat(text) {
 	const formatted_text = [];
 	for (let line of text) {
@@ -183,35 +193,45 @@ Parameters:
 */
 function convertToLiteral(str, lineNum) {
 	let index = 1;
+	let instring;
+	let opened;
 	let mod = "`";
-	let instring = true;
-	let opened = false;
+	if (str[0] === "\"" || str[0] === "'") {
+		instring = true;
+	} else {
+		mod += "${"
+		index -= 1
+		instring = false;
+	}
+	opened = !instring;
 	while (index < str.length) {
+		if (str[index] === ";") {
+			return mod + "\`;\n";
+		}
 		if (str[index] === "\"" || str[index] === "'") {
       		instring = !instring;
 			index += 1;
+		} else if (instring) {
+			mod += str[index++];
 		} else {
-			if (str[index] == ";") {
-				return mod + "\`;\n";
-			} else if (instring) {
-				mod += str[index++];
-			} else {
-				if (str[index] === "+") {
-					if (!opened) {
-						mod += "${";
-						opened = true;
-					} else {
-						mod += "}";
-						opened = false;   
-					}
-					index += 1;
-				} else if (str[index] === " ") {
-					index += 1;
+			if (str[index] === "+") {
+				if (!opened) {
+					mod += "${";
+					opened = true;
 				} else {
-					mod += str[index++];
+					mod += "}";
+					opened = false;   
 				}
+				index += 1;
+			} else if (str[index] === " ") {
+				index += 1;
+			} else {
+				mod += str[index++];
 			}
 		}
+	}
+	if (opened) {
+		mod += "}"
 	}
 	mod += "`";
 	logger.addToReport("Literal", lineNum, str, mod);
@@ -444,10 +464,10 @@ function checkLine(language, line, lineNum, text) {
 		return "";
 	}
 	
-	if (line.length && line.trim() != "") {
+	if (line.length && line.trim() !== "") {
 		let indentation = [];
 		let array = line.split(" ");
-		while (array[0] == "") {
+		while (array[0] === "") {
 			indentation.push(" ");
 			array.shift();
 		}
@@ -477,9 +497,9 @@ function checkLine(language, line, lineNum, text) {
 			return line
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
-		} else if (array[0] == "class") {
+		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
-		} else if (array[0] == "import") {
+		} else if (array[0] === "import") {
 			logger.imports.push(line);
 			return "";
 		} else {
