@@ -663,6 +663,8 @@ function determineLanguage(editor) {
 
 module.exports = {
 	activate,
-	deactivate
+	deactivate,
+	clangFormat,
+	convertToLiteral
 }
 
