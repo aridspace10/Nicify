@@ -248,7 +248,7 @@ Parameters:
 function checkCasing(type, name, lineNum) {
 	let newName = "";
 	let namingRules = logger.c_rules["naming"];
-	if (namingRules[type] == "SnakeCasing") {
+	if (namingRules[type] === "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
 			if (name[i].isUpperCase()) {
@@ -277,10 +277,10 @@ This function checks the naming of the function for the first letter and runs ch
 */
 function checkNaming(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"]
-	if (namingRules[type] == "LowerCamel" && name[0].isLowerCase()) {
+	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
-	if (namingRules[type] == "UpperCamel" && name[0].isUpperCase()) {
+	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
 	return checkCasing(type, name, lineNum);
@@ -296,7 +296,7 @@ function checkFuncNaming(line) {
 	const params = [];
 	let temp = "";
 	for (let char of raw_parameters) {
-		if (char == ",") {
+		if (char === ",") {
 			params.push(checkNaming("variable", temp));
 			temp = "";
 		} else if (char !== " ") {
@@ -559,7 +559,6 @@ function checkLine(language, line, lineNum, text) {
 
 		let temp = "";
 		let index = 0;
-		const allowed = ["<", ">", "!", " ", "="];
 		let opened = new Stack();
 		while (index < newLine.length) {
 			let element = newLine[index];
@@ -687,4 +686,3 @@ module.exports = {
 	clangFormat,
 	convertToLiteral
 }
-
