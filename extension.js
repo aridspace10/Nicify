@@ -122,6 +122,16 @@ String.prototype.count = function(search) {
     return sum;
 }
 
+String.prototype.nextChar = function(start) {
+	while (this[start] === " ") {
+		start++;
+		if (start === this.length - 1) {
+			return 0;
+		}
+	}
+	return start;
+}
+
 function clangFormat(text) {
 	const formatted_text = [];
 	for (let line of text) {
@@ -200,35 +210,45 @@ Parameters:
 */
 function convertToLiteral(str, lineNum) {
 	let index = 1;
+	let instring;
+	let opened;
 	let mod = "`";
-	let instring = true;
-	let opened = false;
+	if (str[0] === "\"" || str[0] === "'") {
+		instring = true;
+	} else {
+		mod += "${"
+		index -= 1
+		instring = false;
+	}
+	opened = !instring;
 	while (index < str.length) {
+		if (str[index] === ";") {
+			return mod + "\`;\n";
+		}
 		if (str[index] === "\"" || str[index] === "'") {
       		instring = !instring;
 			index += 1;
+		} else if (instring) {
+			mod += str[index++];
 		} else {
-			if (str[index] == ";") {
-				return mod + "\`;\n";
-			} else if (instring) {
-				mod += str[index++];
-			} else {
-				if (str[index] === "+") {
-					if (!opened) {
-						mod += "${";
-						opened = true;
-					} else {
-						mod += "}";
-						opened = false;   
-					}
-					index += 1;
-				} else if (str[index] === " ") {
-					index += 1;
+			if (str[index] === "+") {
+				if (!opened) {
+					mod += "${";
+					opened = true;
 				} else {
-					mod += str[index++];
+					mod += "}";
+					opened = false;   
 				}
+				index += 1;
+			} else if (str[index] === " ") {
+				index += 1;
+			} else {
+				mod += str[index++];
 			}
 		}
+	}
+	if (opened) {
+		mod += "}"
 	}
 	mod += "`";
 	logger.addToReport("Literal", lineNum, str, mod);
@@ -245,7 +265,7 @@ Parameters:
 function checkCasing(type, name, lineNum) {
 	let newName = "";
 	let namingRules = logger.c_rules["naming"];
-	if (namingRules[type] == "SnakeCasing") {
+	if (namingRules[type] === "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
 		for (let i = 1; i < name.length; i++) {
 			if (name[i].isUpperCase()) {
@@ -274,10 +294,10 @@ This function checks the naming of the function for the first letter and runs ch
 */
 function checkNaming(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"]
-	if (namingRules[type] == "LowerCamel" && name[0].isLowerCase()) {
+	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
-	if (namingRules[type] == "UpperCamel" && name[0].isUpperCase()) {
+	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
 	return checkCasing(type, name, lineNum);
@@ -293,7 +313,7 @@ function checkFuncNaming(line) {
 	const params = [];
 	let temp = "";
 	for (let char of raw_parameters) {
-		if (char == ",") {
+		if (char === ",") {
 			params.push(checkNaming("variable", temp));
 			temp = "";
 		} else if (char !== " ") {
@@ -470,10 +490,10 @@ function checkLine(language, line, lineNum, text) {
 		return "";
 	}
 	
-	if (line.length && line.trim() != "") {
+	if (line.length && line.trim() !== "") {
 		let indentation = [];
 		let array = line.split(" ");
-		while (array[0] == "") {
+		while (array[0] === "") {
 			indentation.push(" ");
 			array.shift();
 		}
@@ -502,9 +522,9 @@ function checkLine(language, line, lineNum, text) {
 			return line
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
-		} else if (array[0] == "class") {
+		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
-		} else if (array[0] == "import") {
+		} else if (array[0] === "import") {
 			logger.imports.push(line);
 			return "";
 		} else {
@@ -565,7 +585,6 @@ function checkLine(language, line, lineNum, text) {
 
 		let temp = "";
 		let index = 0;
-		const allowed = ["<", ">", "!", " ", "="];
 		let opened = new Stack();
 		while (index < newLine.length) {
 			let element = newLine[index];
@@ -675,6 +694,7 @@ function determineLanguage(editor) {
 
 module.exports = {
 	activate,
-	deactivate
+	deactivate,
+	clangFormat,
+	convertToLiteral
 }
-
