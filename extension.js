@@ -85,7 +85,6 @@ class Logger {
                 content += `${change}\n`;
             }
         }
-		vscode.window.showInformationMessage('HEREEEEE');
 		try {
 			fs.writeFileSync('HelloThere.txt', 'Hello, world!');
 			console.log('File created and data written!');
@@ -131,9 +130,11 @@ function clangFormat(text) {
 		let charFound = false;
 		let len = line.length;
 		let indentation = [];
+		let opened = new Stack();
 		while (index < len) {
+			let element = line[index];
 			if (!charFound) {
-				if (line[index] === " ") {
+				if (element === " ") {
 					indentation.push(" ")
 					index++;
 				} else {
@@ -148,23 +149,38 @@ function clangFormat(text) {
 			} else if (len > index + 5 && line.substr(index, 5) === "while" && line[index + 5] !== " ") {
 				modified += "while ";
 				index += 5;
-			} else if (len > index + 1 && line[index] === " " && line[index+1] === ";" ) {
+			} else if (len > index + 1 && element === " " && line[index+1] === ";") {
 				index++;
-			} else if (OPERATORS.includes(line[index])) {
+			} else if (OPERATORS.includes(element)) {
 				if (line[index-1] !== " ") {
           			modified += " ";
 				}
-				while (OPERATORS.includes(line[index])) {
+				while (OPERATORS.includes(element)) {
 					modified += line[index++];
 				}
-				if (!OPERATORS.includes(line[index]) && line[index] !== " ") {
+				if (!OPERATORS.includes(element) && element !== " ") {
 					modified += " ";
 				}
-			} else if (line[index] !== " " && line[index+1] === "{") {
-				modified += line[index] + " ";
+			} else if (element !== " " && line[index+1] === "{") {
+				modified += element + " ";
 				index++;
-			} else if (line[index] === "}" && line[index + 1] !== " ") {
+			} else if (element === "}" && line[index + 1] !== " ") {
 				modified += "} ";
+				index++;
+			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length)) {
+				modified += ";\n" + indentation.join("");
+				if (logger.g_rules["varDeclaration"]) {
+					modified += line.split(" ")[0] + " ";
+				}
+				while (line[++index] === " ");
+				continue;
+			} else if (element === "(" || element === "[") {
+				opened.push(element);
+				modified += element;
+				index++;
+			} else if (element === ")" || element === "]") {
+				opened.pop();
+				modified += element;
 				index++;
 			} else {
 				modified += line[index++];
@@ -172,6 +188,7 @@ function clangFormat(text) {
 		}
 		formatted_text.push(indentation.join("") + modified.trim());
 	}
+	vscode.window.showInformationMessage("HEY THERE")
 	return formatted_text;
 }
 
@@ -290,6 +307,12 @@ function checkFuncNaming(line) {
 	return [funcName, params];
 }
 
+/** Checks JSDOC given works with format
+ * @param {*} text - the text of the jsdoc 
+ * @param {*} funcLine - the line the text starts at
+ * @param {*} funcName - the name of the function
+ * @param {*} params - the params of the function
+ */
 function checkJSDOC(text, funcLine, funcName, params) {
 	let commentingRules = logger.g_rules["commenting"];
 	if (text[funcLine-1].includes(commentingRules["singleComment"]) || 
@@ -323,11 +346,12 @@ function checkJSDOC(text, funcLine, funcName, params) {
 This function which will take in a line and will validate the line number and 
 implent line wrapping if needed
 Parameters:
- @param type - the type of code decleration given in
- @param line - the line which will be check
- @param lineNum - the number of the line it is on in the codebase
+ @param {string} type - the type of code decleration given in
+ @param {string} line - the line which will be check
+ @param {number} lineNum - the number of the line it is on in the codebase
 */
 function checkLineLength(type, line, lineNum) {
+	vscode.window.showInformationMessage("111111111111111111111")
 	let limit = logger.c_rules["limits"]["column"];
 	if (line.length <= limit) {
 		return line;
@@ -352,7 +376,8 @@ function checkLineLength(type, line, lineNum) {
 						// added + 1 for " "
 						len += array[index].length + 1;
 						//if element is an operation
-						if (OPERATORS.includes(array[index])) {
+						if (OPERATORS.includes(array[index]) || array[index] === ".") {
+							vscode.window.showInformationMessage("YAYYYYYYYYYYYY")
 							//if language roles say we should break before or after operation
 							if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
 								mod += current;
@@ -383,7 +408,8 @@ function checkLineLength(type, line, lineNum) {
 }
 
 function checkVarDecleration(array, language, lineNum, indentation) {
-	let equalsIndex = array.indexOf("=")
+	let equalsIndex = array.indexOf("=");
+    //check if language is includes variable decleration
 	if (logger.g_rules["varDeclaration"].includes(array[0])) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
@@ -451,7 +477,6 @@ function checkLine(language, line, lineNum, text) {
 			indentation.push(" ");
 			array.shift();
 		}
-		vscode.window.showInformationMessage("Array: " + array);
 
 		if (line.includes("}")) {
 			for (let i = 0; i < 4; i++) {
@@ -491,6 +516,7 @@ function checkLine(language, line, lineNum, text) {
 				}
 			}
 		}
+
 		line = checkLineLength("variable", line, lineNum);
 
 		for (let word in array) {
@@ -545,19 +571,6 @@ function checkLine(language, line, lineNum, text) {
 			let element = newLine[index];
 			if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
 				temp += logger.c_rules["rules"]["preferQuotes"];
-			} else if ((element == ";" && index + 2 < newLine.length) || (element === "," && !opened.length)) {
-				temp += ";\n" + indentation;
-				if (logger.g_rules["varDeclaration"]) {
-					temp += array[0] + " ";
-				}
-				while (newLine[++index] === " ");
-				continue;
-			} else if (element === "(" || element === "[") {
-				opened.push(element);
-				temp += element;
-			} else if (element === ")" || element === "]") {
-				opened.pop();
-				temp += element;
 			} else if (!isNaN(parseInt(element)) && !array.includes("=")) {
 				let num = "";
 				while (!isNaN(parseInt(newLine[index]))) {
@@ -617,7 +630,6 @@ function activate(context) {
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup();
 		const formatted_text = clangFormat(info[1]);
-		vscode.window.showInformationMessage("Formatted Text: " + formatted_text)
 		let new_text = [];
 		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
