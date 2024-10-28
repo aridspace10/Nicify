@@ -221,17 +221,16 @@ function convertToLiteral(str, lineNum) {
 		instring = false;
 	}
 	opened = !instring;
-	while (index < str.length) {
-		if (str[index] === ";") {
+	str.forEach((char, index) => {
+		if (char === ";") {
 			return mod + "\`;\n";
 		}
-		if (str[index] === "\"" || str[index] === "'") {
+		if (char === "\"" || char === "'") {
       		instring = !instring;
-			index += 1;
 		} else if (instring) {
-			mod += str[index++];
+			mod += str[index];
 		} else {
-			if (str[index] === "+") {
+			if (char === "+") {
 				if (!opened) {
 					mod += "${";
 					opened = true;
@@ -239,14 +238,11 @@ function convertToLiteral(str, lineNum) {
 					mod += "}";
 					opened = false;   
 				}
-				index += 1;
-			} else if (str[index] === " ") {
-				index += 1;
-			} else {
-				mod += str[index++];
+			} else if (char !== " ") {
+				mod += str[index];
 			}
 		}
-	}
+	});
 	if (opened) {
 		mod += "}"
 	}
