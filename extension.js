@@ -159,22 +159,38 @@ function clangFormat(text) {
 			} else if (len > index + 5 && line.substr(index, 5) === "while" && line[index + 5] !== " ") {
 				modified += "while ";
 				index += 5;
-			} else if (len > index + 1 && element === " " && line[index+1] === ";") {
-				index++;
+			} else if (element === ";") {
+                while (modified[-1] === " ") {
+                    modified.slice(0, -1);
+                }
+                index++;
+                while (len > index) {
+                    if (line[index] === " ") {
+                        index++;
+                    } else if (line[index] === "/") {
+                        modified += " " + line.substr(index);
+                        index = len;
+                        break
+                    } else {
+                        modified += "\n"
+                        break
+                    }
+                }
+
 			} else if (OPERATORS.includes(element)) {
 				if (line[index-1] !== " ") {
           			modified += " ";
 				}
-				while (OPERATORS.includes(element)) {
+				while (OPERATORS.includes(line[index])) {
 					modified += line[index++];
 				}
-				if (!OPERATORS.includes(element) && element !== " ") {
+				if (line[index] !== " ") {
 					modified += " ";
 				}
-			} else if (element !== " " && line[index+1] === "{") {
+			} else if (element !== " " && line[index+1] === "{") { // checks for ){
 				modified += element + " ";
 				index++;
-			} else if (element === "}" && line[index + 1] !== " ") {
+			} else if (element === "}" && line[index + 1] !== " ") { // checks for }if
 				modified += "} ";
 				index++;
 			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length)) {
@@ -645,6 +661,7 @@ function activate(context) {
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup();
 		const formatted_text = clangFormat(info[1]);
+        console.log("B")
 		let new_text = [];
 		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
