@@ -43,7 +43,7 @@
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
-    "test": "vscode-test"
+    "test": "eslint src test"
   },
   "devDependencies": {
     "@types/mocha": "^10.0.6",

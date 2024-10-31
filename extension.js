@@ -168,7 +168,7 @@ function clangFormat(text) {
                     if (line[index] === " ") {
                         index++;
                     } else if (line[index] === "/") {
-                        modified += " " + line.substr(index);
+                        modified += " " + line;
                         index = len;
                         break
                     } else {
@@ -214,7 +214,6 @@ function clangFormat(text) {
 		}
 		formatted_text.push(indentation.join("") + modified.trim());
 	}
-	vscode.window.showInformationMessage("HEY THERE")
 	return formatted_text;
 }
 

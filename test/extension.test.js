@@ -27,6 +27,18 @@ suite('1. Clang Formatting Testing', () => {
 		assert.deepStrictEqual(clangFormat(["if (temp== 1) {"]), ["if (temp == 1) {"])
 		assert.deepStrictEqual(clangFormat(["if (temp==1) {"]), ["if (temp == 1) {"])
 	})
+
+    test("1.4 ; Use checking", () => {
+        assert.deepStrictEqual(clangFormat(["let var1 = 5 ;"]), ["let var1 = 5;"])
+		assert.deepStrictEqual(clangFormat(["let var1 = 5; "]), ["let var1 = 5;"])
+		assert.deepStrictEqual(clangFormat(["let var1 = 5  ;  "]), ["let var1 = 5;"])
+    })
+
+    test("1.5 Multivariable Declaration checking", () => {
+        assert.deepStrictEqual(clangFormat(["let var1 = 5; let var2 = 10;"]), ["let var1 = 5;\nlet var2 = 10;"])
+		assert.deepStrictEqual(clangFormat(["let var1 = 5; let var2 = 10;let var3 = 2"]), ["let var1 = 5;\nlet var2 = 10;\nlet var3 = 2;"])
+		assert.deepStrictEqual(clangFormat(["let var1 = 5; const var2 = 10;"]), ["let var1 = 5;\nconst var2 = 10;"])
+    })
 });
 
 suite("2. String literal Testing", () => {
