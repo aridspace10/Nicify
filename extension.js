@@ -145,7 +145,7 @@ function clangFormat(text) {
 			let element = line[index];
 			if (!charFound) {
 				if (element === " ") {
-					indentation.push(" ")
+					indentation.push(" ");
 					index++;
 				} else {
 					charFound = true;
@@ -172,7 +172,7 @@ function clangFormat(text) {
                         index = len;
                         break
                     } else {
-                        modified += "\n"
+                        modified += "\n";
                         break
                     }
                 }
@@ -231,8 +231,8 @@ function convertToLiteral(str, lineNum) {
 	if (str[0] === "\"" || str[0] === "'") {
 		instring = true;
 	} else {
-		mod += "${"
-		index -= 1
+		mod += "${";
+		index -= 1;
 		instring = false;
 	}
 	opened = !instring;
@@ -289,9 +289,9 @@ function checkCasing(type, name, lineNum) {
 		for (let i = 0; i < name.length; i++) {
 			if (name[i] == "_") {
 				i++;
-				newName += name[i].toUpperCase()
+				newName += name[i].toUpperCase();
 			} else {
-				newName += name[i]
+				newName += name[i];
 			}
 		}
 	}
@@ -304,7 +304,7 @@ function checkCasing(type, name, lineNum) {
 This function checks the naming of the function for the first letter and runs check casing function to check rest of name
 */
 function checkNaming(type, name, lineNum) {
-	let namingRules = logger.c_rules["naming"]
+	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
@@ -317,7 +317,7 @@ function checkNaming(type, name, lineNum) {
 This function checks the naming of function and also the parameters given in
 */
 function checkFuncNaming(line) {
-	const chars = line.join(" ").split("")
+	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
 	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""));
 	const raw_parameters = chars.slice(chars.indexOf("("));
@@ -553,11 +553,10 @@ function checkLine(language, line, lineNum, text) {
 		for (let word in array) {
 			let progress = "";
 			let index = 0;
-			while (index <= array[word].length) {
-				progress += array[word][index];
-				index += 1;
+			array[word].forEach((element, i) => {
+				progress += element
 				if (logger.namingChanges.get(progress) !== undefined) {
-					array[word] = logger.namingChanges.get(progress) + array[word].slice(index);
+					array[word] = logger.namingChanges.get(progress) + array[word].slice(i);
 					break;
 				}
 
@@ -569,7 +568,7 @@ function checkLine(language, line, lineNum, text) {
 				if (progress === "//") {
 					return indentation.join("") + array.join(" ") + "\n";
 				}
-			}
+			});
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
 				array[word] += "=";
@@ -583,7 +582,7 @@ function checkLine(language, line, lineNum, text) {
 			!last.endsWith("(") && !(text[lineNum + 1].trim()[0] === ".")) {
 				array[array.length-1] = last + ";";
 			}
-			array[array.length-1] += "\n"
+			array[array.length-1] += "\n";
 		}
 
 		let newLine = indentation.join("") + array.join(" ");
