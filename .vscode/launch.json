@@ -12,7 +12,12 @@
 			"args": [
 				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
-            "preLaunchTask": "npm: watch"
+			"outFiles": [
+				"${workspaceFolder}/out/**/*.js"
+			],
+			"skipFiles": [
+				"<node_internals>/**"
+			]
 		}
 	]
 }

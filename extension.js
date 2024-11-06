@@ -488,7 +488,6 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = [];
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -500,8 +499,7 @@ function checkLine(language, line, lineNum, text) {
 	if (line.includes(logger.importHeader) || line.includes(logger.constantHeader)) {
 		return "";
 	}
-	
-	if (line.length && line.trim() !== "") {
+	if (line && line.trim() !== "") {
 		let indentation = [];
 		let array = line.split(" ");
 		while (array[0] === "") {
@@ -552,23 +550,23 @@ function checkLine(language, line, lineNum, text) {
 
 		for (let word in array) {
 			let progress = "";
-			let index = 0;
-			array[word].forEach((element, i) => {
-				progress += element
-				if (logger.namingChanges.get(progress) !== undefined) {
-					array[word] = logger.namingChanges.get(progress) + array[word].slice(i);
-					break;
-				}
-
-				if (language === "Javascript" && progress === "require(") {
-					logger.imports.push(line);
-					return "";
-				}
-
-				if (progress === "//") {
-					return indentation.join("") + array.join(" ") + "\n";
-				}
-			});
+            for (let i = 0; i < array[word].length; i++) {
+                const element = array[word][i];
+                progress += element;
+            
+                if (logger.namingChanges.get(progress) !== undefined) {
+                    array[word] = logger.namingChanges.get(progress) + array[word].slice(i);
+                }
+            
+                if (language === "Javascript" && progress === "require(") {
+                    logger.imports.push(line);
+                    return "";  // Exits the function
+                }
+            
+                if (progress === "//") {
+                    return indentation.join("") + array.join(" ") + "\n";
+                }
+            }
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
 				array[word] += "=";
@@ -579,7 +577,7 @@ function checkLine(language, line, lineNum, text) {
 			let last = array.at(-1);
 			// check if there should be a ; added at the end 
 			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}") && 
-			!last.endsWith("(") && !(text[lineNum + 1].trim()[0] === ".")) {
+			!last.endsWith("(") && text.length > lineNum + 1 && !(text[lineNum + 1].trim()[0] === ".")) {
 				array[array.length-1] = last + ";";
 			}
 			array[array.length-1] += "\n";
@@ -657,9 +655,9 @@ function editDocument(editor, document, text) {
 function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
+        vscode.window.showInformationMessage('A');
 		const info = setup();
 		const formatted_text = clangFormat(info[1]);
-        console.log("B")
 		let new_text = [];
 		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
