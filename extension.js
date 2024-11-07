@@ -549,13 +549,15 @@ function checkLine(language, line, lineNum, text) {
 		line = checkLineLength("variable", line, lineNum);
 
 		for (let word in array) {
+            console.log(array[word])
 			let progress = "";
             for (let i = 0; i < array[word].length; i++) {
                 const element = array[word][i];
                 progress += element;
             
                 if (logger.namingChanges.get(progress) !== undefined) {
-                    array[word] = logger.namingChanges.get(progress) + array[word].slice(i);
+                    array[word] = logger.namingChanges.get(progress);
+                    break
                 }
             
                 if (language === "Javascript" && progress === "require(") {
@@ -567,6 +569,8 @@ function checkLine(language, line, lineNum, text) {
                     return indentation.join("") + array.join(" ") + "\n";
                 }
             }
+            console.log(array[word])
+
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
 				array[word] += "=";
