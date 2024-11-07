@@ -286,6 +286,7 @@ function checkCasing(type, name, lineNum) {
 			}
 		}
 	} else {
+        // For every _, remove it and uppercase the following letter
 		for (let i = 0; i < name.length; i++) {
 			if (name[i] == "_") {
 				i++;
@@ -323,6 +324,7 @@ function checkFuncNaming(line) {
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
 	let temp = "";
+    // For each char, if "," then add to parameters else add to progress
 	for (let char of raw_parameters) {
 		if (char === ",") {
 			params.push(checkNaming("variable", temp));
@@ -382,7 +384,6 @@ Parameters:
  @param {number} lineNum - the number of the line it is on in the codebase
 */
 function checkLineLength(type, line, lineNum) {
-	vscode.window.showInformationMessage("111111111111111111111")
 	let limit = logger.c_rules["limits"]["column"];
 	if (line.length <= limit) {
 		return line;
@@ -466,6 +467,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		return indentation.join("") + array.join(" ");
 	}
 	
+    // check for language specific problems of each word
 	for (let index in array) {
 		if (language === "Javascript") {
 			if (array[index - 1] === "new" && array[index].startsWith("Array")) {
@@ -549,7 +551,6 @@ function checkLine(language, line, lineNum, text) {
 		line = checkLineLength("variable", line, lineNum);
 
 		for (let word in array) {
-            console.log(array[word])
 			let progress = "";
             for (let i = 0; i < array[word].length; i++) {
                 const element = array[word][i];
@@ -569,8 +570,6 @@ function checkLine(language, line, lineNum, text) {
                     return indentation.join("") + array.join(" ") + "\n";
                 }
             }
-            console.log(array[word])
-
 
 			if (language === "Javascript" && (array[word] === "==" || array[word] === "!=")) {
 				array[word] += "=";
