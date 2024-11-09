@@ -503,8 +503,10 @@ function checkLine(language, line, lineNum, text) {
 	}
 	if (line && line.trim() !== "") {
 		let indentation = [];
-		let array = line.split(" ");
-		while (array[0] === "") {
+		let array = line.split();
+        console.log(line)
+		while (array[0] === " ") {
+            console.log("IndentT yeah")
 			indentation.push(" ");
 			array.shift();
 		}
@@ -512,14 +514,14 @@ function checkLine(language, line, lineNum, text) {
 		if (line.includes("}")) {
 			for (let i = 0; i < 4; i++) {
 				logger.exp_indentation.pop();
-				//vscode.window.showInformationMessage("Expected indentation: " + logger.exp_indentation.length)
 			}
 		}
 
 		if (indentation.length !== logger.exp_indentation.length) {
-			/*if (logger.replace) {
+            console.log("Wrong Indentation");
+			if (logger.replace) {
 				indentation = logger.exp_indentation;
-			}*/
+			}
 			logger.addToReport("Indentation", lineNum);
 		}
 
@@ -589,9 +591,7 @@ function checkLine(language, line, lineNum, text) {
 		let newLine = indentation.join("") + array.join(" ");
 
 		if (line.includes("{")) {
-			for (let i = 0; i < 4; i++) {
-				logger.exp_indentation.push(" ".repeat(4));
-			}
+			logger.exp_indentation.push(" ".repeat(4));
 		}
 
 		let temp = "";
