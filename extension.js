@@ -42,7 +42,7 @@ class Logger {
 		this.imports = [];
 		this.constants = [];
 		this.replace = true;
-		this.exp_indentation = [];
+		this.exp_indentation = 0;
 	}
 
 	addToReport(typeChange, lineNum, orginal = "", processed = "") {
@@ -212,7 +212,7 @@ function clangFormat(text) {
 				modified += line[index++];
 			}
 		}
-		formatted_text.push(indentation.join("") + modified.trim());
+		formatted_text.push(" ".repeat(indentation) + modified.trim());
 	}
 	return formatted_text;
 }
@@ -464,7 +464,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	if (subject.count("\"") > 2 || subject.count("\'") > 2) {
 		array.splice(equalsIndex + 1);
 		array.push(convertToLiteral(subject, lineNum));
-		return indentation.join("") + array.join(" ");
+		return " ".repeat(indentation) + array.join(" ");
 	}
 	
     // check for language specific problems of each word
@@ -491,7 +491,7 @@ Parameters:
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
 	if (line[0] === "}" && line.trim().length === 2) {
-		logger.exp_indentation = [];
+		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
 			return "}\n\n";
 		}
@@ -502,22 +502,20 @@ function checkLine(language, line, lineNum, text) {
 		return "";
 	}
 	if (line && line.trim() !== "") {
-		let indentation = [];
+		let indentation = 0;
 		let array = line.split();
         console.log(line)
 		while (array[0] === " ") {
             console.log("IndentT yeah")
-			indentation.push(" ");
+			indentation += 1;
 			array.shift();
 		}
 
 		if (line.includes("}")) {
-			for (let i = 0; i < 4; i++) {
-				logger.exp_indentation.pop();
-			}
+			logger.exp_indentation -= 4
 		}
 
-		if (indentation.length !== logger.exp_indentation.length) {
+		if (indentation !== logger.exp_indentation) {
             console.log("Wrong Indentation");
 			if (logger.replace) {
 				indentation = logger.exp_indentation;
@@ -569,7 +567,7 @@ function checkLine(language, line, lineNum, text) {
                 }
             
                 if (progress === "//") {
-                    return indentation.join("") + array.join(" ") + "\n";
+                    return " ".repeat(indentation) + array.join(" ") + "\n";
                 }
             }
 
@@ -588,10 +586,10 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 
-		let newLine = indentation.join("") + array.join(" ");
+		let newLine = " ".repeat(indentation) + array.join(" ");
 
 		if (line.includes("{")) {
-			logger.exp_indentation.push(" ".repeat(4));
+			logger.exp_indentation += 4;
 		}
 
 		let temp = "";
