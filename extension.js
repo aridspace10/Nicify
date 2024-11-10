@@ -344,8 +344,9 @@ function checkFuncNaming(line) {
  * @param {*} params - the params of the function
  */
 function checkJSDOC(text, funcLine, funcName, params) {
+    console.log("HERE")
 	let commentingRules = logger.g_rules["commenting"];
-	if (text[funcLine-1].includes(commentingRules["singleComment"]) || 
+	if (funcLine && text[funcLine-1].includes(commentingRules["singleComment"]) || 
 		text[funcLine-1].includes(commentingRules["multiLineComment"][0]) || 
 		text[funcLine-1].includes(commentingRules["multiLineComment"][1])) 
 	{
@@ -368,6 +369,10 @@ function checkJSDOC(text, funcLine, funcName, params) {
 			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param);
 		}
 	} else {
+        if (logger.replace) {
+            let doc = `/** Description \n ${params.forEach(param => `* @param {type} ${param} - Description of variable '${param}' \n`)} */`;
+            text.splice(funcLine - 1, 0, doc);
+        }
 		logger.addToReport("JSDoc", funcLine, orginal = funcName);
 	}
 }
@@ -500,13 +505,13 @@ function checkLine(language, line, lineNum, text) {
 	}
 	if (line && line.trim() !== "") {
 		let indentation = 0;
-		let array = line.split();
         console.log(line)
-		while (array[0] === " ") {
+		while (line[0] === " ") {
             console.log("IndentT yeah")
 			indentation += 1;
-			array.shift();
+			line.shift();
 		}
+        let array = line.split(" ");
 
 		if (line.includes("}")) {
 			logger.exp_indentation -= 4
@@ -520,8 +525,10 @@ function checkLine(language, line, lineNum, text) {
 			logger.addToReport("Indentation", lineNum);
 		}
 
+        console.log(array)
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
+            console.log("A")
 			checkJSDOC(text, lineNum, info[0], info[1]);  
 			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
 			if (line !== array.join) {
@@ -652,7 +659,6 @@ function editDocument(editor, document, text) {
 function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
-        vscode.window.showInformationMessage('A');
 		const info = setup();
 		const formatted_text = clangFormat(info[1]);
 		let new_text = [];
