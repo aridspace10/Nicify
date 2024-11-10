@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
@@ -45,30 +46,30 @@ class Logger {
 		this.exp_indentation = 0;
 	}
 
-	addToReport(typeChange, lineNum, orginal = "", processed = "") {
+	addToReport(typeChange, lineNum, original = "", processed = "") {
 		switch (typeChange) {
 			case "Naming":
 				if (logger.replace) {
-					this.report["naming"].push(`Changed ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+					this.report["naming"].push(`Changed ${original} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
 				} else {
-					this.report["naming"].push(`You should change ${orginal} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+					this.report["naming"].push(`You should change ${original} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
 				}
 			case "Misc":
-				this.report["Misc"].push(`${orginal} (declared at line: ${lineNum})`);
+				this.report["Misc"].push(`${original} (declared at line: ${lineNum})`);
 			case "Literal":
 				if (this.replace) {
-					this.report["Misc"].push(`Changed string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+					this.report["Misc"].push(`Changed string ${original} to ${processed} to be a string literal (declared at line: ${lineNum})`);
 				} else {
-					this.report["Misc"].push(`Should change string ${orginal} to ${processed} to be a string literal (declared at line: ${lineNum})`);
+					this.report["Misc"].push(`Should change string ${original} to ${processed} to be a string literal (declared at line: ${lineNum})`);
 				}
 			case "funcDec":
 				if (logger.replace) {
-					this.report["naming"].push(`Changed function ${orginal} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
 				} else {
-					this.report["naming"].push(`Should change function ${orginal} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`)
 				}
 			case "language":
-				if (orginal === "JS_ARRAY") {
+				if (original === "JS_ARRAY") {
 					if (logger.replace) {
 						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
 					} else {
@@ -81,12 +82,12 @@ class Logger {
 		let content = "";
         for (const [key, changes] of Object.entries(this.report)) {
             content += `${key}\n`;
-            for (const change of changes) {
+            for (let change of changes) {
                 content += `${change}\n`;
             }
         }
 		try {
-			fs.writeFileSync('HelloThere.txt', 'Hello, world!');
+			fs.writeFileSync('HelloThere.txt', content);
 			console.log('File created and data written!');
 		} catch (err) {
 			console.error('Error creating file:', err);
@@ -95,10 +96,6 @@ class Logger {
 }
 
 const logger = new Logger();
-
-function addAtIndex(str, index, char) {
-	return str.slice(0, index) + char + str.slice(index, str.length);
-}
 
 String.prototype.isUpperCase = function() {
 	return [...this].every((char) => {
@@ -445,7 +442,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	if (logger.g_rules["varDeclaration"].includes(array[0])) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
-			logger.addToReport("Misc", lineNum, orginal = "Keyword var should not be used and replaced with let or const");
+			logger.addToReport("Misc", lineNum, original = "Keyword var should not be used and replaced with let or const");
 		}	
 	}
 	
@@ -594,7 +591,6 @@ function checkLine(language, line, lineNum, text) {
 
 		let temp = "";
 		let index = 0;
-		let opened = new Stack();
 		while (index < newLine.length) {
 			let element = newLine[index];
 			if (logger.c_rules["rules"]["preferQuotes"] && (element === "\"" || element === "'")) {
