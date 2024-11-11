@@ -368,12 +368,12 @@ function checkJSDOC(text, funcLine, funcName, params) {
 		for (let param of params) {
 			logger.addToReport("MissParam", funcLine, orginal = funcName, processed = param);
 		}
+        return "";
 	} else {
+        logger.addToReport("JSDoc", funcLine, orginal = funcName);
         if (logger.replace) {
-            let doc = `/** Description \n ${params.forEach(param => `* @param {type} ${param} - Description of variable '${param}' \n`)} */`;
-            text.splice(funcLine - 1, 0, doc);
+            return `/** Description \n${params.map(param => `* @param {type} ${param} - Description of variable '${param}' \n`).join("")}*/ \n`;
         }
-		logger.addToReport("JSDoc", funcLine, orginal = funcName);
 	}
 }
 
@@ -525,12 +525,11 @@ function checkLine(language, line, lineNum, text) {
 			logger.addToReport("Indentation", lineNum);
 		}
 
-        console.log(array)
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array);
-            console.log("A")
-			checkJSDOC(text, lineNum, info[0], info[1]);  
-			line = checkLineLength("function", logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
+			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
+                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
+            console.log(line)
 			if (line !== array.join) {
 				logger.addToReport("funcDec", lineNum);
 			}
@@ -580,6 +579,7 @@ function checkLine(language, line, lineNum, text) {
 			}
 		}
 
+
 		if (logger.c_rules["rules"]["semiColonAlways"]) {
 			let last = array.at(-1);
 			// check if there should be a ; added at the end 
@@ -590,7 +590,7 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 
-		let newLine = " ".repeat(indentation) + array.join(" ");
+		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
 			logger.exp_indentation += 4;
@@ -665,6 +665,7 @@ function activate(context) {
 		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
 		}
+        console.log("HERHEHEHE")
 		if (logger.replace) {
 			while (logger.constants.length) {
 				new_text.splice(0, 0, logger.constants[0] + "\n");
