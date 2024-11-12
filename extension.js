@@ -453,9 +453,16 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	}
 	
 	// add variable to naming changes to keep track of naming changes and change as needed
-	logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
-    logger.unused.push(array[equalsIndex - 1]);
-	array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
+    if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
+        if (logger.unused.includes(array[equalsIndex - 1])) {
+            let index = logger.unused.indexOf(array[equalsIndex - 1]);
+            logger.unused.splice(index, index + 1);
+        }
+    } else {
+        logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
+        logger.unused.push(array[equalsIndex - 1]);
+        array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
+    }
 
 	// Check if constant
 	if (array[equalsIndex - 1].isUpperCase()) {
