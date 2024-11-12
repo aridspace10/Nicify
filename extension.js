@@ -44,6 +44,7 @@ class Logger {
 		this.constants = [];
 		this.replace = true;
 		this.exp_indentation = 0;
+        this.unused = [];
 	}
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
@@ -318,6 +319,7 @@ function checkFuncNaming(line) {
 	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
 	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""));
+    logger.unused.push(funcName)
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
 	let temp = "";
@@ -411,7 +413,6 @@ function checkLineLength(type, line, lineNum) {
 						len += array[index].length + 1;
 						//if element is an operation
 						if (OPERATORS.includes(array[index]) || array[index] === ".") {
-							vscode.window.showInformationMessage("YAYYYYYYYYYYYY")
 							//if language roles say we should break before or after operation
 							if (logger.c_rules["rules"]["breakBinarOperation"] === "After") {
 								mod += current;
@@ -453,6 +454,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	
 	// add variable to naming changes to keep track of naming changes and change as needed
 	logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
+    logger.unused.push(array[equalsIndex - 1]);
 	array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
 
 	// Check if constant
@@ -507,7 +509,6 @@ function checkLine(language, line, lineNum, text) {
 		let indentation = 0;
         console.log(line)
 		while (line[0] === " ") {
-            console.log("IndentT yeah")
 			indentation += 1;
 			line.shift();
 		}
@@ -529,7 +530,6 @@ function checkLine(language, line, lineNum, text) {
 			const info = checkFuncNaming(array);
 			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
                 logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
-            console.log(line)
 			if (line !== array.join) {
 				logger.addToReport("funcDec", lineNum);
 			}
@@ -538,6 +538,7 @@ function checkLine(language, line, lineNum, text) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
 		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
+            logger.unused.push(array[1]);
 		} else if (array[0] === "import") {
 			logger.imports.push(line);
 			return "";
