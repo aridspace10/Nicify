@@ -77,7 +77,10 @@ class Logger {
 						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
 					}
 				} 
+            case "unused":
+                this.report["Misc"].push(`Consider removing the ${original} named ${processed} as it has not been used (declared at line: ${lineNum})`)
 			}
+        
 	}
 	createReport() {
 		let content = "";
@@ -673,7 +676,6 @@ function activate(context) {
 		for (let lineNum in formatted_text) {
 			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
 		}
-        console.log("HERHEHEHE")
 		if (logger.replace) {
 			while (logger.constants.length) {
 				new_text.splice(0, 0, logger.constants[0] + "\n");
@@ -688,6 +690,7 @@ function activate(context) {
 			new_text = new_text.join("");
 			editDocument(info[0], info[0].document, new_text);
 		}
+        logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
 		logger.createReport();
 	});
 	context.subscriptions.push(disposable);
