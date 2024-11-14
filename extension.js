@@ -190,25 +190,30 @@ function clangFormat(text) {
                         break
                     } else {
                         modified += "\n";
+                        logger.addToReport("Format", lineNum, "Only one statement per line")
                         break
                     }
                 }
 			} else if (OPERATORS.includes(element)) {
 				if (line[index-1] !== " ") {
           			modified += " ";
+                    logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
 				while (OPERATORS.includes(line[index])) {
 					modified += line[index++];
 				}
 				if (line[index] !== " ") {
 					modified += " ";
+                    logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
 			} else if (element !== " " && line[index+1] === "{") { // checks for ){
 				modified += element + " ";
 				index++;
+                logger.addToReport("Format", lineNum, "Spacing needed between ) and {");
 			} else if (element === "}" && line[index + 1] !== " ") { // checks for }if
 				modified += "} ";
 				index++;
+                logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
 			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length)) {
 				modified += ";\n" + indentation.join("");
 				if (logger.g_rules["varDeclaration"]) {
