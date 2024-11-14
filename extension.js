@@ -133,6 +133,15 @@ String.prototype.nextChar = function(start) {
 	return start;
 }
 
+String.prototype.includes_nested = function(str, index) {
+    for (let x of this) {
+        if (x[index] == str) {
+            return true;
+        }
+    }
+    return false;
+}
+
 function clangFormat(text) {
 	const formatted_text = [];
 	for (let line of text) {
@@ -318,11 +327,11 @@ function checkNaming(type, name, lineNum) {
 /* checkFuncNaming
 This function checks the naming of function and also the parameters given in
 */
-function checkFuncNaming(line) {
+function checkFuncNaming(line, lineNum) {
 	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
 	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""));
-    logger.unused.push(funcName)
+    logger.unused.push(["Function", lineNum, funcName])
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
 	let temp = "";
@@ -455,15 +464,15 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		}	
 	}
 	
-	// add variable to naming changes to keep track of naming changes and change as needed
     if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
-        if (logger.unused.includes(array[equalsIndex - 1])) {
+        if (logger.unused.includes_nested(array[equalsIndex - 1], 2)) {
             let index = logger.unused.indexOf(array[equalsIndex - 1]);
             logger.unused.splice(index, index + 1);
         }
     } else {
+        // add variable to naming changes to keep track of naming changes and change as needed
         logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
-        logger.unused.push(array[equalsIndex - 1]);
+        logger.unused.push(["Variable", lineNum, array[equalsIndex - 1]]);
         array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
     }
 
@@ -537,7 +546,7 @@ function checkLine(language, line, lineNum, text) {
 		}
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
-			const info = checkFuncNaming(array);
+			const info = checkFuncNaming(array, lineNum);
 			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
                 logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
 			if (line !== array.join) {
@@ -548,7 +557,7 @@ function checkLine(language, line, lineNum, text) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
 		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
-            logger.unused.push(array[1]);
+            logger.unused.push(["Class", lineNum, array[1]]);
 		} else if (array[0] === "import") {
 			logger.imports.push(line);
 			return "";
