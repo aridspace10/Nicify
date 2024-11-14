@@ -66,20 +66,22 @@ class Logger {
 				}
 			case "funcDec":
 				if (logger.replace) {
-					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`);
 				} else {
-					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`)
+					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`);
 				}
 			case "language":
 				if (original === "JS_ARRAY") {
 					if (logger.replace) {
-						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
+						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`);
 					} else {
-						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`)
+						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`);
 					}
 				} 
             case "unused":
-                this.report["Misc"].push(`Consider removing the ${original} named ${processed} as it has not been used (declared at line: ${lineNum})`)
+                this.report["Misc"].push(`Consider removing the ${original} named ${processed} as it has not been used (declared at line: ${lineNum})`);
+            case "Format":
+                this.report["Format"].push(`Adjust as ${original} (declared at line: ${lineNum})`);
 			}
         
 	}
@@ -145,6 +147,7 @@ String.prototype.includes_nested = function(str, index) {
 
 function clangFormat(text) {
 	const formatted_text = [];
+    let lineNum = 1;
 	for (let line of text) {
 		let index = 0;
 		let modified = "";
@@ -164,12 +167,15 @@ function clangFormat(text) {
 		 	} else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
 				modified += "if ";
 				index += 2;
+                logger.addToReport("Format", lineNum, "Keywords (if) require space after it");
 			} else if (len > index + 3 && line.substr(index, 3) === "for" && line[index + 3] !== " ") {
 				modified += "for ";
 				index += 3;
+                logger.addToReport("Format", lineNum, "Keywords (for) require space after it");
 			} else if (len > index + 5 && line.substr(index, 5) === "while" && line[index + 5] !== " ") {
 				modified += "while ";
 				index += 5;
+                logger.addToReport("Format", lineNum, "Keywords (while) require space after it");
 			} else if (element === ";") {
                 while (modified[-1] === " ") {
                     modified.slice(0, -1);
@@ -187,7 +193,6 @@ function clangFormat(text) {
                         break
                     }
                 }
-
 			} else if (OPERATORS.includes(element)) {
 				if (line[index-1] !== " ") {
           			modified += " ";
@@ -224,6 +229,7 @@ function clangFormat(text) {
 			}
 		}
 		formatted_text.push(" ".repeat(indentation) + modified.trim());
+        lineNum += 1;
 	}
 	return formatted_text;
 }
