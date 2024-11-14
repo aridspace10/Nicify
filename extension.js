@@ -37,6 +37,7 @@ class Stack {
 class Logger {
 	constructor() {
 		this.namingChanges = new Map();
+        this.language = "";
 		this.report = {"naming": [], "Misc": []};
 		this.conventions = "";
 		this.starts = new Map()
@@ -640,12 +641,16 @@ function checkLine(language, line, lineNum, text) {
 	return line;
 }
 
+function styleCSS(text) {
+
+}
+
 function setup() {
 	const editor = vscode.window.activeTextEditor;
 	if (editor) {
 		const text = editor.document.getText().split("\n");
-		const language = determineLanguage(editor);
-		const data = jsonData[language];
+		logger.language = determineLanguage(editor);
+		const data = jsonData[logger.language];
 		logger.g_rules = data["general"];
 		logger.c_rules = data["conventions"][logger.conventions];
 		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
@@ -653,7 +658,7 @@ function setup() {
 		const settings = vscode.workspace.getConfiguration('nicify');
 		logger.replace = settings.get("replace");
 		logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
-		return [editor, text, language, data];
+		return [editor, text, data];
 	}
 }
 
@@ -680,27 +685,40 @@ function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup();
-		const formatted_text = clangFormat(info[1]);
-		let new_text = [];
-		for (let lineNum in formatted_text) {
-			new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
-		}
-		if (logger.replace) {
-			while (logger.constants.length) {
-				new_text.splice(0, 0, logger.constants[0] + "\n");
-				logger.constants.shift();
-			}
-			new_text.splice(0, 0, logger.constantHeader + "\n");
-			while (logger.imports.length) {
-				new_text.splice(0, 0, logger.imports[0] + "\n");
-				logger.imports.shift();
-			}
-			new_text.splice(0, 0, logger.importHeader + "\n");
-			new_text = new_text.join("");
-			editDocument(info[0], info[0].document, new_text);
-		}
-        logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
-		logger.createReport();
+        if (logger.language !== "UNKNOWN") {
+            if (logger.language === "HTML") {
+    
+            } else if (logger.language === "CSS") {
+                let new_text = styleCSS(info[1])
+                if (logger.replace) {
+                    editDocument(info[0], info[0].document, new_text);
+                }
+            } else {
+                const formatted_text = clangFormat(info[1]);
+                let new_text = [];
+                for (let lineNum in formatted_text) {
+                    new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
+                }
+                if (logger.replace) {
+                    while (logger.constants.length) {
+                        new_text.splice(0, 0, logger.constants[0] + "\n");
+                        logger.constants.shift();
+                    }
+                    new_text.splice(0, 0, logger.constantHeader + "\n");
+                    while (logger.imports.length) {
+                        new_text.splice(0, 0, logger.imports[0] + "\n");
+                        logger.imports.shift();
+                    }
+                    new_text.splice(0, 0, logger.importHeader + "\n");
+                    new_text = new_text.join("");
+                    editDocument(info[0], info[0].document, new_text);
+                }
+                logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
+            }
+            logger.createReport();
+        } else {
+            vscode.window.showInformationMessage('Unknown Document Used');
+        }
 	});
 	context.subscriptions.push(disposable);
 }
@@ -722,7 +740,9 @@ function determineLanguage(editor) {
 		return "Java";
 	} else if (editor.document.fileName.endsWith(".css")) {
 		return "CSS";
-	}
+	} else {
+        return "UNKNOWN";
+    }
 }
 
 module.exports = {
