@@ -136,6 +136,12 @@ String.prototype.nextChar = function(start) {
 	return start;
 }
 
+/**
+ * Like the included function but for nested array 
+ * @param {*} str - the str we are testing
+ * @param {*} index - the index of the nested array we want to test
+ * @returns 
+ */
 String.prototype.includes_nested = function(str, index) {
     for (let x of this) {
         if (x[index] == str) {
@@ -663,13 +669,16 @@ function styleCSS(text) {
         } else if (line.includes("{")) {
             key = line.split("{")[0].trim()
         } else if (line.includes("}")) {
-            if (!processed.get(key)) {
-                processed.set(key, cur)
-                cur = []
-            } else {
+            if (processed.get(key)) {
                 let old = processed.get(key)
-                
+                for (let element of old) {
+                    if (!cur.includes_nested(element[0], 0)) {
+                        cur.push(element)
+                    }
+                }
             }
+            processed.set(key, cur)
+            cur = []
         }
     }
     console.log(processed)
