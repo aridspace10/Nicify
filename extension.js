@@ -653,23 +653,21 @@ function checkLine(language, line, lineNum, text) {
 }
 
 function styleCSS(text) {
-    const processed = [];
-    console.log(text)
-    let cur = "";
+    const processed = new Map();
+    let cur = []
+    let key = "";
     for (let line of text) {
-        console.log(line)
-        if (line[0] === "}") {
-            console.log(1)
-            processed.push(cur);
-            cur = "";
-        } else {
-            console.log(2)
-            cur += line;
+        if (line.includes(":")) {
+            let lst = line.split(":");
+            cur.push(lst[0].trim(), lst[1].trim());
+        } else if (line.includes("{")) {
+            key = line.split("{")[0].trim()
+        } else if (line.includes("}")) {
+            processed.set(key, cur)
+            cur = []
         }
     }
-    processed.push(cur)
     console.log(processed)
-    const elements = new Map()
 }
 
 function setup() {
