@@ -663,8 +663,13 @@ function styleCSS(text) {
         } else if (line.includes("{")) {
             key = line.split("{")[0].trim()
         } else if (line.includes("}")) {
-            processed.set(key, cur)
-            cur = []
+            if (!processed.get(key)) {
+                processed.set(key, cur)
+                cur = []
+            } else {
+                let old = processed.get(key)
+                
+            }
         }
     }
     console.log(processed)
