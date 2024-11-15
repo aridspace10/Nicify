@@ -653,7 +653,23 @@ function checkLine(language, line, lineNum, text) {
 }
 
 function styleCSS(text) {
-
+    const processed = [];
+    console.log(text)
+    let cur = "";
+    for (let line of text) {
+        console.log(line)
+        if (line[0] === "}") {
+            console.log(1)
+            processed.push(cur);
+            cur = "";
+        } else {
+            console.log(2)
+            cur += line;
+        }
+    }
+    processed.push(cur)
+    console.log(processed)
+    const elements = new Map()
 }
 
 function setup() {
@@ -661,15 +677,19 @@ function setup() {
 	if (editor) {
 		const text = editor.document.getText().split("\n");
 		logger.language = determineLanguage(editor);
-		const data = jsonData[logger.language];
-		logger.g_rules = data["general"];
-		logger.c_rules = data["conventions"][logger.conventions];
-		logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-		logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-		const settings = vscode.workspace.getConfiguration('nicify');
-		logger.replace = settings.get("replace");
-		logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
-		return [editor, text, data];
+        if (logger.language !== "CSS") {
+            const data = jsonData[logger.language];
+            logger.g_rules = data["general"];
+            logger.c_rules = data["conventions"][logger.conventions];
+            logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+            logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+            const settings = vscode.workspace.getConfiguration('nicify');
+            logger.replace = settings.get("replace");
+            logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
+            return [editor, text, data];
+        } else {
+            return [editor, text];
+        }
 	}
 }
 
