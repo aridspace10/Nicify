@@ -662,14 +662,17 @@ function styleCSS(text) {
     const processed = new Map();
     let cur = []
     let key = "";
-    for (let line of text) {
+    text.forEach(line => {
         if (line.includes(":")) {
             let lst = line.split(":");
-            cur.push(lst[0].trim(), lst[1].trim());
+            console.log(lst)
+            cur.push([lst[0].trim(), lst[1].trim()]);
         } else if (line.includes("{")) {
             key = line.split("{")[0].trim()
         } else if (line.includes("}")) {
+            console.log(`Key: ${processed.get(key)}`)
             if (processed.get(key)) {
+                console.log("HERE")
                 let old = processed.get(key)
                 for (let element of old) {
                     if (!cur.includes_nested(element[0], 0)) {
@@ -680,8 +683,15 @@ function styleCSS(text) {
             processed.set(key, cur)
             cur = []
         }
-    }
+    });
     console.log(processed)
+    let new_text = ""
+    processed.forEach((value, key) => {
+        console.log(value)
+        new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
+    });
+    return new_text;
+    
 }
 
 function setup() {
