@@ -8,6 +8,10 @@ const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
 const OPERATORS = ["=",">","+","-","*","/","%", "**", "&&", "||"];
+const MULTIPLESELECTORSTEXT = "We have found two selectors of the same type, what would you like to do?";
+const MULTIPLESELECTORSCHOICES = ["Merge"];
+const MERGECONFLICTCHOICES = ["Pick A", "Pick B"];
+const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
 
 class Stack {
 	constructor() {
@@ -665,18 +669,18 @@ function styleCSS(text) {
     text.forEach(line => {
         if (line.includes(":")) {
             let lst = line.split(":");
-            console.log(lst)
             cur.push([lst[0].trim(), lst[1].trim()]);
         } else if (line.includes("{")) {
             key = line.split("{")[0].trim()
         } else if (line.includes("}")) {
-            console.log(`Key: ${processed.get(key)}`)
             if (processed.get(key)) {
-                console.log("HERE")
                 let old = processed.get(key)
+                let choice = await vscode.window.showQuickPick(MULTIPLESELECTORSCHOICES, {placeHolder: MULTIPLESELECTORSTEXT});
                 for (let element of old) {
                     if (!cur.includes_nested(element[0], 0)) {
                         cur.push(element)
+                    } else {
+                        choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
                     }
                 }
             }
@@ -684,7 +688,6 @@ function styleCSS(text) {
             cur = []
         }
     });
-    console.log(processed)
     let new_text = ""
     processed.forEach((value, key) => {
         console.log(value)
