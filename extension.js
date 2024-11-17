@@ -584,7 +584,7 @@ function checkLine(language, line, lineNum, text) {
 			return "";
 		} else {
 			if (array.includes("return")) {
-				let nextLine = (text[lineNum + 1]).split(" ")
+				let nextLine = (text[lineNum + 1]).split(" ");
 				if (nextLine.includes("else") && !nextLine.includes("if")) {
 					vscode.window.showInformationMessage('Shoudn\'t else after return');
 					logger.addToReport("Misc", lineNum, "ElseReturn");
@@ -670,23 +670,23 @@ function styleCSS(text) {
             let lst = line.split(":");
             cur.push([lst[0].trim(), lst[1].trim()]);
         } else if (line.includes("{")) { // if the start of a selector
-            key = line.split("{")[0].trim()
+            key = line.split("{")[0].trim();
         } else if (line.includes("}")) { // if the end of the selector
             // if the selector has already been used
             if (processed.get(key)) {
-                let old = processed.get(key)
+                let old = processed.get(key);
                 let choice = await vscode.window.showQuickPick(MULTIPLESELECTORSCHOICES, {placeHolder: MULTIPLESELECTORSTEXT});
                 if (choice == "Merge") {
                     for (let element of old) {
                         let temp = cur.includes_nested(element[0], 0);
                         if (!temp) { // if the both selector don't use the same field
-                            cur.push(element)
+                            cur.push(element);
                         } else {
-                            let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`]
+                            let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`];
                             choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
                             if (choice[0] == 1) {
                                 cur.splice(cur.indexOf(temp), 1);
-                                cur.push(element)
+                                cur.push(element);
                             }
                         }
                     }
@@ -696,9 +696,8 @@ function styleCSS(text) {
             cur = []
         }
     });
-    let new_text = ""
+    let new_text = "";
     processed.forEach((value, key) => {
-        console.log(value)
         new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
     });
     return new_text;
