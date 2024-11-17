@@ -10,7 +10,6 @@ const LOWER_CASE_EDGES = [97, 122];
 const OPERATORS = ["=",">","+","-","*","/","%", "**", "&&", "||"];
 const MULTIPLESELECTORSTEXT = "We have found two selectors of the same type, what would you like to do?";
 const MULTIPLESELECTORSCHOICES = ["Merge"];
-const MERGECONFLICTCHOICES = ["Pick A", "Pick B"];
 const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
 
 class Stack {
@@ -149,7 +148,7 @@ String.prototype.nextChar = function(start) {
 String.prototype.includes_nested = function(str, index) {
     for (let x of this) {
         if (x[index] == str) {
-            return true;
+            return x;
         }
     }
     return false;
@@ -677,10 +676,16 @@ function styleCSS(text) {
                 let old = processed.get(key)
                 let choice = await vscode.window.showQuickPick(MULTIPLESELECTORSCHOICES, {placeHolder: MULTIPLESELECTORSTEXT});
                 for (let element of old) {
-                    if (!cur.includes_nested(element[0], 0)) {
+                    let temp = cur.includes_nested(element[0], 0);
+                    if (!temp) {
                         cur.push(element)
                     } else {
+                        let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`]
                         choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
+                        if (choice[0] == 1) {
+                            cur.splice(cur.indexOf(temp), 1);
+                            cur.push(element)
+                        }
                     }
                 }
             }
