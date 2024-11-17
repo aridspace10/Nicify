@@ -666,25 +666,28 @@ function styleCSS(text) {
     let cur = []
     let key = "";
     text.forEach(line => {
-        if (line.includes(":")) {
+        if (line.includes(":")) { // if a field
             let lst = line.split(":");
             cur.push([lst[0].trim(), lst[1].trim()]);
-        } else if (line.includes("{")) {
+        } else if (line.includes("{")) { // if the start of a selector
             key = line.split("{")[0].trim()
-        } else if (line.includes("}")) {
+        } else if (line.includes("}")) { // if the end of the selector
+            // if the selector has already been used
             if (processed.get(key)) {
                 let old = processed.get(key)
                 let choice = await vscode.window.showQuickPick(MULTIPLESELECTORSCHOICES, {placeHolder: MULTIPLESELECTORSTEXT});
-                for (let element of old) {
-                    let temp = cur.includes_nested(element[0], 0);
-                    if (!temp) {
-                        cur.push(element)
-                    } else {
-                        let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`]
-                        choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
-                        if (choice[0] == 1) {
-                            cur.splice(cur.indexOf(temp), 1);
+                if (choice == "Merge") {
+                    for (let element of old) {
+                        let temp = cur.includes_nested(element[0], 0);
+                        if (!temp) { // if the both selector don't use the same field
                             cur.push(element)
+                        } else {
+                            let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`]
+                            choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
+                            if (choice[0] == 1) {
+                                cur.splice(cur.indexOf(temp), 1);
+                                cur.push(element)
+                            }
                         }
                     }
                 }
