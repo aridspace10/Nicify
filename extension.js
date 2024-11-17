@@ -129,7 +129,7 @@ String.prototype.count = function(search) {
     return sum;
 }
 
-String.prototype.nextChar = function(start) {
+String.prototype.nextChar = function(start = 0) {
 	while (this[start] === " ") {
 		start++;
 		if (start === this.length - 1) {
@@ -665,13 +665,25 @@ function styleCSS(text) {
     const processed = new Map();
     let cur = []
     let key = "";
+    let lineNum = 0;
     text.forEach(line => {
+        let firstChar = line.nextChar();
         if (line.includes(":")) { // if a field
             let lst = line.split(":");
             cur.push([lst[0].trim(), lst[1].trim()]);
+            if (line.indexOf(firstChar) != 4) {
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4)
+            }
         } else if (line.includes("{")) { // if the start of a selector
             key = line.split("{")[0].trim();
+            if (line.indexOf(firstChar)) {
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
+            }
         } else if (line.includes("}")) { // if the end of the selector
+            if (line.indexOf(firstChar)) {
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
+            }
+
             // if the selector has already been used
             if (processed.get(key)) {
                 let old = processed.get(key);
@@ -695,6 +707,7 @@ function styleCSS(text) {
             processed.set(key, cur)
             cur = []
         }
+        lineNum += 1;
     });
     let new_text = "";
     processed.forEach((value, key) => {
