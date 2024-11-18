@@ -724,22 +724,36 @@ function styleHTML(text) {
     let exp_indentation = 0;
     let lineNum = 0;
     let processed = "";
+    const inCSS = [];
     text.forEach(line => {
+        let arr = line.trim().split(" ");
+        if (inCSS) {
+            if (arr.includes("</style>")) {
+                inCSS.shift()
+                processed += styleCSS(inCSS);
+                inCSS = "";
+            } else {
+                inCSS.push(line);
+            }
+            continue
+        }
         let indentation = line.nextChar()
         if (indentation !== -1 && indentation !== exp_indentation) {
             logger.addToReport("indententation", lineNum, indentation, exp_indentation);
         }
-        let arr = line.trim().split(" ");
         if (arr[0][1] != "h" && !ELEMENTNONINDENT.includes_nested(arr[0])) {
             exp_indentation += 4;
         } else if (arr[0][1] != "h" && !ELEMENTNONINDENT.includes_nested(arr[0].toSpliced(1, 1))) {
             exp_indentation -= 4;
         }
         if (arr[0].startsWith("<div>")) {
-            logger.addToReport("warning", lineNum, "Consider using semantic elements such <nav>, <body>, <main>");
+            logger.addToReport("warning", lineNum, "Consider using semantic elements such <nav>, <body>, <main> etc");
+        }
+        if (arr[0].startsWith("<style>")) {
+            inCSS.push("");
         }
         lineNum++;
-        processed += " ".repeat(exp_indentation) + line.trim();
+        processed += " ".repeat(exp_indentation) + line.trim() + "\n";
     });
     return processed
 }
