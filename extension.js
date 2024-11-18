@@ -11,6 +11,7 @@ const OPERATORS = ["=",">","+","-","*","/","%", "**", "&&", "||"];
 const MULTIPLESELECTORSTEXT = "We have found two selectors of the same type, what would you like to do?";
 const MULTIPLESELECTORSCHOICES = ["Merge"];
 const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
+const ELEMENTNONINDENT = ["<p>"]
 
 class Stack {
 	constructor() {
@@ -133,7 +134,7 @@ String.prototype.nextChar = function(start = 0) {
 	while (this[start] === " ") {
 		start++;
 		if (start === this.length - 1) {
-			return 0;
+			return -1;
 		}
 	}
 	return start;
@@ -707,14 +708,26 @@ function styleCSS(text) {
             processed.set(key, cur)
             cur = []
         }
-        lineNum += 1;
+        lineNum++;
     });
     let new_text = "";
     processed.forEach((value, key) => {
         new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
     });
     return new_text;
-    
+}
+
+function styleHTML(text) {
+    let exp_indentation = 0;
+    let lineNum = 0;
+    text.forEach(line => {
+        let indentation = line.nextChar()
+        if (indentation !== -1 && indentation !== exp_indentation) {
+            logger.addToReport("indententation", lineNum, indentation, exp_indentation);
+        }
+        let arr = line.trim().split(" ");
+        lineNum++;
+    });
 }
 
 function setup() {
