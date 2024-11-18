@@ -1,5 +1,8 @@
 /* eslint-disable no-undef */
 // The module 'vscode' contains the VS Code extensibility API
+
+import { log } from 'console';
+
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const fs = require('fs');
@@ -720,6 +723,7 @@ function styleCSS(text) {
 function styleHTML(text) {
     let exp_indentation = 0;
     let lineNum = 0;
+    let processed = "";
     text.forEach(line => {
         let indentation = line.nextChar()
         if (indentation !== -1 && indentation !== exp_indentation) {
@@ -735,7 +739,9 @@ function styleHTML(text) {
             logger.addToReport("warning", lineNum, "Consider using semantic elements such <nav>, <body>, <main>");
         }
         lineNum++;
+        processed += " ".repeat(exp_indentation) + line.trim();
     });
+    return processed
 }
 
 function setup() {
@@ -783,13 +789,11 @@ function activate(context) {
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
 		const info = setup();
         if (logger.language !== "UNKNOWN") {
+            let new_text = "";
             if (logger.language === "HTML") {
-    
+                new_text = styleHTML(info[1])
             } else if (logger.language === "CSS") {
-                let new_text = styleCSS(info[1])
-                if (logger.replace) {
-                    editDocument(info[0], info[0].document, new_text);
-                }
+                new_text = styleCSS(info[1])
             } else {
                 const formatted_text = clangFormat(info[1]);
                 let new_text = [];
@@ -808,9 +812,12 @@ function activate(context) {
                     }
                     new_text.splice(0, 0, logger.importHeader + "\n");
                     new_text = new_text.join("");
-                    editDocument(info[0], info[0].document, new_text);
+                    
                 }
                 logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
+            }
+            if (logger.replace) {
+                editDocument(info[0], info[0].document, new_text);
             }
             logger.createReport();
         } else {
