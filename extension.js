@@ -726,6 +726,14 @@ function styleHTML(text) {
             logger.addToReport("indententation", lineNum, indentation, exp_indentation);
         }
         let arr = line.trim().split(" ");
+        if (arr[0][1] != "h" && !ELEMENTNONINDENT.includes_nested(arr[0])) {
+            exp_indentation += 4;
+        } else if (arr[0][1] != "h" && !ELEMENTNONINDENT.includes_nested(arr[0].toSpliced(1, 1))) {
+            exp_indentation -= 4;
+        }
+        if (arr[0].startsWith("<div>")) {
+            logger.addToReport("warning", lineNum, "Consider using semantic elements such <nav>, <body>, <main>");
+        }
         lineNum++;
     });
 }
