@@ -725,11 +725,14 @@ function styleHTML(text) {
     let lineNum = 0;
     let processed = "";
     const inCSS = [];
+    if (text[0] !== "<!DOCTYPE html>") {
+        processed = "<!DOCTYPE html>\n"
+    }
     text.forEach(line => {
         let arr = line.trim().split(" ");
         if (inCSS) {
             if (arr.includes("</style>")) {
-                inCSS.shift()
+                inCSS.shift() //remove empty string
                 processed += styleCSS(inCSS);
                 inCSS = "";
             } else {
