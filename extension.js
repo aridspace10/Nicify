@@ -665,9 +665,21 @@ function checkLine(language, line, lineNum, text) {
 	return line;
 }
 
+function determineFieldType(field) {
+    const BOXTYPE = [""];
+    const TYPOGRAPHYTYPE = ["color", "font-size"];
+    if (field.startsWith("margin") || field.startsWith("padding")) {
+        return 0;
+    } else if (TYPOGRAPHYTYPE.includes(field)) {
+        return 1;
+    } else {
+        return 2;
+    }
+}
+
 function styleCSS(text) {
     const processed = new Map();
-    let cur = []
+    let cur = [[], [], []]
     let key = "";
     let lineNum = 0;
     text.forEach(line => {
@@ -696,6 +708,7 @@ function styleCSS(text) {
                     for (let element of old) {
                         let temp = cur.includes_nested(element[0], 0);
                         if (!temp) { // if the both selector don't use the same field
+
                             cur.push(element);
                         } else {
                             let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`];
@@ -709,7 +722,7 @@ function styleCSS(text) {
                 }
             }
             processed.set(key, cur)
-            cur = []
+            cur = [[], [], []]
         }
         lineNum++;
     });
