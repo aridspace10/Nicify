@@ -691,7 +691,7 @@ function styleCSS(text) {
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4)
             }
         } else if (line.includes("{")) { // if the start of a selector
-            key = line.split("{")[0].trim();
+            key = line.split("{")[0].trim();  
             if (line.indexOf(firstChar)) { // if there is an indentation
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
             }
@@ -720,14 +720,14 @@ function styleCSS(text) {
                     }
                 }
             }
-            processed.set(key, cur)
-            cur = [[], [], []]
+            processed.set(key, cur);
+            cur = [[], [], []];
         }
         lineNum++;
     });
     let new_text = "";
     processed.forEach((value, key) => {
-        new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
+        new_text += `${key} {\n${value.map(type=> type.map(element => `    ${element[0]}: ${element[1]}\n`)).join("")}}\n\n`;
     });
     return new_text;
 }
@@ -738,13 +738,13 @@ function styleHTML(text) {
     let processed = "";
     const inCSS = [];
     if (text[0] !== "<!DOCTYPE html>") {
-        processed = "<!DOCTYPE html>\n"
+        processed = "<!DOCTYPE html>\n";
     }
     text.forEach(line => {
         let arr = line.trim().split(" ");
         if (inCSS) {
             if (arr.includes("</style>")) {
-                inCSS.shift() //remove empty string
+                inCSS.shift(); //remove empty string
                 processed += styleCSS(inCSS);
                 inCSS = "";
             } else {
