@@ -706,16 +706,15 @@ function styleCSS(text) {
                 let choice = await vscode.window.showQuickPick(MULTIPLESELECTORSCHOICES, {placeHolder: MULTIPLESELECTORSTEXT});
                 if (choice == "Merge") {
                     for (let element of old) {
-                        let temp = cur.includes_nested(element[0], 0);
-                        if (!temp) { // if the both selector don't use the same field
-
-                            cur.push(element);
+                        if (!cur.filter(type => type.includes_nested(element[0], 0)).length) { // if the both selector don't use the same field
+                            cur[determineFieldType(element[0])].push(element);
                         } else {
                             let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`];
                             choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
                             if (choice[0] == 1) {
-                                cur.splice(cur.indexOf(temp), 1);
-                                cur.push(element);
+                                let index = determineFieldType(element[0]);
+                                cur[index].splice(cur.indexOf(temp), 1);
+                                cur[index].push(element);
                             }
                         }
                     }
