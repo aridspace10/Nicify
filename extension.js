@@ -687,16 +687,16 @@ function styleCSS(text) {
         if (line.includes(":")) { // if a field
             let lst = line.split(":");
             cur.push([lst[0].trim(), lst[1].trim()]);
-            if (line.indexOf(firstChar) != 4) {
+            if (line.indexOf(firstChar) != 4) { // if there is not an indentation of 4
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4)
             }
         } else if (line.includes("{")) { // if the start of a selector
             key = line.split("{")[0].trim();
-            if (line.indexOf(firstChar)) {
+            if (line.indexOf(firstChar)) { // if there is an indentation
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
             }
         } else if (line.includes("}")) { // if the end of the selector
-            if (line.indexOf(firstChar)) {
+            if (line.indexOf(firstChar)) { // if there is an indentation
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
             }
 
@@ -710,12 +710,12 @@ function styleCSS(text) {
                             cur[determineFieldType(element[0])].push(element);
                         } else {
                             let options = [`1. Pick ${element[1]}`, `2. Pick ${temp[1]}`];
-                            choice = await vscode.window.showQuickPick(MERGECONFLICTCHOICES, {placeHolder: MERGECONFLICTTEXT});
+                            choice = await vscode.window.showQuickPick(options, {placeHolder: MERGECONFLICTTEXT});
                             if (choice[0] == 1) {
                                 let index = determineFieldType(element[0]);
                                 cur[index].splice(cur.indexOf(temp), 1);
                                 cur[index].push(element);
-                            }
+                            } // Nothing needed to be done if pick option 2 
                         }
                     }
                 }
