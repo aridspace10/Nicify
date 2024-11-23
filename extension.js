@@ -820,7 +820,7 @@ function activate(context) {
         if (logger.language !== "UNKNOWN") {
             let new_text = "";
             if (logger.language === "HTML") {
-                new_text = styleHTML(info[1])
+                new_text = styleHTML(info[1]);
             } else if (logger.language === "CSS") {
                 new_text = styleCSS(info[1])
             } else {
@@ -830,11 +830,13 @@ function activate(context) {
                     new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
                 }
                 if (logger.replace) {
+                    logger.constants.sort()
                     while (logger.constants.length) {
                         new_text.splice(0, 0, logger.constants[0] + "\n");
                         logger.constants.shift();
                     }
                     new_text.splice(0, 0, logger.constantHeader + "\n");
+                    logger.imports.sort()
                     while (logger.imports.length) {
                         new_text.splice(0, 0, logger.imports[0] + "\n");
                         logger.imports.shift();
