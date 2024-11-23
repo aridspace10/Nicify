@@ -744,7 +744,7 @@ function styleHTML(text) {
         let arr = line.trim().split(" ");
         if (inCSS) {
             if (arr.includes("</style>")) {
-                inCSS.shift(); //remove empty string
+                inCSS.shift(); //remove placeholder empty string
                 processed += styleCSS(inCSS);
                 inCSS = "";
             } else {
@@ -752,7 +752,7 @@ function styleHTML(text) {
             }
             continue
         }
-        let indentation = line.nextChar()
+        let indentation = line.nextChar();
         if (indentation !== -1 && indentation !== exp_indentation) {
             logger.addToReport("indententation", lineNum, indentation, exp_indentation);
         }
@@ -765,7 +765,7 @@ function styleHTML(text) {
             logger.addToReport("warning", lineNum, "Consider using semantic elements such <nav>, <body>, <main> etc");
         }
         if (arr[0].startsWith("<style>")) {
-            inCSS.push("");
+            inCSS.push(""); // start looking for the end of the CSS
         }
         lineNum++;
         processed += " ".repeat(exp_indentation) + line.trim() + "\n";
