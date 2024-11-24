@@ -737,7 +737,7 @@ async function styleHTML(text) {
     if (text[0] !== "<!DOCTYPE html>") {
         processed = "<!DOCTYPE html>\n";
     }
-    text.forEach(line => {
+    for (const line of text) {
         let arr = line.trim().split(" ");
         if (inCSS) {
             if (arr.includes("</style>")) {
@@ -766,7 +766,7 @@ async function styleHTML(text) {
         }
         lineNum++;
         processed += " ".repeat(exp_indentation) + line.trim() + "\n";
-    });
+    };
     return processed
 }
 
