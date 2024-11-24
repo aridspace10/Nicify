@@ -1,8 +1,5 @@
 /* eslint-disable no-undef */
 // The module 'vscode' contains the VS Code extensibility API
-
-import { log } from 'console';
-
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 const fs = require('fs');
@@ -677,12 +674,12 @@ function determineFieldType(field) {
     }
 }
 
-function styleCSS(text) {
+async function styleCSS(text) {
     const processed = new Map();
     let cur = [[], [], []]
     let key = "";
     let lineNum = 0;
-    text.forEach(line => {
+    for (const line of text) { // Can't use await in forEach
         let firstChar = line.nextChar();
         if (line.includes(":")) { // if a field
             let lst = line.split(":");
@@ -724,7 +721,7 @@ function styleCSS(text) {
             cur = [[], [], []];
         }
         lineNum++;
-    });
+    };
     let new_text = "";
     processed.forEach((value, key) => {
         new_text += `${key} {\n${value.map(type=> type.map(element => `    ${element[0]}: ${element[1]}\n`)).join("")}}\n\n`;
@@ -732,7 +729,7 @@ function styleCSS(text) {
     return new_text;
 }
 
-function styleHTML(text) {
+async function styleHTML(text) {
     let exp_indentation = 0;
     let lineNum = 0;
     let processed = "";
@@ -813,16 +810,16 @@ function editDocument(editor, document, text) {
 /**
  * @param {vscode.ExtensionContext} context
  */
-function activate(context) {
+async function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
-	const disposable = vscode.commands.registerCommand('nicify.styleFix', function () {
+	const disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
 		const info = setup();
         if (logger.language !== "UNKNOWN") {
             let new_text = "";
             if (logger.language === "HTML") {
-                new_text = styleHTML(info[1]);
+                new_text = await styleHTML(info[1]);
             } else if (logger.language === "CSS") {
-                new_text = styleCSS(info[1])
+                new_text = await styleCSS(info[1])
             } else {
                 const formatted_text = clangFormat(info[1]);
                 let new_text = [];
