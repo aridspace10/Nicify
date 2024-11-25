@@ -683,7 +683,7 @@ async function styleCSS(text) {
         let firstChar = line.nextChar();
         if (line.includes(":")) { // if a field
             let lst = line.split(":");
-            cur.push([lst[0].trim(), lst[1].trim()]);
+            cur[determineFieldType(lst[0].trim())].push([lst[0].trim(), lst[1].trim()]);
             if (line.indexOf(firstChar) != 4) { // if there is not an indentation of 4
                 logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4)
             }
@@ -717,14 +717,15 @@ async function styleCSS(text) {
                     }
                 }
             }
-            processed.set(key, cur);
+            processed.set(key, cur[0].concat(cur[1]).concat(cur[2]));
             cur = [[], [], []];
         }
         lineNum++;
     };
     let new_text = "";
     processed.forEach((value, key) => {
-        new_text += `${key} {\n${value.map(type=> type.map(element => `    ${element[0]}: ${element[1]}\n`)).join("")}}\n\n`;
+        console.log(value[0][1])
+        new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
     });
     return new_text;
 }
