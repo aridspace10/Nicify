@@ -548,7 +548,6 @@ function checkLine(language, line, lineNum, text) {
 	}
 	if (line && line.trim() !== "") {
 		let indentation = 0;
-        console.log(line)
 		while (line[0] === " ") {
 			indentation += 1;
 			line.shift();
@@ -685,16 +684,16 @@ async function styleCSS(text) {
             let lst = line.split(":");
             cur[determineFieldType(lst[0].trim())].push([lst[0].trim(), lst[1].trim()]);
             if (line.indexOf(firstChar) != 4) { // if there is not an indentation of 4
-                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4)
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 4);
             }
         } else if (line.includes("{")) { // if the start of a selector
-            key = line.split("{")[0].trim();  
+            key = line.split("{")[0].trim();
             if (line.indexOf(firstChar)) { // if there is an indentation
-                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0);
             }
         } else if (line.includes("}")) { // if the end of the selector
             if (line.indexOf(firstChar)) { // if there is an indentation
-                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0)
+                logger.addToReport("indententation", lineNum, line.indexOf(firstChar), 0);
             }
 
             // if the selector has already been used
@@ -724,7 +723,6 @@ async function styleCSS(text) {
     };
     let new_text = "";
     processed.forEach((value, key) => {
-        console.log(value[0][1])
         new_text += `${key} {\n${value.map(element => `    ${element[0]}: ${element[1]}\n`).join("")}}\n\n`;
     });
     return new_text;
