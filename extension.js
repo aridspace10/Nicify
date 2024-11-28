@@ -42,7 +42,7 @@ class Logger {
 	constructor() {
 		this.namingChanges = new Map();
         this.language = "";
-		this.report = {"naming": [], "Misc": []};
+		this.report = {"naming": [], "Misc": [], "Format": []};
 		this.conventions = "";
 		this.starts = new Map()
 		this.imports = [];
@@ -191,6 +191,7 @@ function clangFormat(text) {
                     modified.slice(0, -1);
                 }
                 index++;
+                modified += ";";
                 while (len > index) {
                     if (line[index] === " ") {
                         index++;
@@ -320,8 +321,8 @@ function checkCasing(type, name, lineNum) {
 	} else {
         // For every _, remove it and uppercase the following letter
 		for (let i = 0; i < name.length; i++) {
-			if (name[i] == "_") {
-				i++;
+			if (name[i] === "_") {
+				while (name[i] === "_") {i++};
 				newName += name[i].toUpperCase();
 			} else {
 				newName += name[i];
