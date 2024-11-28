@@ -257,19 +257,10 @@ Parameters:
  @param lineNum - the number of the line where str defined
 */
 function convertToLiteral(str, lineNum) {
-	let index = 1;
-	let instring;
-	let opened;
-	let mod = "`";
-	if (str[0] === "\"" || str[0] === "'") {
-		instring = true;
-	} else {
-		mod += "${";
-		index -= 1;
-		instring = false;
-	}
-	opened = !instring;
-	str.forEach((char, index) => {
+	let instring = false;
+	let opened = false;
+    let mod = "`";
+	[...str].forEach((char, index) => {
 		if (char === ";") {
 			return mod + "\`;\n";
 		}

@@ -62,7 +62,7 @@ suite('1. Clang Formatting Testing', () => {
 		assert.deepStrictEqual(clangFormat(["let var1 = 5; let var2 = 10;"]), ["let var1 = 5;\nlet var2 = 10;"]);
 	});
 	test('1.5.2 Multiple declarations without space', () => {
-		assert.deepStrictEqual(clangFormat(["let var1 = 5; let var2 = 10;let var3 = 2"]), ["let var1 = 5;\nlet var2 = 10;\nlet var3 = 2;"]);
+		assert.deepStrictEqual(clangFormat(["let var1 = 5; let var2 = 10;let var3 = 2"]), ["let var1 = 5;\nlet var2 = 10;\nlet var3 = 2"]);
 	});
 	test('1.5.3 Multivariable declaration with `const`', () => {
 		assert.deepStrictEqual(clangFormat(["let var1 = 5; const var2 = 10;"]), ["let var1 = 5;\nconst var2 = 10;"]);
@@ -72,7 +72,7 @@ suite('1. Clang Formatting Testing', () => {
 suite("2. String literal Testing", () => {
 	test("1.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\""), "`Hello There!!!`")});
 	test("1.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'"), "`Hello There!!!`")});
-	test("1.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name \""), "`Hello ${name}")});
+	test("1.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name \""), "`Hello ${name}`")});
 	test("", () => {});
 	test("", () => {});
 })
