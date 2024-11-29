@@ -260,30 +260,26 @@ function convertToLiteral(str, lineNum) {
 	let instring = false;
 	let opened = false;
     let mod = "`";
+    if (str[0] !== "\"" && str[0] !== "'") {
+        mod += "${"
+    }
 	[...str].forEach((char, index) => {
 		if (char === ";") {
 			return mod + "\`;\n";
 		}
 		if (char === "\"" || char === "'") {
+            if (!instring && mod.length > 1) {
+                mod += "}"
+            } else if (instring) {
+                mod += "${"
+            }
       		instring = !instring;
-		} else if (instring) {
+		} else if (instring || (char !== "+" && char !== " ")) {
 			mod += str[index];
-		} else {
-			if (char === "+") {
-				if (!opened) {
-					mod += "${";
-					opened = true;
-				} else {
-					mod += "}";
-					opened = false;   
-				}
-			} else if (char !== " ") {
-				mod += str[index];
-			}
 		}
 	});
-	if (opened) {
-		mod += "}"
+	if (mod.at(-1) === "{") {
+		mod = mod.slice(0,-2);
 	}
 	mod += "`";
 	logger.addToReport("Literal", lineNum, str, mod);

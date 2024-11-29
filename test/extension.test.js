@@ -72,8 +72,8 @@ suite('1. Clang Formatting Testing', () => {
 suite("2. String literal Testing", () => {
 	test("1.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\""), "`Hello There!!!`")});
 	test("1.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'"), "`Hello There!!!`")});
-	test("1.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name \""), "`Hello ${name}`")});
-	test("", () => {});
+	test("1.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name\""), "`Hello ${name}`")});
+	test("1.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\""), "`${name}, welcome`")});
 	test("", () => {});
 })
 
