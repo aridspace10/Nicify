@@ -256,12 +256,20 @@ Parameters:
  @param str - the string to be modifed
  @param lineNum - the number of the line where str defined
 */
-function convertToLiteral(str, lineNum) {
+function convertToLiteral(str, lineNum, language) {
 	let instring = false;
 	let opened = false;
-    let mod = "`";
+    let mod;
+    if (language === "Python") {
+        mod = "f\""
+    } else {
+        mod = "`"
+    }
     if (str[0] !== "\"" && str[0] !== "'") {
-        mod += "${"
+        if (language === "Javascript") {
+            mod += "$";
+        }
+        mod += "{";
     }
 	[...str].forEach((char, index) => {
 		if (char === ";") {
@@ -269,9 +277,12 @@ function convertToLiteral(str, lineNum) {
 		}
 		if (char === "\"" || char === "'") {
             if (!instring && mod.length > 1) {
-                mod += "}"
+                mod += "}";
             } else if (instring) {
-                mod += "${"
+                if (language === "Javascript") {
+                    mod += "$";
+                }
+                mod += "{";
             }
       		instring = !instring;
 		} else if (instring || (char !== "+" && char !== " ")) {
@@ -279,9 +290,17 @@ function convertToLiteral(str, lineNum) {
 		}
 	});
 	if (mod.at(-1) === "{") {
-		mod = mod.slice(0,-2);
+        if (language === "Python") {
+            mod = mod.slice(0, -1)
+        } else {
+		    mod = mod.slice(0, -2);
+        }
 	}
-	mod += "`";
+    if (language === "Python") {
+        mod += "\""
+    } else {
+	    mod += "`";
+    }
 	logger.addToReport("Literal", lineNum, str, mod);
 	return (mod);
 }
