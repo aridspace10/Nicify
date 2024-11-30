@@ -598,8 +598,13 @@ function checkLine(language, line, lineNum, text) {
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
 			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
-                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", ") + " {\n", lineNum);
-			if (line !== array.join) {
+                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", "), lineNum);
+            if (language === "Python") {
+                line += ":\n";
+            } else {
+                line += " {\n";
+            }
+			if (line !== array.join(" ")) {
 				logger.addToReport("funcDec", lineNum);
 			}
 			return line
