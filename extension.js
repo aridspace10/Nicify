@@ -260,14 +260,19 @@ function convertToLiteral(str, lineNum, language) {
 	let instring = false;
 	let opened = false;
     let mod;
+    let first = true;
     if (language === "Python") {
-        mod = "f\""
-    } else {
-        mod = "`"
+        mod = "f\"";
+    } else if (language === "Javascript") {
+        mod = "`";
+    } else if (language === "Java") {
+        mod = "STR. ";
     }
     if (str[0] !== "\"" && str[0] !== "'") {
         if (language === "Javascript") {
             mod += "$";
+        } else if (language === "Java") {
+            mod += "\\";
         }
         mod += "{";
     }
@@ -276,7 +281,7 @@ function convertToLiteral(str, lineNum, language) {
 			return mod + "\`;\n";
 		}
 		if (char === "\"" || char === "'") {
-            if (!instring && mod.length > 1) {
+            if (!instring && !first) {
                 mod += "}";
             } else if (instring) {
                 if (language === "Javascript") {
@@ -288,6 +293,7 @@ function convertToLiteral(str, lineNum, language) {
 		} else if (instring || (char !== "+" && char !== " ")) {
 			mod += str[index];
 		}
+        first = false;
 	});
 	if (mod.at(-1) === "{") {
         if (language === "Python") {
