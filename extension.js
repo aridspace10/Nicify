@@ -206,13 +206,16 @@ function clangFormat(text) {
                     }
                 }
 			} else if (OPERATORS.includes(element)) {
+                //check for space before
 				if (line[index-1] !== " ") {
           			modified += " ";
                     logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
+                // for ++, --, ...
 				while (OPERATORS.includes(line[index])) {
 					modified += line[index++];
 				}
+                // check for space after
 				if (line[index] !== " ") {
 					modified += " ";
                     logger.addToReport("Format", lineNum, "Spacing needed between operator");
@@ -261,6 +264,7 @@ function convertToLiteral(str, lineNum, language) {
 	let opened = false;
     let mod;
     let first = true;
+    // Define starting context
     if (language === "Python") {
         mod = "f\"";
     } else if (language === "Javascript") {
@@ -268,6 +272,7 @@ function convertToLiteral(str, lineNum, language) {
     } else if (language === "Java") {
         mod = "STR. ";
     }
+    // Determine if starts in string or not
     if (str[0] !== "\"" && str[0] !== "'") {
         if (language === "Javascript") {
             mod += "$";
@@ -281,16 +286,18 @@ function convertToLiteral(str, lineNum, language) {
 			return mod + "\`;\n";
 		}
 		if (char === "\"" || char === "'") {
-            if (!instring && !first) {
+            if (!instring && !first) { // if the end of a variable
                 mod += "}";
             } else if (instring) {
                 if (language === "Javascript") {
                     mod += "$";
+                } else if (language === "Java") {
+                    mod += "\\";
                 }
                 mod += "{";
             }
       		instring = !instring;
-		} else if (instring || (char !== "+" && char !== " ")) {
+		} else if (instring || (char !== "+" && char !== " ")) { // if in a string or not a space or addition of variable
 			mod += str[index];
 		}
         first = false;
