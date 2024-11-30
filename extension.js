@@ -131,9 +131,9 @@ String.prototype.count = function(search) {
 }
 
 String.prototype.nextChar = function(start = 0) {
-	while (this[start] === " ") {
+	while (/\s/.test(this[start])) {
 		start++;
-		if (start === this.length - 1) {
+		if (start === this.length) {
 			return -1;
 		}
 	}
@@ -159,6 +159,7 @@ function clangFormat(text) {
 	const formatted_text = [];
     let lineNum = 1;
 	for (let line of text) {
+        console.log(lineNum)
 		let index = 0;
 		let modified = "";
 		let charFound = false;
@@ -235,11 +236,13 @@ function clangFormat(text) {
 				}
 				while (line[++index] === " ");
 				continue;
-			} else if (element === "(" || element === "[") {
+			} else if ((element === "(" || element === "[") && line.nextChar(index + 1) !== -1) {
+                console.log("HEYA")
+                console.log(line.length)
 				opened.push(element);
 				modified += element;
 				index++;
-			} else if (element === ")" || element === "]") {
+			} else if ((element === ")" || element === "]") && line.nextChar(index + 1) !== -1) {
 				opened.pop();
 				modified += element;
 				index++;
@@ -579,7 +582,9 @@ function checkLine(language, line, lineNum, text) {
 		let indentation = 0;
 		while (line[0] === " ") {
 			indentation += 1;
+            console.log("S");
 			line.shift();
+            console.log("H")
 		}
         let array = line.split(" ");
 
@@ -854,6 +859,7 @@ async function activate(context) {
             } else if (logger.language === "CSS") {
                 new_text = await styleCSS(info[1])
             } else {
+                console.log("A")
                 const formatted_text = clangFormat(info[1]);
                 let new_text = [];
                 for (let lineNum in formatted_text) {
