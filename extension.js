@@ -379,15 +379,24 @@ function checkFuncNaming(line, lineNum) {
 	let temp = "";
     // For each char, if "," then add to parameters else add to progress
 	for (let char of raw_parameters) {
-		if (char === ",") {
-			params.push(checkNaming("variable", temp));
-			temp = "";
+		if (char === "," || char === ")") {
+            if (logger.language === "Python" || logger.language === "Java") {
+                let lst = temp.split(" ");
+                if (lst.length === 1) {
+                    params.push(checkNaming("variable", temp));
+                } else {
+                    params.push(`${lst[0]} ${checkNaming("variable", lst[1])}`);
+                }
+            } else {
+                params.push(checkNaming("variable", temp));
+			    temp = "";
+            }
+            
+            if (char === ")") {
+                break;
+            }
 		} else if (char !== " ") {
-			temp += char
-			if (char == ")") {
-				params.push(checkNaming("variable", temp));
-				break;
-			}
+			temp += char;
 		}
 	}
 	return [funcName, params];
