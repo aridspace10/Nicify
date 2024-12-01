@@ -237,8 +237,6 @@ function clangFormat(text) {
 				while (line[++index] === " ");
 				continue;
 			} else if ((element === "(" || element === "[") && line.nextChar(index + 1) !== -1) {
-                console.log("HEYA")
-                console.log(line.length)
 				opened.push(element);
 				modified += element;
 				index++;
@@ -412,7 +410,6 @@ function checkFuncNaming(line, lineNum) {
  * @param {*} params - the params of the function
  */
 function checkJSDOC(text, funcLine, funcName, params) {
-    console.log("HERE")
 	let commentingRules = logger.g_rules["commenting"];
 	if (funcLine && text[funcLine-1].includes(commentingRules["singleComment"]) || 
 		text[funcLine-1].includes(commentingRules["multiLineComment"][0]) || 
@@ -519,6 +516,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	}
 	
     if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
+        console.log(typeof logger.unused)
         if (logger.unused.includes_nested(array[equalsIndex - 1], 2)) {
             let index = logger.unused.indexOf(array[equalsIndex - 1]);
             logger.unused.splice(index, index + 1);
@@ -582,9 +580,7 @@ function checkLine(language, line, lineNum, text) {
 		let indentation = 0;
 		while (line[0] === " ") {
 			indentation += 1;
-            console.log("S");
 			line.shift();
-            console.log("H")
 		}
         let array = line.split(" ");
 
@@ -902,6 +898,7 @@ function determineLanguage(editor) {
 		logger.conventions = "google";
 		return "Javascript";
 	} else if (editor.document.fileName.endsWith('.py')) {
+        logger.conventions = "PEP 8"
 		return "Python";
 	} else if (editor.document.fileName.endsWith(".html")) {
 		return "HTML";
