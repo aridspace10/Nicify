@@ -507,6 +507,7 @@ function checkLineLength(type, line, lineNum) {
 
 function checkVarDecleration(array, language, lineNum, indentation) {
 	let equalsIndex = array.indexOf("=");
+    console.log(lineNum)
     //check if language is includes variable decleration
 	if (logger.g_rules["varDeclaration"].includes(array[0])) {
 		if (language == "Javascript" && array[0] == "var") {
@@ -536,11 +537,17 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 
 	// check for use of not using template literal
 	let subject = array.slice(equalsIndex + 1).join(" ");
-	if (subject.count("\"") > 2 || subject.count("\'") > 2) {
-		array.splice(equalsIndex + 1);
-		array.push(convertToLiteral(subject, lineNum));
-		return " ".repeat(indentation) + array.join(" ");
+	if ((subject.count("\"") >= 2 || subject.count("\'") >= 2) && subject.count("+")) {
+        array.splice(equalsIndex + 1);
+        let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
+        if (index > 0 && subject[index - 1] === "(") {
+            array.push(` input("`)
+        } else {
+            array.push(convertToLiteral(subject, lineNum));
+        }
+        return " ".repeat(indentation) + array.join(" ");
 	}
+    console.log("2")
 	
     // check for language specific problems of each word
 	for (let index in array) {
