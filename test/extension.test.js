@@ -3,7 +3,9 @@ const assert = require('assert');
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 const vscode = require('vscode');
-const {clangFormat, convertToLiteral} = require('../extension');
+const path = require('path');
+const jsonData = require(path.resolve(__dirname, '../guide.json'));
+const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
 	vscode.window.showInformationMessage('Start all clang formatting tests.');
@@ -70,12 +72,20 @@ suite('1. Clang Formatting Testing', () => {
 });
 
 suite("2. String literal Testing", () => {
-	test("1.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\"", 0, "Javascript"), "`Hello There!!!`")});
-	test("1.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'", 0, "Javascript"), "`Hello There!!!`")});
-	test("1.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name\"", 0, "Javascript"), "`Hello ${name}`")});
-	test("1.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0, "Javascript"), "`${name}, welcome`")});
-    test("1.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Javascript"), "`Hello, ${name}, welcome`")});
-	test("1.4.1 Python", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")});
+	test("2.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\"", 0, "Javascript"), "`Hello There!!!`")});
+	test("2.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'", 0, "Javascript"), "`Hello There!!!`")});
+	test("2.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name", 0, "Javascript"), "`Hello ${name}`")});
+	test("2.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0, "Javascript"), "`${name}, welcome`")});
+    test("2.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Javascript"), "`Hello, ${name}, welcome`")});
+	test("2.4.1 Python", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")});
+})
+
+suite("3. CheckVarValidation Testing", () => {
+    const logger = new Logger();
+    logger.g_rules = jsonData["Javascript"]["general"];
+    test("3.1.1 Checking for string literal", () => {assert.equal(checkVarDecleration("let hello = \"Hi \" + name".split(" "), "Javascript", 0, 0), "let hello = `Hi ${name}`")});
+    test("3.1.2 Checking for string literal with brackets", () => {assert.equal(checkVarDecleration("let hello = lst.push(\"Hello \" + name\");".split(" "), "Javascript", 0, 0), "let hello = `Hi ${name}`")});
+
 })
 
 //test("", () => {});
