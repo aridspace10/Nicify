@@ -146,7 +146,7 @@ String.prototype.nextChar = function(start = 0) {
  * @param {*} index - the index of the nested array we want to test
  * @returns 
  */
-String.prototype.includes_nested = function(str, index) {
+Array.prototype.includes_nested = function(str, index) {
     for (let x of this) {
         if (x[index] == str) {
             return x;
@@ -516,10 +516,10 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	}
 	
     if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
-        console.log(typeof logger.unused)
+        console.log(logger.unused)
         if (logger.unused.includes_nested(array[equalsIndex - 1], 2)) {
             let index = logger.unused.indexOf(array[equalsIndex - 1]);
-            logger.unused.splice(index, index + 1);
+            logger.unused.splice(index, 1);
         }
     } else {
         // add variable to naming changes to keep track of naming changes and change as needed
