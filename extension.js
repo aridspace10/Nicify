@@ -263,7 +263,7 @@ Parameters:
 function convertToLiteral(str, lineNum, language) {
 	let instring = false;
 	let opened = false;
-    let mod;
+    let mod = "";
     let first = true;
     // Define starting context
     if (language === "Python") {
@@ -272,6 +272,8 @@ function convertToLiteral(str, lineNum, language) {
         mod = "`";
     } else if (language === "Java") {
         mod = "STR. ";
+    } else {
+        throw new Error(`Unknown language \"${language}\" being used`)
     }
     // Determine if starts in string or not
     if (str[0] !== "\"" && str[0] !== "'") {
@@ -303,13 +305,17 @@ function convertToLiteral(str, lineNum, language) {
 		}
         first = false;
 	});
+
 	if (mod.at(-1) === "{") {
         if (language === "Python") {
             mod = mod.slice(0, -1)
         } else {
 		    mod = mod.slice(0, -2);
         }
-	}
+	} else {
+        mod += "}"
+    }
+
     if (language === "Python") {
         mod += "\""
     } else {
@@ -505,11 +511,18 @@ function checkLineLength(type, line, lineNum) {
   	}
 }
 
+/**
+ * Checks the variable decleration on a line 
+ * @param {*} array - the line.split(" ") version of the line
+ * @param {*} language - the language the line is coded in
+ * @param {*} lineNum - the number which the line is on in the codebase 
+ * @param {*} indentation - the current indentation of the line
+ * @returns string which is the new line
+ */
 function checkVarDecleration(array, language, lineNum, indentation) {
 	let equalsIndex = array.indexOf("=");
-    console.log(lineNum)
-    //check if language is includes variable decleration
-	if (logger.g_rules["varDeclaration"].includes(array[0])) {
+    //check if language includes variable decleration
+	if (equalsIndex !== 1) {
 		if (language == "Javascript" && array[0] == "var") {
 			array[0] = "let";
 			logger.addToReport("Misc", lineNum, original = "Keyword var should not be used and replaced with let or const");
@@ -517,7 +530,6 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	}
 	
     if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
-        console.log(logger.unused)
         if (logger.unused.includes_nested(array[equalsIndex - 1], 2)) {
             let index = logger.unused.indexOf(array[equalsIndex - 1]);
             logger.unused.splice(index, 1);
@@ -534,20 +546,20 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		logger.constants.push(array.join(" "));
 		return "";
 	}
-
 	// check for use of not using template literal
 	let subject = array.slice(equalsIndex + 1).join(" ");
 	if ((subject.count("\"") >= 2 || subject.count("\'") >= 2) && subject.count("+")) {
         array.splice(equalsIndex + 1);
         let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
         if (index > 0 && subject[index - 1] === "(") {
-            array.push(` input("`)
+            array.push(subject.substr(0, index - 1) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")") - 1), lineNum, language) + ")");
         } else {
-            array.push(convertToLiteral(subject, lineNum));
+            console.log(typeof subject)
+            array.push(convertToLiteral(subject, lineNum, language));
         }
         return " ".repeat(indentation) + array.join(" ");
 	}
-    console.log("2")
+    console.log("12")
 	
     // check for language specific problems of each word
 	for (let index in array) {
@@ -924,5 +936,8 @@ module.exports = {
 	activate,
 	deactivate,
 	clangFormat,
-	convertToLiteral
+	convertToLiteral,
+    checkVarDecleration,
+    setup,
+    Logger
 }
