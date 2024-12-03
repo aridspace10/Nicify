@@ -273,6 +273,7 @@ function convertToLiteral(str, lineNum, language) {
     } else if (language === "Java") {
         mod = "STR. ";
     } else {
+        console.log(logger.language)
         throw new Error(`Unknown language \"${language}\" being used`)
     }
     // Determine if starts in string or not
@@ -551,12 +552,13 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	if ((subject.count("\"") >= 2 || subject.count("\'") >= 2) && subject.count("+")) {
         array.splice(equalsIndex + 1);
         let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
+        console.log(language)
         if (index > 0 && subject[index - 1] === "(") {
             array.push(subject.substr(0, index) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")")), lineNum, language) + ")");
         } else {
             array.push(convertToLiteral(subject, lineNum, language));
         }
-        return " ".repeat(indentation) + array.join(" ");
+        return [" ".repeat(indentation)].concat(array);
 	}
 	
     // check for language specific problems of each word
@@ -683,6 +685,8 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 
+        console.log(array);
+        console.log(lineNum)
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
@@ -876,7 +880,7 @@ async function activate(context) {
                 const formatted_text = clangFormat(info[1]);
                 let new_text = [];
                 for (let lineNum in formatted_text) {
-                    new_text.push(checkLine(info[2], formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
+                    new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
                 }
                 if (logger.replace) {
                     logger.constants.sort()
