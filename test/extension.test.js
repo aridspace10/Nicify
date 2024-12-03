@@ -84,8 +84,8 @@ suite("3. CheckVarValidation Testing", () => {
     const logger = new Logger();
     logger.g_rules = jsonData["Javascript"]["general"];
     test("3.1.1 Checking for string literal", () => {assert.equal(checkVarDecleration("let hello = \"Hi \" + name".split(" "), "Javascript", 0, 0), "let hello = `Hi ${name}`")});
-    test("3.1.2 Checking for string literal with brackets", () => {assert.equal(checkVarDecleration("let hello = lst.push(\"Hello \" + name\");".split(" "), "Javascript", 0, 0), "let hello = `Hi ${name}`")});
-
+    test("3.1.2 Checking for string literal with brackets", () => {assert.equal(checkVarDecleration("let hello = lst.push(\"Hello \" + name\");".split(" "), "Javascript", 0, 0), "let hello = lst.push(`Hello ${name}`);")});
+    test("3.2.1 Checking not use of var", () => {assert.deepStrictEqual(checkVarDecleration("var num1 = 5;".split(" "), "Javascript", 0, 0), "let num1 = 5;".split(" "))});
 })
 
 //test("", () => {});
