@@ -552,14 +552,12 @@ function checkVarDecleration(array, language, lineNum, indentation) {
         array.splice(equalsIndex + 1);
         let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
         if (index > 0 && subject[index - 1] === "(") {
-            array.push(subject.substr(0, index - 1) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")") - 1), lineNum, language) + ")");
+            array.push(subject.substr(0, index) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")")), lineNum, language) + ")");
         } else {
-            console.log(typeof subject)
             array.push(convertToLiteral(subject, lineNum, language));
         }
         return " ".repeat(indentation) + array.join(" ");
 	}
-    console.log("12")
 	
     // check for language specific problems of each word
 	for (let index in array) {
