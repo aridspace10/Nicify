@@ -584,6 +584,7 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
+    console.log(lineNum)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -686,7 +687,6 @@ function checkLine(language, line, lineNum, text) {
 		}
 
         console.log(array);
-        console.log(lineNum)
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
@@ -847,6 +847,7 @@ function setup() {
 }
 
 function editDocument(editor, document, text) {
+    console.log(text)
 	editor.edit(editBuilder => {
 		const docLength = new vscode.Range(
 			new vscode.Position(0, 0), 
@@ -876,10 +877,11 @@ async function activate(context) {
             } else if (logger.language === "CSS") {
                 new_text = await styleCSS(info[1])
             } else {
-                console.log("A")
                 const formatted_text = clangFormat(info[1]);
-                let new_text = [];
                 for (let lineNum in formatted_text) {
+                    if (isNaN(parseInt(lineNum))) {
+                        continue
+                    }
                     new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
                 }
                 if (logger.replace) {
