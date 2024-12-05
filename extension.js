@@ -159,7 +159,6 @@ function clangFormat(text) {
 	const formatted_text = [];
     let lineNum = 1;
 	for (let line of text) {
-        console.log(lineNum)
 		let index = 0;
 		let modified = "";
 		let charFound = false;
@@ -406,8 +405,8 @@ function checkFuncNaming(line, lineNum) {
 		} else if (char !== " ") {
 			temp += char;
 		}
-	}
-	return [funcName, params];
+    }
+	return [funcName, params, line.join("").substring(line.lastIndexOf(")"))];
 }
 
 /** Checks JSDOC given works with format
@@ -585,6 +584,7 @@ Parameters:
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
     console.log(lineNum)
+    console.log(line)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -619,7 +619,7 @@ function checkLine(language, line, lineNum, text) {
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
 			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
-                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", "), lineNum);
+                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", "), lineNum) + info[2];
             if (language === "Python") {
                 line += ":\n";
             } else {
@@ -634,7 +634,7 @@ function checkLine(language, line, lineNum, text) {
 		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
             logger.unused.push(["Class", lineNum, array[1]]);
-		} else if (array[0] === "import") {
+		} else if (array[0] === "import" || array[0] === "from") {
 			logger.imports.push(line);
 			return "";
 		} else {
@@ -686,7 +686,6 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 
-        console.log(array);
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
@@ -712,6 +711,7 @@ function checkLine(language, line, lineNum, text) {
 			}
 			index++;
 		}
+        console.log(temp);
 		return temp;
 	}
 	return line;
@@ -877,6 +877,7 @@ async function activate(context) {
             } else if (logger.language === "CSS") {
                 new_text = await styleCSS(info[1])
             } else {
+                new_text = [];
                 const formatted_text = clangFormat(info[1]);
                 for (let lineNum in formatted_text) {
                     if (isNaN(parseInt(lineNum))) {
