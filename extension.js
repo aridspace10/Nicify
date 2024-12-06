@@ -50,6 +50,7 @@ class Logger {
 		this.replace = true;
 		this.exp_indentation = 0;
         this.unused = [];
+        this.incomment = false;
 	}
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
@@ -596,6 +597,22 @@ function checkLine(language, line, lineNum, text) {
 	if (line.includes(logger.importHeader) || line.includes(logger.constantHeader)) {
 		return "";
 	}
+
+    let commentingRules = logger.g_rules["commenting"];
+    if (logger.incomment) {
+        if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
+        line.trim().endsWith(commentingRules["multiLineComment"][0]) || line.trim().endsWith(commentingRules["multiLineComment"][1])) {
+            logger.incomment = false;
+        }
+        return line + "\n";
+    }
+
+    if (line.trim() === commentingRules["multiLineComment"][0] || line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
+        line.trim().endsWith(commentingRules["multiLineComment"][0]) || line.trim().endsWith(commentingRules["multiLineComment"][1])) {
+        logger.incomment = true;
+        return line + "\n"
+    }
+
 	if (line && line.trim() !== "") {
 		let indentation = 0;
 		while (line[0] === " ") {

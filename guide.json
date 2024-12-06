@@ -41,7 +41,7 @@
             "methodDeclaration": "def",
             "commenting": {
                 "singleComment": "#",
-                "multiLineComment": ["###","###"]
+                "multiLineComment": ["\"\"\"","\"\"\""]
             }
         },
         "conventions": {
