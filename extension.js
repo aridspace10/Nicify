@@ -166,6 +166,7 @@ function clangFormat(text) {
 		let len = line.length;
 		let indentation = [];
 		let opened = new Stack();
+        let instring = false;
 		while (index < len) {
 			let element = line[index];
 			if (!charFound) {
@@ -175,7 +176,16 @@ function clangFormat(text) {
 				} else {
 					charFound = true;
 				}
-		 	} else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
+		 	} else if (element === "\"" || element === "'" || element === "`") {
+                instring = !instring;
+                modified += element
+                index++;
+                continue
+            } else if (instring) {
+                modified += element
+                index++;
+                continue
+            } else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
 				modified += "if ";
 				index += 2;
                 logger.addToReport("Format", lineNum, "Keywords (if) require space after it");
@@ -607,7 +617,7 @@ function checkLine(language, line, lineNum, text) {
         return line + "\n";
     }
 
-    if (line.trim() === commentingRules["multiLineComment"][0] || line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
+    if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
         line.trim().endsWith(commentingRules["multiLineComment"][0]) || line.trim().endsWith(commentingRules["multiLineComment"][1])) {
         logger.incomment = true;
         return line + "\n"
@@ -728,7 +738,9 @@ function checkLine(language, line, lineNum, text) {
 			}
 			index++;
 		}
-        console.log(temp);
+        if (temp.at(-1) !== "\n") {
+            temp += "\n";
+        }
 		return temp;
 	}
 	return line;
