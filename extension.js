@@ -261,6 +261,9 @@ function clangFormat(text) {
 		formatted_text.push(" ".repeat(indentation) + modified.trim());
         lineNum += 1;
 	}
+    if (formatted_text.at(-1).trim() !== "") {
+        formatted_text.push("")
+    }
 	return formatted_text;
 }
 
