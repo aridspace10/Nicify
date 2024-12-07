@@ -9,7 +9,8 @@
             "commenting": {
                 "singleComment": "//",
                 "multiLineComment" : ["/*", "*/"]
-            }
+            },
+            "jsonParam": "* @param {type} "
         },   
         "conventions": {
             "google": {
@@ -42,7 +43,8 @@
             "commenting": {
                 "singleComment": "#",
                 "multiLineComment": ["\"\"\"","\"\"\""]
-            }
+            },
+            "jsonParam": "# "
         },
         "conventions": {
             "PEP 8": {
