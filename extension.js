@@ -431,10 +431,17 @@ function checkFuncNaming(line, lineNum) {
  */
 function checkJSDOC(text, funcLine, funcName, params) {
 	let commentingRules = logger.g_rules["commenting"];
-	if (funcLine && text[funcLine-1].includes(commentingRules["singleComment"]) || 
+    let jsonDocExist = false;
+    if (logger.language === "Python") {
+        jsonDocExist = (funcLine && text[funcLine+1].includes(commentingRules["singleComment"]) || 
+		text[funcLine+1].includes(commentingRules["multiLineComment"][0]) || 
+		text[funcLine+1].includes(commentingRules["multiLineComment"][1]))  
+    } else {
+        jsonDocExist = (funcLine && text[funcLine-1].includes(commentingRules["singleComment"]) || 
 		text[funcLine-1].includes(commentingRules["multiLineComment"][0]) || 
-		text[funcLine-1].includes(commentingRules["multiLineComment"][1])) 
-	{
+		text[funcLine-1].includes(commentingRules["multiLineComment"][1]))  
+    }
+	if (jsonDocExist) {
 		let index = funcLine;
 		while (!text[index].startsWith(commentingRules["multiLineComment"][0])) {
 			index -= 1;
@@ -457,7 +464,9 @@ function checkJSDOC(text, funcLine, funcName, params) {
 	} else {
         logger.addToReport("JSDoc", funcLine, orginal = funcName);
         if (logger.replace) {
-            return `/** Description \n${params.map(param => `* @param {type} ${param} - Description of variable '${param}' \n`).join("")}*/ \n`;
+            return `${logger.g_rules["commenting"]["multiLineComment"][0]} 
+            Description \n${params.map(param => `${logger.g_rules["jsonParam"]}${param} - Description of variable '${param}' \n`).join("")}
+            ${logger.g_rules["commenting"]["multiLineComment"][0]} \n`;
         }
 	}
 }
