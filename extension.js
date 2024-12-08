@@ -606,8 +606,8 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-    console.log(lineNum)
-    console.log(line)
+    //console.log(lineNum)
+    //console.log(line)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -657,12 +657,14 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
-			line = checkJSDOC(text, lineNum, info[0], info[1]) + checkLineLength("function", 
-                logger.g_rules["methodDeclaration"] + " " + info[0] + "" + info[1].join(", "), lineNum) + info[2];
+            let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
+                " " + info[0] + "" + info[1].join(", "), lineNum);
+            console.log(funcLine)
+            let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
             if (language === "Python") {
-                line += ":\n";
+                line = funcLine + jsdoc + info[2] + ":\n";
             } else {
-                line += " {\n";
+                line = jsdoc + funcLine + " {\n";
             }
 			if (line !== array.join(" ")) {
 				logger.addToReport("funcDec", lineNum);
@@ -888,7 +890,7 @@ function setup() {
 }
 
 function editDocument(editor, document, text) {
-    console.log(text)
+    //console.log(text)
 	editor.edit(editBuilder => {
 		const docLength = new vscode.Range(
 			new vscode.Position(0, 0), 
