@@ -164,14 +164,14 @@ function clangFormat(text) {
 		let modified = "";
 		let charFound = false;
 		let len = line.length;
-		let indentation = [];
+		let indentation = 0;
 		let opened = new Stack();
         let instring = false;
 		while (index < len) {
 			let element = line[index];
 			if (!charFound) {
 				if (element === " ") {
-					indentation.push(" ");
+					indentation += 1;
 					index++;
 				} else {
 					charFound = true;
@@ -240,7 +240,7 @@ function clangFormat(text) {
 				index++;
                 logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
 			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length)) {
-				modified += ";\n" + indentation.join("");
+				modified += ";\n" + " ".repeat(indentation);
 				if (logger.g_rules["varDeclaration"]) {
 					modified += line.split(" ")[0] + " ";
 				}
@@ -393,7 +393,8 @@ This function checks the naming of function and also the parameters given in
 function checkFuncNaming(line, lineNum) {
 	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
-	let funcName = checkNaming("method", (chars.slice("function ".length, chars.indexOf("("))).join(""));
+	let funcName = checkNaming("method", (chars.slice(logger.g_rules["methodDeclaration"].length, chars.indexOf("("))).join(""));
+    console.log(funcName)
     logger.unused.push(["Function", lineNum, funcName])
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
@@ -410,9 +411,8 @@ function checkFuncNaming(line, lineNum) {
                 }
             } else {
                 params.push(checkNaming("variable", temp));
-			    temp = "";
             }
-            
+            temp = "";
             if (char === ")") {
                 break;
             }
@@ -420,7 +420,7 @@ function checkFuncNaming(line, lineNum) {
 			temp += char;
 		}
     }
-	return [funcName, params, line.join("").substring(line.lastIndexOf(")"))];
+	return [funcName, params, line.join(" ").substring(line.join().lastIndexOf(")")+1)];
 }
 
 /** Checks JSDOC given works with format
@@ -606,8 +606,8 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-    //console.log(lineNum)
-    //console.log(line)
+    console.log(lineNum)
+    console.log(line)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -637,17 +637,17 @@ function checkLine(language, line, lineNum, text) {
 
 	if (line && line.trim() !== "") {
 		let indentation = 0;
-		while (line[0] === " ") {
+		while (line[indentation] === " ") {
 			indentation += 1;
-			line.shift();
 		}
+        line = line.substring(indentation)
         let array = line.split(" ");
 
 		if (line.includes("}")) {
 			logger.exp_indentation -= 4
 		}
 
-		if (indentation !== logger.exp_indentation) {
+		if (logger.language !== "Python" && indentation !== logger.exp_indentation) {
             console.log("Wrong Indentation");
 			if (logger.replace) {
 				indentation = logger.exp_indentation;
@@ -657,12 +657,13 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
+            console.log(info)
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
-                " " + info[0] + "" + info[1].join(", "), lineNum);
+                " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
             console.log(funcLine)
             let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
             if (language === "Python") {
-                line = funcLine + jsdoc + info[2] + ":\n";
+                line = funcLine + info[2] + "\n" + jsdoc;
             } else {
                 line = jsdoc + funcLine + " {\n";
             }
