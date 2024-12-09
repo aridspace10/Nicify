@@ -351,7 +351,10 @@ function checkCasing(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
-		for (let i = 1; i < name.length; i++) {
+		for (let i = 0; i < name.length; i++) {
+            if (name[i] === "(" || name[i] === " ") {
+                continue
+            }
 			if (name[i].isUpperCase()) {
 				newName += "_" + name[i].toLowerCase();
 			} else {
@@ -378,6 +381,7 @@ function checkCasing(type, name, lineNum) {
 This function checks the naming of the function for the first letter and runs check casing function to check rest of name
 */
 function checkNaming(type, name, lineNum) {
+    console.log(name)
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
@@ -385,6 +389,7 @@ function checkNaming(type, name, lineNum) {
 	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
+    console.log(name)
 	return checkCasing(type, name, lineNum);
 }
 /* checkFuncNaming
@@ -394,7 +399,6 @@ function checkFuncNaming(line, lineNum) {
 	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
 	let funcName = checkNaming("method", (chars.slice(logger.g_rules["methodDeclaration"].length, chars.indexOf("("))).join(""));
-    console.log(funcName)
     logger.unused.push(["Function", lineNum, funcName])
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
@@ -574,7 +578,6 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	if ((subject.count("\"") >= 2 || subject.count("\'") >= 2) && subject.count("+")) {
         array.splice(equalsIndex + 1);
         let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
-        console.log(language)
         if (index > 0 && subject[index - 1] === "(") {
             array.push(subject.substr(0, index) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")")), lineNum, language) + ")");
         } else {
@@ -606,8 +609,6 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-    console.log(lineNum)
-    console.log(line)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -657,6 +658,7 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
+            console.log(info[1])
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
                 " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
             console.log(funcLine)
