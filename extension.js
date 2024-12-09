@@ -657,7 +657,6 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
-            console.log(info)
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
                 " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
             console.log(funcLine)
@@ -667,10 +666,16 @@ function checkLine(language, line, lineNum, text) {
             } else {
                 line = jsdoc + funcLine + " {\n";
             }
+
 			if (line !== array.join(" ")) {
 				logger.addToReport("funcDec", lineNum);
 			}
-			return line
+
+            if (text[lineNum - 1] !== "" || text[lineNum - 1] !== "\n") {
+                return "\n" + line
+            } else {
+                return line
+            }
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
 		} else if (array[0] === "class") {
