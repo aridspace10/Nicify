@@ -319,8 +319,7 @@ function convertToLiteral(str, lineNum, language) {
 		}
         first = false;
 	});
-    console.log(str)
-    console.log(str.at(0))
+    
 	if (mod.at(-1) === "{") {
         if (language === "Python") {
             mod = mod.slice(0, -1)
