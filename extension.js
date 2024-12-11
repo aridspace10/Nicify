@@ -381,6 +381,7 @@ function checkCasing(type, name, lineNum) {
 This function checks the naming of the function for the first letter and runs check casing function to check rest of name
 */
 function checkNaming(type, name, lineNum) {
+    console.log(name)
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
@@ -388,8 +389,7 @@ function checkNaming(type, name, lineNum) {
 
 	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
-    }
-
+	}
 	return checkCasing(type, name, lineNum);
 }
 /* checkFuncNaming
@@ -659,6 +659,7 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
+            console.log(info)
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
                 " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
             let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
