@@ -319,7 +319,8 @@ function convertToLiteral(str, lineNum, language) {
 		}
         first = false;
 	});
-
+    console.log(str)
+    console.log(str.at(0))
 	if (mod.at(-1) === "{") {
         if (language === "Python") {
             mod = mod.slice(0, -1)
@@ -351,7 +352,10 @@ function checkCasing(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "SnakeCasing") {
 		// for every uppercase, lower it and put a _ before it
-		for (let i = 1; i < name.length; i++) {
+		for (let i = 0; i < name.length; i++) {
+            if (name[i] === "(" || name[i] === " ") {
+                continue
+            }
 			if (name[i].isUpperCase()) {
 				newName += "_" + name[i].toLowerCase();
 			} else {
@@ -382,9 +386,11 @@ function checkNaming(type, name, lineNum) {
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
 	}
+
 	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
-	}
+    }
+
 	return checkCasing(type, name, lineNum);
 }
 /* checkFuncNaming
@@ -394,7 +400,6 @@ function checkFuncNaming(line, lineNum) {
 	const chars = line.join(" ").split("");
 	// finds name by looking for (, slicing the name from the chars and then turning it into a string
 	let funcName = checkNaming("method", (chars.slice(logger.g_rules["methodDeclaration"].length, chars.indexOf("("))).join(""));
-    console.log(funcName)
     logger.unused.push(["Function", lineNum, funcName])
 	const raw_parameters = chars.slice(chars.indexOf("("));
 	const params = [];
@@ -543,6 +548,7 @@ function checkLineLength(type, line, lineNum) {
  * @returns string which is the new line
  */
 function checkVarDecleration(array, language, lineNum, indentation) {
+    console.log(indentation)
 	let equalsIndex = array.indexOf("=");
     //check if language includes variable decleration
 	if (equalsIndex !== 1) {
@@ -574,13 +580,12 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	if ((subject.count("\"") >= 2 || subject.count("\'") >= 2) && subject.count("+")) {
         array.splice(equalsIndex + 1);
         let index = subject.indexOf("\"") !== -1 ? subject.indexOf("\"") : subject.indexOf("'");
-        console.log(language)
         if (index > 0 && subject[index - 1] === "(") {
-            array.push(subject.substr(0, index) + convertToLiteral(subject.substr(index, subject.lastIndexOf(")")), lineNum, language) + ")");
+            array.push(subject.substr(0, index) + convertToLiteral(subject.substring(index, subject.lastIndexOf(")") - 1), lineNum, language) + ")");
         } else {
             array.push(convertToLiteral(subject, lineNum, language));
         }
-        return [" ".repeat(indentation)].concat(array);
+        return array;
 	}
 	
     // check for language specific problems of each word
@@ -606,8 +611,6 @@ Parameters:
 */
 function checkLine(language, line, lineNum, text) {
 	// check for end of funtion line
-    console.log(lineNum)
-    console.log(line)
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
 		if (text[lineNum + 1] && text[lineNum + 1].length) {
@@ -657,20 +660,24 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
-            console.log(info)
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
                 " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
-            console.log(funcLine)
             let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
             if (language === "Python") {
                 line = funcLine + info[2] + "\n" + jsdoc;
             } else {
                 line = jsdoc + funcLine + " {\n";
             }
+
 			if (line !== array.join(" ")) {
 				logger.addToReport("funcDec", lineNum);
 			}
-			return line
+
+            if (text[lineNum - 1] !== "" || text[lineNum - 1] !== "\n") {
+                return "\n" + line
+            } else {
+                return line
+            }
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
 		} else if (array[0] === "class") {
