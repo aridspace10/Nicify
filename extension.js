@@ -768,6 +768,11 @@ function checkLine(language, line, lineNum, text) {
 	return line;
 }
 
+/** Given the field, will determine where it should 
+ * be placed in the css sections
+ * @param {*} field - the field being decided on
+ * @returns 
+ */
 function determineFieldType(field) {
     const BOXTYPE = [""];
     const TYPOGRAPHYTYPE = ["color", "font-size"];
@@ -780,6 +785,10 @@ function determineFieldType(field) {
     }
 }
 
+/** Styles given text which should be css code
+ * @param {Array} text 
+ * @returns the restyled code in an array
+ */
 async function styleCSS(text) {
     const processed = new Map();
     let cur = [[], [], []]
@@ -835,6 +844,10 @@ async function styleCSS(text) {
     return new_text;
 }
 
+/** Styles html code
+ * @param {*} text - the array of text split by line
+ * @returns the returned array which is now styled
+ */
 async function styleHTML(text) {
     let exp_indentation = 0;
     let lineNum = 0;
@@ -876,6 +889,10 @@ async function styleHTML(text) {
     return processed
 }
 
+/**
+ * Setups the logger, the text being used and other things needed
+ * @returns returns array of needed info
+ */
 function setup() {
 	const editor = vscode.window.activeTextEditor;
 	if (editor) {
