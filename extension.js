@@ -932,52 +932,60 @@ function editDocument(editor, document, text) {
 }
 
 /**
+ * Completes general style fix and edits the document
+ * @param {Array} info - the info required gather from setup()
+ */
+async function styleFix(info) {
+    if (logger.language !== "UNKNOWN") {
+        let new_text = "";
+        if (logger.language === "HTML") {
+            new_text = await styleHTML(info[1]);
+        } else if (logger.language === "CSS") {
+            new_text = await styleCSS(info[1])
+        } else {
+            new_text = [];
+            const formatted_text = clangFormat(info[1]);
+            for (let lineNum in formatted_text) {
+                if (isNaN(parseInt(lineNum))) {
+                    continue
+                }
+                new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
+            }
+            if (logger.replace) {
+                logger.constants.sort()
+                while (logger.constants.length) {
+                    new_text.splice(0, 0, logger.constants[0] + "\n");
+                    logger.constants.shift();
+                }
+                new_text.splice(0, 0, logger.constantHeader + "\n");
+                logger.imports.sort()
+                while (logger.imports.length) {
+                    new_text.splice(0, 0, logger.imports[0] + "\n");
+                    logger.imports.shift();
+                }
+                new_text.splice(0, 0, logger.importHeader + "\n");
+                new_text = new_text.join("");
+                
+            }
+            logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
+        }
+        if (logger.replace) {
+            editDocument(info[0], info[0].document, new_text);
+        }
+        logger.createReport();
+    } else {
+        vscode.window.showInformationMessage('Unknown Document Used');
+    }
+}
+
+/**
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
+    const info = setup();
 	const disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
-		const info = setup();
-        if (logger.language !== "UNKNOWN") {
-            let new_text = "";
-            if (logger.language === "HTML") {
-                new_text = await styleHTML(info[1]);
-            } else if (logger.language === "CSS") {
-                new_text = await styleCSS(info[1])
-            } else {
-                new_text = [];
-                const formatted_text = clangFormat(info[1]);
-                for (let lineNum in formatted_text) {
-                    if (isNaN(parseInt(lineNum))) {
-                        continue
-                    }
-                    new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
-                }
-                if (logger.replace) {
-                    logger.constants.sort()
-                    while (logger.constants.length) {
-                        new_text.splice(0, 0, logger.constants[0] + "\n");
-                        logger.constants.shift();
-                    }
-                    new_text.splice(0, 0, logger.constantHeader + "\n");
-                    logger.imports.sort()
-                    while (logger.imports.length) {
-                        new_text.splice(0, 0, logger.imports[0] + "\n");
-                        logger.imports.shift();
-                    }
-                    new_text.splice(0, 0, logger.importHeader + "\n");
-                    new_text = new_text.join("");
-                    
-                }
-                logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
-            }
-            if (logger.replace) {
-                editDocument(info[0], info[0].document, new_text);
-            }
-            logger.createReport();
-        } else {
-            vscode.window.showInformationMessage('Unknown Document Used');
-        }
+        styleFix(info);
 	});
 	context.subscriptions.push(disposable);
 }
