@@ -1,11 +1,22 @@
 const assert = require('assert');
 
+async function readFile(uri) {
+    try {
+        const fileUri = vscode.Uri.file(uri);
+        const data = await vscode.workspace.fs.readFile(fileUri);
+        const text = Buffer.from(data).toString('utf8');
+        return text
+    } catch (err) {
+        console.error('Error reading file:', err);
+    }
+}
+
 // You can import and use all API from the 'vscode' module
 // as well as import your extension to test it
 const vscode = require('vscode');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, '../guide.json'));
-const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger} = require('../extension');
+const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
 	vscode.window.showInformationMessage('Start all clang formatting tests.');
@@ -86,6 +97,13 @@ suite("3. CheckVarValidation Testing", () => {
     test("3.1.1 Checking for string literal", () => {assert.equal(checkVarDecleration("let hello = \"Hi \" + name".split(" "), "Javascript", 0, 0), "let hello = `Hi ${name}`")});
     test("3.1.2 Checking for string literal with brackets", () => {assert.equal(checkVarDecleration("let hello = lst.push(\"Hello \" + name\");".split(" "), "Javascript", 0, 0), "let hello = lst.push(`Hello ${name}`);")});
     test("3.2.1 Checking not use of var", () => {assert.deepStrictEqual(checkVarDecleration("var num1 = 5;".split(" "), "Javascript", 0, 0), "let num1 = 5;".split(" "))});
+})
+
+suite("4. Style CSS", () => {
+    test("4.1 Basic", () => {
+        console.log(typeof readFile("css/input/4.1.css"))
+        assert.equal(styleCSS(readFile("css/input/4.1.css").split("\n")), readFile("css/expected/4.1.css"))
+    })
 })
 
 //test("", () => {});

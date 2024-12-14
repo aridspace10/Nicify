@@ -852,7 +852,7 @@ async function styleHTML(text) {
     let exp_indentation = 0;
     let lineNum = 0;
     let processed = "";
-    const inCSS = [];
+    let inCSS = [];
     if (text[0] !== "<!DOCTYPE html>") {
         processed = "<!DOCTYPE html>\n";
     }
@@ -1020,5 +1020,6 @@ module.exports = {
 	convertToLiteral,
     checkVarDecleration,
     setup,
+    styleCSS,
     Logger
 }
