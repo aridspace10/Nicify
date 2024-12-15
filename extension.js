@@ -198,8 +198,8 @@ function clangFormat(text) {
 				index += 5;
                 logger.addToReport("Format", lineNum, "Keywords (while) require space after it");
 			} else if (element === ";") {
-                while (modified[-1] === " ") {
-                    modified.slice(0, -1);
+                while (modified.at(-1) === " ") {
+                    modified = modified.slice(0, -1);
                 }
                 index++;
                 modified += ";";
