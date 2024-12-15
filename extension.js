@@ -61,20 +61,24 @@ class Logger {
 				} else {
 					this.report["naming"].push(`You should change ${original} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
 				}
+                break;
 			case "Misc":
 				this.report["Misc"].push(`${original} (declared at line: ${lineNum})`);
+                break;
 			case "Literal":
 				if (this.replace) {
 					this.report["Misc"].push(`Changed string ${original} to ${processed} to be a string literal (declared at line: ${lineNum})`);
 				} else {
 					this.report["Misc"].push(`Should change string ${original} to ${processed} to be a string literal (declared at line: ${lineNum})`);
 				}
+                break;
 			case "funcDec":
 				if (logger.replace) {
 					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`);
 				} else {
 					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`);
 				}
+                break;
 			case "language":
 				if (original === "JS_ARRAY") {
 					if (logger.replace) {
@@ -83,10 +87,13 @@ class Logger {
 						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`);
 					}
 				} 
+                break;
             case "unused":
                 this.report["Misc"].push(`Consider removing the ${original} named ${processed} as it has not been used (declared at line: ${lineNum})`);
+                break;
             case "Format":
                 this.report["Format"].push(`Adjust as ${original} (declared at line: ${lineNum})`);
+                break;
 			}
         
 	}
