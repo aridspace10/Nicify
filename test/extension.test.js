@@ -7,7 +7,7 @@ async function readFile(uri) {
         const text = Buffer.from(data).toString('utf8');
         return text
     } catch (err) {
-        console.error('Error reading file:', err);
+        return null;
     }
 }
 
@@ -100,9 +100,13 @@ suite("3. CheckVarValidation Testing", () => {
 })
 
 suite("4. Style CSS", () => {
-    test("4.1 Basic", () => {
-        console.log(typeof readFile("css/input/4.1.css"))
-        assert.equal(styleCSS(readFile("css/input/4.1.css").split("\n")), readFile("css/expected/4.1.css"))
+    test("4.1 Basic", async () => {
+        const input = await readFile(path.join(__dirname, "css/input/4.1.css"));
+        const expected = await readFile(path.join(__dirname, "css/expected/4.1.css"));
+        if (!input || !expected) {
+            throw new Error("File read failed. Check file paths and existence.");
+        }
+        assert.strictEqual(await styleCSS(input.split("\n")), expected, "CSS output did not match expected result");
     })
 })
 
