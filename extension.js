@@ -454,8 +454,13 @@ function checkJSDOC(text, funcLine, funcName, params) {
     }
 	if (jsonDocExist) {
 		let index = funcLine;
-		while (!text[index].startsWith(commentingRules["multiLineComment"][0])) {
-			index -= 1;
+		while (!text[index].trim().startsWith(commentingRules["multiLineComment"][0]) 
+        || !text[index].trim().endsWith(commentingRules["multiLineComment"][0])) {
+            if (logger.language === "Python") {
+                index++;
+            } else {
+                index--;
+            }
 		}
 		let jsdoc = text.slice(index, funcLine).join(" ");
 		let position = 0;
