@@ -1,11 +1,9 @@
-/* Styling buttons */
 button {
 font-size: 16px;
 padding: 10px 20px;
 border: none;
 }
   
-/* Repeated Definition Example */
 .test {
 background-color: #f0f0f0;
 color: black;
