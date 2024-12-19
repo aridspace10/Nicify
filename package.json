@@ -20,8 +20,8 @@
         "title": "Style Fix"
       },
       {
-        "command": "nicify.styleNaming",
-        "title": "Style Naming Fix"
+        "command": "nicify.clangFormat",
+        "title": "Style Clang Format"
       }
     ],
     "configuration": {
