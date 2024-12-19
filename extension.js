@@ -388,7 +388,6 @@ function checkCasing(type, name, lineNum) {
 This function checks the naming of the function for the first letter and runs check casing function to check rest of name
 */
 function checkNaming(type, name, lineNum) {
-    console.log(name)
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
@@ -559,7 +558,6 @@ function checkLineLength(type, line, lineNum) {
  * @returns string which is the new line
  */
 function checkVarDecleration(array, language, lineNum, indentation) {
-    console.log(indentation)
 	let equalsIndex = array.indexOf("=");
     //check if language includes variable decleration
 	if (equalsIndex !== 1) {
@@ -584,7 +582,7 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 	// Check if constant
 	if (array[equalsIndex - 1].isUpperCase()) {
 		logger.constants.push(array.join(" "));
-		return "";
+		return [];
 	}
 	// check for use of not using template literal
 	let subject = array.slice(equalsIndex + 1).join(" ");
@@ -671,7 +669,6 @@ function checkLine(language, line, lineNum, text) {
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
-            console.log(info)
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
                 " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
             let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
@@ -746,7 +743,8 @@ function checkLine(language, line, lineNum, text) {
 			}
 			array[array.length-1] += "\n";
 		}
-
+        console.log(line)
+        console.log(typeof array)
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
