@@ -994,10 +994,17 @@ async function styleFix(info) {
 async function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
     const info = setup();
-	const disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
+	let disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
         styleFix(info);
 	});
 	context.subscriptions.push(disposable);
+    disposable = vscode.commands.registerCommand('nicify.clangFormat', () => {
+        const formatted_text = clangFormat(info[1]);
+        if (logger.replace) {
+            editDocument(info[0], info[0].document, formatted_text.join(" "));
+        }
+    })
+    context.subscriptions.push(disposable);
 }
 
 // This method is called when your extension is deactivated
