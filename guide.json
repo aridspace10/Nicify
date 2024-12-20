@@ -2,6 +2,7 @@
     "Javascript": {
         "general": {
             "varDeclaration": ["var", "const", "let"],
+            "stringTemplate": ["`", "${","}"],
             "semiColonBased": true,
             "importMethod": ["import"],
             "classMemberIdentifier": "this",
@@ -38,6 +39,7 @@
         "general": {
             "varDeclaration": [],
             "semiColonBased": false,
+            "stringTemplate": ["f\"","{","}"],
             "classMemberIdentifier": "self",
             "methodDeclaration": "def",
             "commenting": {
