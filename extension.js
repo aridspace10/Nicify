@@ -51,6 +51,7 @@ class Logger {
 		this.exp_indentation = 0;
         this.unused = [];
         this.incomment = false;
+        this.multiLining = "";
 	}
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
@@ -118,7 +119,7 @@ const logger = new Logger();
 
 String.prototype.isUpperCase = function() {
 	return [...this].every((char) => {
-		return char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1];
+		return (char.charCodeAt(0) >= UPPER_CASE_EDGES[0] && char.charCodeAt(0) < UPPER_CASE_EDGES[1]) || (char === "_");
 	})
 }
 
@@ -581,7 +582,11 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 
 	// Check if constant
 	if (array[equalsIndex - 1].isUpperCase()) {
-		logger.constants.push(array.join(" "));
+        if (array.at(-1) === "[" || array.at(-1) === "{") {
+            logger.multiLining = ["constant", [array.join(" ")]];
+        } else {
+            logger.constants.push(array.join(" "));
+        }
 		return [];
 	}
 	// check for use of not using template literal
@@ -639,6 +644,18 @@ function checkLine(language, line, lineNum, text) {
             logger.incomment = false;
         }
         return line + "\n";
+    }
+
+    if (logger.multiLining) {
+        logger.multiLining[1].push(line);
+        if (line.includes(")") || line.includes("}")) {
+            if (logger.multiLining[0] == "constant") {
+                logger.constants.push(logger.multiLining[1])
+            } else {
+                logger.imports.push(logger.multiLining[1])
+            }
+            logger.multiLining = "";
+        }
     }
 
     if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
