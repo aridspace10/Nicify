@@ -647,8 +647,8 @@ function checkLine(language, line, lineNum, text) {
     }
 
     if (logger.multiLining) {
-        logger.multiLining[1].push(line);
-        if (line.includes(")") || line.includes("}")) {
+        logger.multiLining[1].push(line + "\n");
+        if (line.count(")") > line.count("(") || line.count("}") > line.count("{")) {
             if (logger.multiLining[0] == "constant") {
                 logger.constants.push(logger.multiLining[1])
             } else {
@@ -656,6 +656,7 @@ function checkLine(language, line, lineNum, text) {
             }
             logger.multiLining = "";
         }
+        return
     }
 
     if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
