@@ -247,7 +247,8 @@ function clangFormat(text) {
 				modified += "} ";
 				index++;
                 logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
-			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length)) {
+			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length 
+                && !line.startsWith("from") && !line.startsWith("import"))) {
 				modified += ";\n" + " ".repeat(indentation);
 				if (logger.g_rules["varDeclaration"]) {
 					modified += line.split(" ")[0] + " ";
@@ -1019,7 +1020,7 @@ async function activate(context) {
     disposable = vscode.commands.registerCommand('nicify.clangFormat', () => {
         const formatted_text = clangFormat(info[1]);
         if (logger.replace) {
-            editDocument(info[0], info[0].document, formatted_text.join(" "));
+            editDocument(info[0], info[0].document, formatted_text.map(text => text + "\n").join(""));
         }
     })
     context.subscriptions.push(disposable);
