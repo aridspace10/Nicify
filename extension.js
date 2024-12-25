@@ -52,6 +52,7 @@ class Logger {
         this.unused = [];
         this.incomment = false;
         this.multiLining = "";
+        this.errors = 0;
 	}
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
@@ -96,10 +97,11 @@ class Logger {
                 this.report["Format"].push(`Adjust as ${original} (declared at line: ${lineNum})`);
                 break;
 			}
-        
+            this.error += 1;
 	}
 	createReport() {
 		let content = "";
+        content += `Total amount of errors: ${this.errors}`
         for (const [key, changes] of Object.entries(this.report)) {
             content += `${key}\n`;
             for (let change of changes) {
