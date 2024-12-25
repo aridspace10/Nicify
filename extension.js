@@ -650,16 +650,16 @@ function checkLine(language, line, lineNum, text) {
     }
 
     if (logger.multiLining) {
-        logger.multiLining[1].push(line + "\n");
+        logger.multiLining[1].push("\n" + line);
         if (line.count(")") > line.count("(") || line.count("}") > line.count("{")) {
             if (logger.multiLining[0] == "constant") {
-                logger.constants.push(logger.multiLining[1])
+                logger.constants.push(logger.multiLining[1].join(""))
             } else {
                 logger.imports.push(logger.multiLining[1])
             }
             logger.multiLining = "";
         }
-        return
+        return ""
     }
 
     if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
