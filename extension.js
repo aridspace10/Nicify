@@ -650,16 +650,37 @@ function checkLine(language, line, lineNum, text) {
     }
 
     if (logger.multiLining) {
-        logger.multiLining[1].push("\n" + line);
-        if (line.count(")") > line.count("(") || line.count("}") > line.count("{")) {
-            if (logger.multiLining[0] == "constant") {
-                logger.constants.push(logger.multiLining[1].join(""))
-            } else {
-                logger.imports.push(logger.multiLining[1])
+        let lst = line.split(" ")
+        let valid = true;
+        for (const word in lst) {
+            let progress = "";
+            for (const char in word) {
+                // if a number
+                if (char.charCodeAt(0) > 10 || (char.charCodeAt(0) >= 48 && char.charCodeAt(0) <= 57)) {
+                    break
+                }
+                if (char.isLetter()) {
+                    progress += char;
+                }
             }
-            logger.multiLining = "";
+            if (progress && logger.variables.includes(progress)) {
+                valid = false;
+            } 
         }
-        return ""
+        if (valid) {
+            logger.multiLining[1].push("\n" + line);
+            if (line.count(")") > line.count("(") || line.count("}") > line.count("{")) {
+                if (logger.multiLining[0] == "constant") {
+                    logger.constants.push(logger.multiLining[1].join(""))
+                } else {
+                    logger.imports.push(logger.multiLining[1])
+                }
+                logger.multiLining = "";
+            }
+            return ""
+        } else {
+            
+        }
     }
 
     if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
