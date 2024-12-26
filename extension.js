@@ -131,6 +131,12 @@ String.prototype.isLowerCase = function() {
 	})
 }
 
+String.prototype.isLetter = function() {
+    return [...this].every((char) => {
+		return char.isLowerCase() || char.isUpperCase();
+	})
+}
+
 String.prototype.count = function(search) {
 	let sum = 0;
     [...this].forEach((item) => {
