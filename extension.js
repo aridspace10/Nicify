@@ -53,6 +53,7 @@ class Logger {
         this.incomment = false;
         this.multiLining = "";
         this.errors = 0;
+        this.variables = [];
 	}
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
@@ -569,6 +570,7 @@ function checkLineLength(type, line, lineNum) {
  */
 function checkVarDecleration(array, language, lineNum, indentation) {
 	let equalsIndex = array.indexOf("=");
+    let name = array.at(equalsIndex - 1);
     //check if language includes variable decleration
 	if (equalsIndex !== 1) {
 		if (language == "Javascript" && array[0] == "var") {
@@ -577,20 +579,22 @@ function checkVarDecleration(array, language, lineNum, indentation) {
 		}	
 	}
 	
-    if (logger.namingChanges.get(array[equalsIndex - 1]) !== null) {
-        if (logger.unused.includes_nested(array[equalsIndex - 1], 2)) {
-            let index = logger.unused.indexOf(array[equalsIndex - 1]);
+    if (logger.namingChanges.get(name) !== null) { // if that name has been changed due to styling violation
+        if (logger.unused.includes_nested(name, 2)) {
+            let index = logger.unused.indexOf(name);
             logger.unused.splice(index, 1);
         }
     } else {
         // add variable to naming changes to keep track of naming changes and change as needed
-        logger.namingChanges.set(array[equalsIndex - 1], checkNaming("variable", array[equalsIndex - 1], lineNum));
-        logger.unused.push(["Variable", lineNum, array[equalsIndex - 1]]);
-        array[equalsIndex - 1] = logger.namingChanges.get(array[equalsIndex - 1]);
+        logger.namingChanges.set(name, checkNaming("variable", name, lineNum));
+        logger.unused.push(["Variable", lineNum, name]);
+        array[equalsIndex- 1] = logger.namingChanges.get(name);
     }
 
+    logger.variables.push(array[equalsIndex-1]);
+
 	// Check if constant
-	if (array[equalsIndex - 1].isUpperCase()) {
+	if (name.isUpperCase()) {
         if (array.at(-1) === "[" || array.at(-1) === "{") {
             logger.multiLining = ["constant", [array.join(" ")]];
         } else {
