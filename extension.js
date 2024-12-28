@@ -666,16 +666,13 @@ function checkLine(language, line, lineNum, text) {
             console.log(word)
             let progress = "";
             for (const char of word) {
-                // if a number
                 if (/[a-zA-Z]/.test(char)) {
                     progress += char;
                 } else if (/[0-9]/.test(char)) {
                     break;
                 }
             }
-            console.log(`Progress: ${progress}`)
             if (progress && !logger.variables.includes(progress)) {
-                console.log("HERE")
                 valid = false;
             } 
         }
@@ -1091,5 +1088,6 @@ module.exports = {
     checkVarDecleration,
     setup,
     styleCSS,
+    styleHTML,
     Logger
 }

@@ -16,7 +16,7 @@ async function readFile(uri) {
 const vscode = require('vscode');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, '../guide.json'));
-const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS} = require('../extension');
+const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS, styleHTML} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
 	vscode.window.showInformationMessage('Start all clang formatting tests.');
@@ -101,12 +101,23 @@ suite("3. CheckVarValidation Testing", () => {
 
 suite("4. Style CSS", () => {
     test("4.1 Basic", async () => {
-        const input = await readFile(path.join(__dirname, "css/input/4.1.css"));
-        const expected = await readFile(path.join(__dirname, "css/expected/4.1.css"));
+        const input = await readFile(path.join(__dirname, "input/4.1.css"));
+        const expected = await readFile(path.join(__dirname, "expected/4.1.css"));
         if (!input || !expected) {
             throw new Error("File read failed. Check file paths and existence.");
         }
         assert.strictEqual(await styleCSS(input.split("\n")), expected, "CSS output did not match expected result");
+    })
+})
+
+suite("5. Style HTML", () => {
+    test("5.2 Regular", async () => {
+        const input = await readFile(path.join(__dirname, "input/5.2.html"));
+        const expected = await readFile(path.join(__dirname, "expected/5.2.html"));
+        if (!input || !expected) {
+            throw new Error("File read failed. Check file paths and existence.");
+        }
+        assert.strictEqual(await styleHTML(input.split("\n")), expected, "CSS output did not match expected result");
     })
 })
 
