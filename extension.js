@@ -662,18 +662,20 @@ function checkLine(language, line, lineNum, text) {
     if (logger.multiLining) {
         let lst = line.split(" ")
         let valid = true;
-        for (const word in lst) {
+        for (const word of lst) {
+            console.log(word)
             let progress = "";
-            for (const char in word) {
+            for (const char of word) {
                 // if a number
-                if (char.charCodeAt(0) > 10 || (char.charCodeAt(0) >= 48 && char.charCodeAt(0) <= 57)) {
-                    break
-                }
-                if (char.isLetter()) {
+                if (/[a-zA-Z]/.test(char)) {
                     progress += char;
+                } else if (/[0-9]/.test(char)) {
+                    break;
                 }
             }
-            if (progress && logger.variables.includes(progress)) {
+            console.log(`Progress: ${progress}`)
+            if (progress && !logger.variables.includes(progress)) {
+                console.log("HERE")
                 valid = false;
             } 
         }
@@ -689,7 +691,9 @@ function checkLine(language, line, lineNum, text) {
             }
             return ""
         } else {
-            
+            let temp = logger.multiLining[1];
+            logger.multiLining = "";
+            return temp
         }
     }
 
@@ -795,8 +799,6 @@ function checkLine(language, line, lineNum, text) {
 			}
 			array[array.length-1] += "\n";
 		}
-        console.log(line)
-        console.log(typeof array)
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
 
 		if (line.includes("{")) {
@@ -1014,10 +1016,9 @@ async function styleFix(info) {
                 new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
             }
             if (logger.replace) {
-                logger.constants.sort()
                 while (logger.constants.length) {
-                    new_text.splice(0, 0, logger.constants[0] + "\n");
-                    logger.constants.shift();
+                    new_text.splice(0, 0, logger.constants.at(-1) + "\n");
+                    logger.constants.pop();
                 }
                 new_text.splice(0, 0, logger.constantHeader + "\n");
                 logger.imports.sort()
