@@ -742,6 +742,9 @@ function checkLine(language, line, lineNum, text) {
             }
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
+            if (!array.length) {
+                return "";
+            }
 		} else if (array[0] === "class") {
 			array[1] = checkNaming("class", array[1], lineNum);
             logger.unused.push(["Class", lineNum, array[1]]);
