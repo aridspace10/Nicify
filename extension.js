@@ -1106,5 +1106,6 @@ module.exports = {
     setup,
     styleCSS,
     styleHTML,
+    styleRegularFile,
     Logger
 }
