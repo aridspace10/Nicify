@@ -672,7 +672,6 @@ function checkLine(language, line, lineNum, text) {
         let lst = line.split(" ")
         let valid = true;
         for (const word of lst) {
-            console.log(word)
             let progress = "";
             for (const char of word) {
                 if (/[a-zA-Z]/.test(char)) {
@@ -987,8 +986,13 @@ function setup() {
 	}
 }
 
+/**
+ * Edits the document with the given text
+ * @param {*} editor - the editor we are using
+ * @param {*} document - the document which we are editing
+ * @param {*} text - the text being inputted
+ */
 function editDocument(editor, document, text) {
-    //console.log(text)
 	editor.edit(editBuilder => {
 		const docLength = new vscode.Range(
 			new vscode.Position(0, 0), 
@@ -1004,6 +1008,12 @@ function editDocument(editor, document, text) {
 	});
 }
 
+/**
+ * styles a given text assuming it is a regular file
+ * Currently supports Javascript and Python
+ * @param {*} text - the text to be checked for styling
+ * @returns the new styled text
+ */
 function styleRegularFile(text) {
     let new_text = [];
     const formatted_text = clangFormat(text);

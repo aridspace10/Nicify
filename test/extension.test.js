@@ -145,7 +145,6 @@ suite("6. Style Python", () => {
 
 suite("7. Style Javascript", () => {
     beforeEach(() => {
-        const logger = new Logger();
         logger.language = "Javascript"
         const data = jsonData[logger.language];
         logger.g_rules = data["general"];
