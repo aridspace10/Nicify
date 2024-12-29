@@ -1004,6 +1004,34 @@ function editDocument(editor, document, text) {
 	});
 }
 
+function styleRegularFile(text) {
+    let new_text = [];
+    const formatted_text = clangFormat(text);
+    for (let lineNum in formatted_text) {
+        if (isNaN(parseInt(lineNum))) {
+            continue
+        }
+        new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
+    }
+    if (logger.replace) {
+        while (logger.constants.length) {
+            new_text.splice(0, 0, logger.constants.at(-1) + "\n");
+            logger.constants.pop();
+        }
+        new_text.splice(0, 0, logger.constantHeader + "\n");
+        logger.imports.sort()
+        while (logger.imports.length) {
+            new_text.splice(0, 0, logger.imports[0] + "\n");
+            logger.imports.shift();
+        }
+        new_text.splice(0, 0, logger.importHeader + "\n");
+        new_text = new_text.join("");
+        
+    }
+    logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
+    return new_text;
+}
+
 /**
  * Completes general style fix and edits the document
  * @param {Array} info - the info required gather from setup()
@@ -1016,30 +1044,7 @@ async function styleFix(info) {
         } else if (logger.language === "CSS") {
             new_text = await styleCSS(info[1])
         } else {
-            new_text = [];
-            const formatted_text = clangFormat(info[1]);
-            for (let lineNum in formatted_text) {
-                if (isNaN(parseInt(lineNum))) {
-                    continue
-                }
-                new_text.push(checkLine(logger.language, formatted_text[parseInt(lineNum)], parseInt(lineNum), formatted_text));
-            }
-            if (logger.replace) {
-                while (logger.constants.length) {
-                    new_text.splice(0, 0, logger.constants.at(-1) + "\n");
-                    logger.constants.pop();
-                }
-                new_text.splice(0, 0, logger.constantHeader + "\n");
-                logger.imports.sort()
-                while (logger.imports.length) {
-                    new_text.splice(0, 0, logger.imports[0] + "\n");
-                    logger.imports.shift();
-                }
-                new_text.splice(0, 0, logger.importHeader + "\n");
-                new_text = new_text.join("");
-                
-            }
-            logger.unused.forEach(variable => logger.addToReport("unused", 0, "", variable));
+            new_text = styleRegularFile(info[1])
         }
         if (logger.replace) {
             editDocument(info[0], info[0].document, new_text);
