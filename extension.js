@@ -258,6 +258,15 @@ function clangFormat(text) {
                 logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
 			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length 
                 && !line.startsWith("from") && !line.startsWith("import"))) {
+                // checks for when a function may return multiple things a,b,c = func()
+                if (element === "," && line.split("").includes("=")) {
+                    let lst = line.split("=");
+                    if (lst[0].count(",") !== lst[1].count(",")) {
+                        modified += element;
+                        index++;
+                        continue
+                    }
+                }
 				modified += ";\n" + " ".repeat(indentation);
 				if (logger.g_rules["varDeclaration"]) {
 					modified += line.split(" ")[0] + " ";
