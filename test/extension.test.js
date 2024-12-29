@@ -122,8 +122,18 @@ suite("5. Style HTML", () => {
 })
 
 suite("6. Style Python", () => {
-    test("6.1 Basic", async () => {
+    beforeEach(() => {
         const logger = new Logger();
+        logger.language = "Python"
+        const data = jsonData[logger.language];
+        logger.g_rules = data["general"];
+        logger.c_rules = data["conventions"][logger.conventions];
+        logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.replace = true;
+        logger.conventions = "google"
+    });
+    test("6.1 Basic", async () => {
         const input = await readFile(path.join(__dirname, "input/6.1.html"));
         const expected = await readFile(path.join(__dirname, "expected/6.1.html"));
         if (!input || !expected) {
@@ -134,6 +144,17 @@ suite("6. Style Python", () => {
 })
 
 suite("7. Style Javascript", () => {
+    beforeEach(() => {
+        const logger = new Logger();
+        logger.language = "Javascript"
+        const data = jsonData[logger.language];
+        logger.g_rules = data["general"];
+        logger.c_rules = data["conventions"][logger.conventions];
+        logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.replace = true;
+        logger.conventions = "PEP 8"
+    });
     test("7.1 Basic", async () => {
         const logger = new Logger();
         const input = await readFile(path.join(__dirname, "input/7.1.html"));
