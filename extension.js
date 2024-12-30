@@ -646,6 +646,7 @@ Parameters:
  @param text - An array which conistr of the entire code text split by line
 */
 function checkLine(language, line, lineNum, text) {
+    console.log(`Line ${line}`)
 	// check for end of funtion line
 	if (line[0] === "}" && line.trim().length === 2) {
 		logger.exp_indentation = 0;
@@ -716,17 +717,19 @@ function checkLine(language, line, lineNum, text) {
         line = line.substring(indentation)
         let array = line.split(" ");
 
-		if (line.includes("}")) {
-			logger.exp_indentation -= 4
-		}
+		if (logger.language !== "Python") {
+            if (line.includes("}")) {
+                logger.exp_indentation -= 4
+            }
 
-		if (logger.language !== "Python" && indentation !== logger.exp_indentation) {
-            console.log("Wrong Indentation");
-			if (logger.replace) {
-				indentation = logger.exp_indentation;
-			}
-			logger.addToReport("Indentation", lineNum);
-		}
+            if (indentation !== logger.exp_indentation) {
+                console.log("Wrong Indentation");
+                if (logger.replace) {
+                    indentation = logger.exp_indentation;
+                }
+                logger.addToReport("Indentation", lineNum);
+            }
+        }
 
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
@@ -808,6 +811,7 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
+        console.log(`New Line: ${newLine}`)
 
 		if (line.includes("{")) {
 			logger.exp_indentation += 4;
