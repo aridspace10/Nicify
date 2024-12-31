@@ -122,7 +122,7 @@ suite("5. Style HTML", () => {
 })
 
 suite("6. Style Python", () => {
-    beforeEach(() => {
+    setup(() => {
         const logger = new Logger();
         logger.language = "Python"
         const data = jsonData[logger.language];
@@ -144,7 +144,7 @@ suite("6. Style Python", () => {
 })
 
 suite("7. Style Javascript", () => {
-    beforeEach(() => {
+    setup(() => {
         logger.language = "Javascript"
         const data = jsonData[logger.language];
         logger.g_rules = data["general"];
