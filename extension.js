@@ -7,7 +7,7 @@ const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
 const UPPER_CASE_EDGES = [65, 90];
 const LOWER_CASE_EDGES = [97, 122];
-const OPERATORS = ["=",">","+","-","*","/","%", "**", "&&", "||"];
+const OPERATORS = ["!","=",">","+","-","*","/","%", "**", "&&", "||"];
 const MULTIPLESELECTORSTEXT = "We have found two selectors of the same type, what would you like to do?";
 const MULTIPLESELECTORSCHOICES = ["Merge"];
 const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
