@@ -303,27 +303,11 @@ Parameters:
 function convertToLiteral(str, lineNum, language) {
 	let instring = false;
 	let opened = false;
-    let mod = "";
+    let mod = logger.g_rules["stringTemplate"][0];
     let first = true;
-    // Define starting context
-    if (language === "Python") {
-        mod = "f\"";
-    } else if (language === "Javascript") {
-        mod = "`";
-    } else if (language === "Java") {
-        mod = "STR. ";
-    } else {
-        console.log(logger.language)
-        throw new Error(`Unknown language \"${language}\" being used`)
-    }
     // Determine if starts in string or not
     if (str[0] !== "\"" && str[0] !== "'") {
-        if (language === "Javascript") {
-            mod += "$";
-        } else if (language === "Java") {
-            mod += "\\";
-        }
-        mod += "{";
+        mod += logger.g_rules["stringTemplate"][1]
     }
 	[...str].forEach((char, index) => {
 		if (char === ";") {
@@ -331,14 +315,9 @@ function convertToLiteral(str, lineNum, language) {
 		}
 		if (char === "\"" || char === "'") {
             if (!instring && !first) { // if the end of a variable
-                mod += "}";
+                mod += logger.g_rules["stringTemplate"][2]
             } else if (instring) {
-                if (language === "Javascript") {
-                    mod += "$";
-                } else if (language === "Java") {
-                    mod += "\\";
-                }
-                mod += "{";
+                mod += logger.g_rules["stringTemplate"][1]
             }
       		instring = !instring;
 		} else if (instring || (char !== "+" && char !== " ")) { // if in a string or not a space or addition of variable
