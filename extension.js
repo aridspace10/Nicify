@@ -235,7 +235,8 @@ function clangFormat(text) {
                 }
 			} else if (OPERATORS.includes(element)) {
                 //check for space before
-				if (line[index-1] !== " ") {
+                let noSpace = ["(", ")", "[", "]", " "]
+				if (!noSpace.includes(line[index - 1])) {
           			modified += " ";
                     logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
@@ -244,7 +245,7 @@ function clangFormat(text) {
 					modified += line[index++];
 				}
                 // check for space after
-				if (line[index] !== " ") {
+				if (!noSpace.includes(line[index]) && isNaN(parseInt(index))) {
 					modified += " ";
                     logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
