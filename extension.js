@@ -257,7 +257,7 @@ function clangFormat(text) {
 				index++;
                 logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
 			} else if ((element == ";" && index + 2 < len) || (element === "," && !opened.length 
-                && !line.startsWith("from") && !line.startsWith("import"))) {
+                && !line.startsWith("from") && !line.startsWith("import") && index + 2 < len)) { 
                 // checks for when a function may return multiple things a,b,c = func()
                 if (element === "," && line.split("").includes("=")) {
                     let lst = line.split("=");
@@ -397,6 +397,7 @@ function checkNaming(type, name, lineNum) {
 	}
 	return checkCasing(type, name, lineNum);
 }
+
 /* checkFuncNaming
 This function checks the naming of function and also the parameters given in
 */
