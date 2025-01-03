@@ -670,9 +670,9 @@ function checkLine(language, line, lineNum, text) {
             logger.multiLining[1].push("\n" + line);
             if (line.count(")") > line.count("(") || line.count("}") > line.count("{")) {
                 if (logger.multiLining[0] == "constant") {
-                    logger.constants.push(logger.multiLining[1].join(""))
+                    logger.constants.push(logger.multiLining[1].join(""));
                 } else {
-                    logger.imports.push(logger.multiLining[1])
+                    logger.imports.push(logger.multiLining[1]);
                 }
                 logger.multiLining = "";
             }
@@ -680,14 +680,14 @@ function checkLine(language, line, lineNum, text) {
         } else {
             let temp = logger.multiLining[1];
             logger.multiLining = "";
-            return temp
+            return temp;
         }
     }
 
     if (line.trim().startsWith(commentingRules["multiLineComment"][0]) || line.trim().startsWith(commentingRules["multiLineComment"][1]) ||
         line.trim().endsWith(commentingRules["multiLineComment"][0]) || line.trim().endsWith(commentingRules["multiLineComment"][1])) {
         logger.incomment = true;
-        return line + "\n"
+        return line + "\n";
     }
 
 	if (line && line.trim() !== "") {
@@ -700,7 +700,7 @@ function checkLine(language, line, lineNum, text) {
 
 		if (logger.language !== "Python") {
             if (line.includes("}")) {
-                logger.exp_indentation -= 4
+                logger.exp_indentation -= 4;
             }
 
             if (indentation !== logger.exp_indentation) {
@@ -728,9 +728,9 @@ function checkLine(language, line, lineNum, text) {
 			}
 
             if (text[lineNum - 1] !== "" || text[lineNum - 1] !== "\n") {
-                return "\n" + line
+                return "\n" + line;
             } else {
-                return line
+                return line;
             }
 		} else if (array.includes("=")) {
 			array = checkVarDecleration(array, language, lineNum, indentation);
@@ -792,7 +792,6 @@ function checkLine(language, line, lineNum, text) {
 			array[array.length-1] += "\n";
 		}
 		let newLine = " ".repeat(indentation < 0 ? 0 : indentation) + array.join(" ");
-        console.log(`New Line: ${newLine}`)
 
 		if (line.includes("{")) {
 			logger.exp_indentation += 4;
@@ -984,12 +983,12 @@ function editDocument(editor, document, text) {
 			document.positionAt(document.getText().length)
 		);
 		editBuilder.replace(docLength, text);
-		}).then(success => {
-		if (success) {
-			vscode.window.showInformationMessage('Document content replaced with correct style');
-		} else {
-			vscode.window.showErrorMessage('Failed to replace document content.');
-		}
+	}).then(success => {
+        if (success) {
+            vscode.window.showInformationMessage('Document content replaced with correct style');
+        } else {
+            vscode.window.showErrorMessage('Failed to replace document content.');
+        }
 	});
 }
 
@@ -1037,9 +1036,9 @@ async function styleFix(info) {
         if (logger.language === "HTML") {
             new_text = await styleHTML(info[1]);
         } else if (logger.language === "CSS") {
-            new_text = await styleCSS(info[1])
+            new_text = await styleCSS(info[1]);
         } else {
-            new_text = styleRegularFile(info[1])
+            new_text = styleRegularFile(info[1]);
         }
         if (logger.replace) {
             editDocument(info[0], info[0].document, new_text);
