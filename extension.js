@@ -962,6 +962,7 @@ function setup() {
             logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
             const settings = vscode.workspace.getConfiguration('nicify');
             logger.replace = settings.get("replace");
+            logger.headers = !settings.get("noHeaders")
             logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
             return [editor, text, data];
         } else {
@@ -1012,13 +1013,17 @@ function styleRegularFile(text) {
             new_text.splice(0, 0, logger.constants.at(-1) + "\n");
             logger.constants.pop();
         }
-        new_text.splice(0, 0, logger.constantHeader + "\n");
+        if (logger.headers) {
+            new_text.splice(0, 0, logger.constantHeader + "\n");
+        }
         logger.imports.sort()
         while (logger.imports.length) {
             new_text.splice(0, 0, logger.imports[0] + "\n");
             logger.imports.shift();
         }
-        new_text.splice(0, 0, logger.importHeader + "\n");
+        if (logger.headers) {
+            new_text.splice(0, 0, logger.importHeader + "\n");
+        }
         new_text = new_text.join("");
         
     }
