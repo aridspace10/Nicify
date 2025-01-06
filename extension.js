@@ -748,6 +748,15 @@ function checkLine(language, line, lineNum, text) {
 			logger.imports.push(line);
 			return "";
 		} else {
+            if ((array.includes("if") || array.includes("for") || array.includes("while")) 
+                && (line.includes(":") || line.includes("{"))) {
+                for (let i = 0; i < array.length; i++) {
+                    if (array[i].endsWith(":") || array[i].endsWith("{")) {
+                        array[i] += "\n" + " ".repeat(indentation + 3); // 3 as there is space bewteen if (True): return True
+                    }
+                }
+            }
+
 			if (array.includes("return")) {
 				let nextLine = (text[lineNum + 1]).split(" ");
 				if (nextLine.includes("else") && !nextLine.includes("if")) {
