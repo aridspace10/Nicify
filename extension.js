@@ -284,8 +284,9 @@ function clangFormat(text) {
 				index++;
 			} else {
 				modified += line[index++];
+                // if the line is a comment
                 if (modified.endsWith(logger.g_rules["commenting"]["singleComment"])) {
-                    modified = line;
+                    modified += line.substr(index);
                     break
                 }
 			}
@@ -741,13 +742,14 @@ function checkLine(language, line, lineNum, text) {
             if (!array.length) {
                 return "";
             }
-		} else if (array[0] === "class") {
-			array[1] = checkNaming("class", array[1], lineNum);
+		} else if (array.includes("class")) {
+			array[array.indexOf("class") + 1] = checkNaming("class", array[1], lineNum);
             logger.unused.push(["Class", lineNum, array[1]]);
 		} else if (array[0] === "import" || array[0] === "from") {
 			logger.imports.push(line);
 			return "";
 		} else {
+            // checking for if (True): return True which are illegal
             if ((array.includes("if") || array.includes("for") || array.includes("while")) 
                 && (line.includes(":") || line.includes("{"))) {
                 for (let i = 0; i < array.length; i++) {
