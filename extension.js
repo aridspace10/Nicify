@@ -321,9 +321,9 @@ function convertToLiteral(str, lineNum, language) {
 		}
 		if (char === "\"" || char === "'") {
             if (!instring && !first) { // if the end of a variable
-                mod += logger.g_rules["stringTemplate"][2]
+                mod += logger.g_rules["stringTemplate"][2];
             } else if (instring) {
-                mod += logger.g_rules["stringTemplate"][1]
+                mod += logger.g_rules["stringTemplate"][1];
             }
       		instring = !instring;
 		} else if (instring || (char !== "+" && char !== " ")) { // if in a string or not a space or addition of variable
@@ -334,16 +334,16 @@ function convertToLiteral(str, lineNum, language) {
     
 	if (mod.at(-1) === "{") {
         if (language === "Python") {
-            mod = mod.slice(0, -1)
+            mod = mod.slice(0, -1);
         } else {
 		    mod = mod.slice(0, -2);
         }
 	} else {
-        mod += "}"
+        mod += "}";
     }
 
     if (language === "Python") {
-        mod += "\""
+        mod += "\"";
     } else {
 	    mod += "`";
     }
@@ -384,7 +384,7 @@ function checkCasing(type, name, lineNum) {
 			}
 		}
 	}
-	if (newName != name) {
+	if (newName !== name) {
 		logger.addToReport("naming", lineNum, orginal = name, processed = newName);
 	}
 	return newName;
