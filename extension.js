@@ -367,7 +367,7 @@ function checkCasing(type, name, lineNum) {
             if (name[i] === "(" || name[i] === " ") {
                 continue
             }
-			if (name[i].isUpperCase()) {
+			if (name[i].isUpperCase() && name[i-1] !== "_") {
 				newName += "_" + name[i].toLowerCase();
 			} else {
 				newName += name[i];
@@ -396,9 +396,7 @@ function checkNaming(type, name, lineNum) {
 	let namingRules = logger.c_rules["naming"];
 	if (namingRules[type] === "LowerCamel" && name[0].isLowerCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) + 32) + name.substring(1);
-	}
-
-	if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
+	} else if (namingRules[type] === "UpperCamel" && name[0].isUpperCase()) {
 		name = String.fromCharCode(name.charCodeAt(0) - 32) + name.substring(1);
 	}
 	return checkCasing(type, name, lineNum);
