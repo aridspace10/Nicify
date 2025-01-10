@@ -419,11 +419,15 @@ function checkFuncNaming(line, lineNum) {
 	for (let char of raw_parameters) {
 		if (char === "," || char === ")") {
             if (logger.language === "Python" || logger.language === "Java") {
-                let lst = temp.split(" ");
+                let lst = temp.split(logger.language === "Python" ? ":" : " ");
                 if (lst.length === 1) {
                     params.push(checkNaming("variable", temp));
                 } else {
-                    params.push(`${lst[0]} ${checkNaming("variable", lst[1])}`);
+                    if (logger.language === "Python") {
+                        params.push(`${checkNaming("variable", lst[0])}: ${lst[1]}`);
+                    } else {
+                        params.push(`${lst[0]} ${checkNaming("variable", lst[1])}`);
+                    }
                 }
             } else {
                 params.push(checkNaming("variable", temp));
