@@ -28,11 +28,11 @@ class Player {
     this.skills = [];
   }
 
-  isAlive() {
+  is_alive() {
     return this.hp > 0;
   }
 
-  addItem(item) {
+  add_item(item) {
     this.inventory.push(item);
   }
 
@@ -48,7 +48,7 @@ class Player {
     this.exp = 0;
     this.hp += 20;
     this.attack += 5;
-    console.log(`\nCongratulations! ${this.name} has reached Level ${this.level}!`);
+    console.log("Congratulations! " + this.name + " has reached Level " + this.level + "!");
     console.log(`HP: ${this.hp}, Attack: ${this.attack}`);
   }
 
@@ -71,7 +71,7 @@ class Skill {
 }
 
 class Monster {
-  constructor(name, hp, attack, expReward = 50) {
+  constructor(name, hp, attack, expReward=50) {
     this.name = name;
     this.hp = hp;
     this.attack = attack;
@@ -79,7 +79,7 @@ class Monster {
   }
 
   isAlive() {
-    return this.hp > 0;
+    return this.hp>0;
   }
 }
 
@@ -117,7 +117,7 @@ class Dungeon {
 
   generateRooms() {
     const traps = (player) => {
-      const damage = randomInt(5, 20);
+      var damage = randomInt(5, 20);
       player.hp -= damage;
       console.log(`\nYou triggered a trap and took ${damage} damage!`);
     };
