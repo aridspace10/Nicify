@@ -48,7 +48,7 @@ class Player {
     this.exp = 0;
     this.hp += 20;
     this.attack += 5;
-    console.log("Congratulations! " + this.name + " has reached Level " + this.level + "!");
+    console.log("Congratulations! " + this.name + " has reached Level " + this.level + " ");
     console.log(`HP: ${this.hp}, Attack: ${this.attack}`);
   }
 
@@ -117,8 +117,8 @@ class Dungeon {
 
   generateRooms() {
     const traps = (player) => {
-      var damage = randomInt(5, 20);
-      player.hp -= damage;
+      let damage = randomInt(5, 20);
+      player.hp-=damage;
       console.log(`\nYou triggered a trap and took ${damage} damage!`);
     };
 
@@ -151,7 +151,7 @@ class Dungeon {
   }
 
   moveToNextRoom() {
-    if (this.currentRoomIndex < this.rooms.length - 1) {
+    if (this.currentRoomIndex < this.rooms.length-1) {
       this.currentRoomIndex++;
       return true;
     }
@@ -173,7 +173,7 @@ class Shop {
   async visit(player) {
     console.log(`\nWelcome to the shop!`);
     console.log(`You have ${player.gold} gold.`);
-    for (let i = 0; i < this.items.length; i++) {
+    for (let i = 0;i < this.items.length;i++) {
       console.log(`${i + 1}. ${this.items[i].name} - ${this.items[i].cost} gold`);
     }
     console.log(`0. Leave shop.`);
