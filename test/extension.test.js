@@ -19,6 +19,25 @@ const jsonData = require(path.resolve(__dirname, '../guide.json'));
 const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS, styleHTML, styleRegularFile} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
+    let logger = new Logger();
+    setup(() => {
+        logger.language = "Javascript"
+        const data = jsonData[logger.language];
+        logger.g_rules = data["general"];
+        logger.c_rules = data["conventions"][logger.conventions];
+        if (!logger.g_rules["commenting"]) {
+            logger.g_rules["commenting"] = {
+                "singleComment": "//",
+                "multiCommentStart": "/*",
+                "multiCommentEnd": "*/"
+            };
+        }
+        logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+        logger.replace = true;
+        logger.conventions = "PEP 8"
+        global.logger = logger;
+    });
 	vscode.window.showInformationMessage('Start all clang formatting tests.');
 	// 1.1 Keyword spacing
 	test('1.1.1 if keyword spacing', () => {
