@@ -40,6 +40,7 @@ class Stack {
 
 class Logger {
 	constructor() {
+        this.document = "";
 		this.namingChanges = new Map();
         this.language = "";
 		this.report = {"naming": [], "Misc": [], "Format": []};
@@ -57,7 +58,7 @@ class Logger {
         this.diagnostics = [];
 	}
 
-    addDiagnostic(text, startIndex, endIndex, warningType) {
+    addDiagnostic(text, startIndex, endIndex, warningType, source = "", relatedInfo = "") {
         const range = new vscode.Range(
             startIndex,
             endIndex
@@ -67,6 +68,14 @@ class Logger {
             text,
             warningType
         );
+
+        diagnostic.source = source;
+        diagnostic.relatedInformation = [
+            new vscode.DiagnosticRelatedInformation(
+              new vscode.Location(this.document.uri, new vscode.Range(10, 0, 10, 20)),
+              relatedInfo
+            )
+        ];
     
         this.diagnostics.push(diagnostic);
     }
@@ -984,6 +993,7 @@ async function styleHTML(text) {
 function setup() {
 	const editor = vscode.window.activeTextEditor;
 	if (editor) {
+        this.document = editor.document;
 		const text = editor.document.getText().split("\n");
 		logger.language = determineLanguage(editor);
         if (logger.language !== "CSS") {
