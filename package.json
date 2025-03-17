@@ -41,6 +41,11 @@
             "type": "boolean",
             "default": false,
             "description": "If true, the extension will not use import and constant headers"
+        },
+        "nicify.autoRun": {
+            "type": "boolean",
+            "default": false,
+            "description": "If true, the extension will run on save"
         }
       }
     }
