@@ -49,6 +49,7 @@ class Logger {
 		this.imports = [];
 		this.constants = [];
 		this.replace = true;
+        this.autoRun = false;
 		this.exp_indentation = 0;
         this.unused = [];
         this.incomment = false;
@@ -57,6 +58,10 @@ class Logger {
         this.variables = [];
         this.diagnostics = [];
 	}
+
+    shouldDiagnose() {
+        return this.autoRun || !this.replace;
+    }
 
     addDiagnostic(text, startIndex, endIndex, warningType, source = "", relatedInfo = "") {
         const range = new vscode.Range(
