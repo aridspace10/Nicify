@@ -54,7 +54,22 @@ class Logger {
         this.multiLining = "";
         this.errors = 0;
         this.variables = [];
+        this.diagnostics = [];
 	}
+
+    addDiagnostic(text, startIndex, endIndex, warningType) {
+        const range = new vscode.Range(
+            startIndex,
+            endIndex
+        );
+        const diagnostic = new vscode.Diagnostic(
+            range,
+            text,
+            warningType
+        );
+    
+        this.diagnostics.push(diagnostic);
+    }
 
 	addToReport(typeChange, lineNum, original = "", processed = "") {
 		switch (typeChange) {
