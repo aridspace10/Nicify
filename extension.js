@@ -85,6 +85,10 @@ class Logger {
         this.diagnostics.push(diagnostic);
     }
 
+    shouldReport() {
+        return !this.autoRun || !this.replace;
+    }
+
     addError(text, type, original, processed, lineNum, startIndex = -1, endIndex = -1, relatedInfo = "") {
         this.errors += 1;
         if (this.shouldDiagnose()) {
