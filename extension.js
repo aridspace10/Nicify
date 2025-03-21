@@ -85,6 +85,16 @@ class Logger {
         this.diagnostics.push(diagnostic);
     }
 
+    addError(text, type, original, processed, lineNum, startIndex = -1, endIndex = -1, relatedInfo = "") {
+        this.errors += 1;
+        if (this.shouldDiagnose()) {
+            this.addDiagnostic(text, startIndex, endIndex, type, relatedInfo);
+        }
+        if (this.shouldReport()) {
+            this.addToReport(type, lineNum, original, processed);
+        }
+    }
+
 	addToReport(typeChange, lineNum, original = "", processed = "") {
 		switch (typeChange) {
 			case "Naming":
