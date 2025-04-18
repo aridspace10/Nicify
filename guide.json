@@ -43,7 +43,7 @@
             "classMemberIdentifier": "self",
             "methodDeclaration": "def",
             "commenting": {
-                "singleComment": "#",
+                "singleComment": "//",
                 "multiLineComment": ["\"\"\"","\"\"\""]
             },
             "jsonParam": "# "
@@ -61,6 +61,38 @@
                 },
                 "rules": {
                     "semiColonAlways": false,
+                    "multiVarDeclaration": false,
+                    "breakBinarOperation": "Before"
+                }
+            }
+        }
+    },
+    "C": {
+        "general": {
+            "varDeclaration": [],
+            "semiColonBased": true,
+            "stringTemplate": ["f\"","{","}"],
+            "classMemberIdentifier": "",
+            "methodDeclaration": "",
+            "commenting": {
+                "singleComment": "#",
+                "multiLineComment": ["/*","*\\"]
+            },
+            "jsonParam": "@ "
+        },
+        "conventions": {
+            "CSSE3010": {
+                "naming": {
+                    "class": null,
+                    "method": "SnakeCasing",
+                    "variable": "lowerCamel"
+                },
+                "limits": {
+                    "column": 80,
+                    "blockIndentation": 2
+                },
+                "rules": {
+                    "semiColonAlways": true,
                     "multiVarDeclaration": false,
                     "breakBinarOperation": "Before"
                 }
