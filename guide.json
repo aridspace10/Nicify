@@ -31,7 +31,8 @@
                 "functionDoc": {
                     "position": "top",
                     "tags": {"@param": "{type} desc","@return": "{type} desc"}
-                }
+                },
+                "special": []
             }  
         }
     },
@@ -63,7 +64,8 @@
                     "semiColonAlways": false,
                     "multiVarDeclaration": false,
                     "breakBinarOperation": "Before"
-                }
+                },
+                "special": []
             }
         }
     },
@@ -72,10 +74,11 @@
             "varDeclaration": [],
             "semiColonBased": true,
             "stringTemplate": ["f\"","{","}"],
+            "keywords": ["if", "else", "while", "for"],
             "classMemberIdentifier": "",
             "methodDeclaration": "",
             "commenting": {
-                "singleComment": "#",
+                "singleComment": "//",
                 "multiLineComment": ["/*","*\\"]
             },
             "jsonParam": "@ "
@@ -95,7 +98,8 @@
                     "semiColonAlways": true,
                     "multiVarDeclaration": false,
                     "breakBinarOperation": "Before"
-                }
+                },
+                "special": ["DocDecleration"]
             }
         }
     }
