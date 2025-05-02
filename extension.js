@@ -1093,18 +1093,35 @@ function styleRegularFile(text) {
 }
 
 /**
+ * This function will generate the doc deceleration for the file
+ * @param {*} info - the info required gather from setup()
+ * @returns the doc deceleration for the file
+ */
+function generateDocDec(info) {
+    let docName = info[0].document.fileName
+    return `/**\n 
+            * @file ${docName}\n 
+            * @author {Your Name}\n 
+            * @date ${new Date().toLocaleDateString()}\n 
+            * @brief {Brief description of the file}\n */\n`;
+}
+
+/**
  * Completes general style fix and edits the document
  * @param {Array} info - the info required gather from setup()
  */
 async function styleFix(info) {
     if (logger.language !== "UNKNOWN") {
         let new_text = "";
+        if (logger.c_rules["special"].includes("DocDecleration")) {
+            new_text += generateDocDec();
+        }
         if (logger.language === "HTML") {
-            new_text = await styleHTML(info[1]);
+            new_text += await styleHTML(info[1]);
         } else if (logger.language === "CSS") {
-            new_text = await styleCSS(info[1]);
+            new_text += await styleCSS(info[1]);
         } else {
-            new_text = styleRegularFile(info[1]);
+            new_text += styleRegularFile(info[1]);
         }
         if (logger.replace) {
             editDocument(info[0], info[0].document, new_text);
