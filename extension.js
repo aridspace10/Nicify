@@ -777,7 +777,7 @@ function checkLine(language, line, lineNum, text) {
                 " " + logger.editor + "(" + logger.text.join(", ") + ")", lineNum);
             let jsdoc = checkJSDOC(text, lineNum, logger.editor, logger.text)
             if (language === "Python") {
-                line = funcLine + logger.data + "\n" + jsdoc;
+                line = funcLine + info[2] + "\n" + jsdoc;
             } else {
                 line = jsdoc + funcLine + " {\n";
             }
@@ -1016,7 +1016,6 @@ async function styleHTML(text) {
 
 /**
  * Setups the logger, the text being used and other things needed
- * @returns returns array of needed info
  */
 function setup() {
 	this.editor = vscode.window.activeTextEditor;
@@ -1100,10 +1099,9 @@ function styleRegularFile(text) {
 
 /**
  * This function will generate the doc deceleration for the file
- * @param {*} info - the info required gather from setup()
  * @returns the doc deceleration for the file
  */
-async function generateDocDec(info) {
+async function generateDocDec() {
     let docName = logger.editor.document.fileName
     let brief = await openai.chat.completions.create({
         messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${logger.text}` }],
@@ -1118,9 +1116,8 @@ async function generateDocDec(info) {
 
 /**
  * Completes general style fix and edits the document
- * @param {Array} info - the info required gather from setup()
  */
-async function styleFix(info) {
+async function styleFix() {
     if (logger.language !== "UNKNOWN") {
         let new_text = "";
         if (logger.c_rules["special"].includes("DocDecleration")) {
@@ -1147,9 +1144,9 @@ async function styleFix(info) {
  */
 async function activate(context) {
 	let commands = ["nicify.styleFix", "nicify.styleNaming"];
-    const info = setup();
+    setup();
 	let disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
-        styleFix(info);
+        styleFix();
 	});
 	context.subscriptions.push(disposable);
     disposable = vscode.commands.registerCommand('nicify.clangFormat', () => {
