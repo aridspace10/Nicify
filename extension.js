@@ -2,6 +2,8 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
+require('dotenv').config();  // load .env variables
+const OpenAI = require('openai');
 const fs = require('fs');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, 'guide.json'));
@@ -12,6 +14,10 @@ const MULTIPLESELECTORSTEXT = "We have found two selectors of the same type, wha
 const MULTIPLESELECTORSCHOICES = ["Merge"];
 const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
 const ELEMENTNONINDENT = ["<p>"]
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,  // read from env
+});
 
 class Stack {
 	constructor() {
@@ -1097,13 +1103,17 @@ function styleRegularFile(text) {
  * @param {*} info - the info required gather from setup()
  * @returns the doc deceleration for the file
  */
-function generateDocDec(info) {
+async function generateDocDec(info) {
     let docName = info[0].document.fileName
+    let brief = await openai.chat.completions.create({
+        messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${info[1]}` }],
+        model: 'gpt-4',
+    }).choices[0].message.content;
     return `/**\n 
             * @file ${docName}\n 
             * @author {Your Name}\n 
             * @date ${new Date().toLocaleDateString()}\n 
-            * @brief {Brief description of the file}\n */\n`;
+            * @brief ${brief}\n */\n`;
 }
 
 /**
