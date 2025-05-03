@@ -28,24 +28,24 @@
       "title": "Nicify Extension Configuration",
       "properties": {
         "nicify.replace": {
-            "type": "boolean",
-            "default": true,
-            "description": "If true, the extension will replace any change it detects; otherwise, it will simply report them."
+          "type": "boolean",
+          "default": true,
+          "description": "If true, the extension will replace any change it detects; otherwise, it will simply report them."
         },
         "nicify.convention": {
-            "type": "string",
-            "default": "",
-            "description": "The convention the code will be styled to"
+          "type": "string",
+          "default": "",
+          "description": "The convention the code will be styled to"
         },
         "nicify.noHeaders": {
-            "type": "boolean",
-            "default": false,
-            "description": "If true, the extension will not use import and constant headers"
+          "type": "boolean",
+          "default": false,
+          "description": "If true, the extension will not use import and constant headers"
         },
         "nicify.autoRun": {
-            "type": "boolean",
-            "default": false,
-            "description": "If true, the extension will run on save"
+          "type": "boolean",
+          "default": false,
+          "description": "If true, the extension will run on save"
         }
       }
     }
@@ -92,5 +92,8 @@
     "ignorePatterns": [
       ".vscode-test/"
     ]
+  },
+  "dependencies": {
+    "openai": "^4.97.0"
   }
 }

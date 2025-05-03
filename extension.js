@@ -46,6 +46,9 @@ class Stack {
 
 class Logger {
 	constructor() {
+        this.text = "";
+        this.editor = null;
+        this.data = null;
         this.document = "";
 		this.namingChanges = new Map();
         this.language = "";
@@ -771,10 +774,10 @@ function checkLine(language, line, lineNum, text) {
 		if (array.includes(logger.g_rules["methodDeclaration"])) {
 			const info = checkFuncNaming(array, lineNum);
             let funcLine = checkLineLength("function", logger.g_rules["methodDeclaration"] + 
-                " " + info[0] + "(" + info[1].join(", ") + ")", lineNum);
-            let jsdoc = checkJSDOC(text, lineNum, info[0], info[1])
+                " " + logger.editor + "(" + logger.text.join(", ") + ")", lineNum);
+            let jsdoc = checkJSDOC(text, lineNum, logger.editor, logger.text)
             if (language === "Python") {
-                line = funcLine + info[2] + "\n" + jsdoc;
+                line = funcLine + logger.data + "\n" + jsdoc;
             } else {
                 line = jsdoc + funcLine + " {\n";
             }
@@ -1016,24 +1019,21 @@ async function styleHTML(text) {
  * @returns returns array of needed info
  */
 function setup() {
-	const editor = vscode.window.activeTextEditor;
+	this.editor = vscode.window.activeTextEditor;
 	if (editor) {
         this.document = editor.document;
-		const text = editor.document.getText().split("\n");
+		this.text = editor.document.getText().split("\n");
 		logger.language = determineLanguage(editor);
         if (logger.language !== "CSS") {
-            const data = jsonData[logger.language];
-            logger.g_rules = data["general"];
-            logger.c_rules = data["conventions"][logger.conventions];
+            this.data = jsonData[logger.language];
+            logger.g_rules = this.data["general"];
+            logger.c_rules = this.data["conventions"][logger.conventions];
             logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
             logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
             const settings = vscode.workspace.getConfiguration('nicify');
             logger.replace = settings.get("replace");
             logger.headers = !settings.get("noHeaders")
             logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
-            return [editor, text, data];
-        } else {
-            return [editor, text];
         }
 	}
 }
@@ -1104,9 +1104,9 @@ function styleRegularFile(text) {
  * @returns the doc deceleration for the file
  */
 async function generateDocDec(info) {
-    let docName = info[0].document.fileName
+    let docName = logger.editor.document.fileName
     let brief = await openai.chat.completions.create({
-        messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${info[1]}` }],
+        messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${logger.text}` }],
         model: 'gpt-4',
     }).choices[0].message.content;
     return `/**\n 
@@ -1127,14 +1127,14 @@ async function styleFix(info) {
             new_text += generateDocDec();
         }
         if (logger.language === "HTML") {
-            new_text += await styleHTML(info[1]);
+            new_text += await styleHTML(logger.text);
         } else if (logger.language === "CSS") {
-            new_text += await styleCSS(info[1]);
+            new_text += await styleCSS(logger.text);
         } else {
-            new_text += styleRegularFile(info[1]);
+            new_text += styleRegularFile(logger.text);
         }
         if (logger.replace) {
-            editDocument(info[0], info[0].document, new_text);
+            editDocument(logger.editor, logger.editor.document, new_text);
         }
         logger.createReport();
     } else {
@@ -1153,9 +1153,9 @@ async function activate(context) {
 	});
 	context.subscriptions.push(disposable);
     disposable = vscode.commands.registerCommand('nicify.clangFormat', () => {
-        const formatted_text = clangFormat(info[1]);
+        const formatted_text = clangFormat(logger.text);
         if (logger.replace) {
-            editDocument(info[0], info[0].document, formatted_text.map(text => text + "\n").join(""));
+            editDocument(logger.editor, logger.editor.document, formatted_text.map(text => text + "\n").join(""));
         }
     })
     context.subscriptions.push(disposable);
