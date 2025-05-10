@@ -893,7 +893,7 @@ function checkLine(language, line, lineNum, text) {
 	return line;
 }
 
-/** Given the field, will determine where it should 
+/** Given the field (a setting in css), will determine where it should 
  * be placed in the css sections
  * @param {*} field - the field being decided on
  * @returns 
@@ -1102,6 +1102,9 @@ function styleRegularFile(text) {
  * @returns the doc deceleration for the file
  */
 async function generateDocDec() {
+    if (logger.text[0].startsWith(logger.g_rules["commenting"]["multiLineComment"][0])) {
+        return "";
+    }
     let docName = logger.editor.document.fileName
     let brief = await openai.chat.completions.create({
         messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${logger.text}` }],
