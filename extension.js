@@ -1076,6 +1076,7 @@ function styleRegularFile(text) {
     }
     if (logger.replace) {
         while (logger.constants.length) {
+            // Prepend the last element of the constants array to the new_text array
             new_text.splice(0, 0, logger.constants.at(-1) + "\n");
             logger.constants.pop();
         }
@@ -1084,6 +1085,7 @@ function styleRegularFile(text) {
         }
         logger.imports.sort()
         while (logger.imports.length) {
+            // Prepend the first element of the imports array to the new_text array
             new_text.splice(0, 0, logger.imports[0] + "\n");
             logger.imports.shift();
         }
@@ -1146,7 +1148,6 @@ async function styleFix() {
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	let commands = ["nicify.styleFix", "nicify.styleNaming"];
     setup();
 	let disposable = vscode.commands.registerCommand('nicify.styleFix', async function () {
         styleFix();
