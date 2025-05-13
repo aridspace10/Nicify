@@ -68,6 +68,17 @@ class Logger {
         this.diagnostics = [];
 	}
 
+    setup(language) {
+        this.language = language;
+        if (this.language !== "CSS") {
+            this.data = jsonData[logger.language];
+            this.g_rules = this.data["general"];
+            this.c_rules = this.data["conventions"][this.conventions];
+            this.importHeader = this.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + this.g_rules["commenting"]["singleComment"].repeat(2);
+            this.constantHeader = this.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + this.g_rules["commenting"]["singleComment"].repeat(2);
+        }
+    }
+
     shouldDiagnose() {
         return this.autoRun || !this.replace;
     }
@@ -111,10 +122,10 @@ class Logger {
 	addToReport(typeChange, lineNum, original = "", processed = "") {
 		switch (typeChange) {
 			case "Naming":
-				if (logger.replace) {
-					this.report["naming"].push(`Changed ${original} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+				if (this.replace) {
+					this.report["naming"].push(`Changed ${original} to ${processed} to fit with naming conventions for ${this.conventions} (declared at line: ${lineNum}`);
 				} else {
-					this.report["naming"].push(`You should change ${original} to ${processed} to fit with naming conventions for ${logger.conventions} (declared at line: ${lineNum}`);
+					this.report["naming"].push(`You should change ${original} to ${processed} to fit with naming conventions for ${this.conventions} (declared at line: ${lineNum}`);
 				}
                 break;
 			case "Misc":
@@ -128,7 +139,7 @@ class Logger {
 				}
                 break;
 			case "funcDec":
-				if (logger.replace) {
+				if (this.replace) {
 					this.report["naming"].push(`Changed function ${original} to ${processed} (declared at line: ${lineNum})`);
 				} else {
 					this.report["naming"].push(`Should change function ${original} to ${processed} (declared at line: ${lineNum})`);
@@ -136,7 +147,7 @@ class Logger {
                 break;
 			case "language":
 				if (original === "JS_ARRAY") {
-					if (logger.replace) {
+					if (this.replace) {
 						this.report["language"].push(`Changed use of new Array() to [] as forbidden (declared at line: ${lineNum})`);
 					} else {
 						this.report["language"].push(`Replace use of new Array() to [] as forbidden (declared at line: ${lineNum})`);
@@ -1022,18 +1033,11 @@ function setup() {
 	if (editor) {
         this.document = editor.document;
 		this.text = editor.document.getText().split("\n");
-		logger.language = determineLanguage(editor);
-        if (logger.language !== "CSS") {
-            this.data = jsonData[logger.language];
-            logger.g_rules = this.data["general"];
-            logger.c_rules = this.data["conventions"][logger.conventions];
-            logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-            logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-            const settings = vscode.workspace.getConfiguration('nicify');
-            logger.replace = settings.get("replace");
-            logger.headers = !settings.get("noHeaders")
-            logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
-        }
+		logger.setup(determineLanguage(editor));
+        const settings = vscode.workspace.getConfiguration('nicify');
+        logger.replace = settings.get("replace");
+        logger.headers = !settings.get("noHeaders")
+        logger.conventions = logger.conventions ? logger.conventions : settings.get("convention");
 	}
 }
 

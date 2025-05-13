@@ -19,12 +19,7 @@ const jsonData = require(path.resolve(__dirname, '../guide.json'));
 const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS, styleHTML, styleRegularFile, logger} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
-    logger.language = "Javascript"
-    const data = jsonData[logger.language];
-    logger.g_rules = data["general"];
-    logger.c_rules = data["conventions"][logger.conventions];
-    logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-    logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
+    logger.setup("Javascript");
     logger.replace = true;
     logger.conventions = "PEP 8"
     global.logger = logger;
@@ -98,6 +93,7 @@ suite("2. String literal Testing", () => {
 	test("2.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0), "`${name}, welcome`")});
     test("2.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0), "`Hello, ${name}, welcome`")});
 	test("2.4.1 Python", () => {
+        logger.setup("Python");
         assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")
     });
 })
