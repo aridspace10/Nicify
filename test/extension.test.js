@@ -92,11 +92,11 @@ suite('1. Clang Formatting Testing', () => {
 });
 
 suite("2. String literal Testing", () => {
-	test("2.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\"", 0, "Javascript"), "`Hello There!!!`")});
-	test("2.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'", 0, "Javascript"), "`Hello There!!!`")});
-	test("2.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name", 0, "Javascript"), "`Hello ${name}`")});
-	test("2.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0, "Javascript"), "`${name}, welcome`")});
-    test("2.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Javascript"), "`Hello, ${name}, welcome`")});
+	test("2.1.1 Simple", () => {assert.equal(convertToLiteral("\"Hello There!!!\"", 0), "`Hello There!!!`")});
+	test("2.1.2 Simple", () => {assert.equal(convertToLiteral("'Hello There!!!'", 0), "`Hello There!!!`")});
+	test("2.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name", 0), "`Hello ${name}`")});
+	test("2.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0), "`${name}, welcome`")});
+    test("2.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0), "`Hello, ${name}, welcome`")});
 	test("2.4.1 Python", () => {
         assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")
     });
