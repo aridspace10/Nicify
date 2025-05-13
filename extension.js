@@ -297,7 +297,7 @@ function clangFormat(text) {
 					modified += line[index++];
 				}
                 // check for space after
-				if (!noSpace.includes(line[index]) && isNaN(parseInt(index))) {
+				if (!noSpace.includes(line[index])) {
 					modified += " ";
                     logger.addToReport("Format", lineNum, "Spacing needed between operator");
 				}
@@ -358,7 +358,7 @@ Parameters:
  @param str - the string to be modifed
  @param lineNum - the number of the line where str defined
 */
-function convertToLiteral(str, lineNum, language) {
+function convertToLiteral(str, lineNum) {
 	let instring = false;
 	let opened = false;
     let mod = logger.g_rules["stringTemplate"][0];
@@ -385,7 +385,7 @@ function convertToLiteral(str, lineNum, language) {
 	});
     
 	if (mod.at(-1) === "{") {
-        if (language === "Python") {
+        if (logger.language === "Python") {
             mod = mod.slice(0, -1);
         } else {
 		    mod = mod.slice(0, -2);
@@ -394,7 +394,7 @@ function convertToLiteral(str, lineNum, language) {
         mod += "}";
     }
 
-    if (language === "Python") {
+    if (logger.language === "Python") {
         mod += "\"";
     } else {
 	    mod += "`";

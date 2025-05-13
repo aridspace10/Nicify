@@ -97,7 +97,9 @@ suite("2. String literal Testing", () => {
 	test("2.2.1 Regular", () => {assert.equal(convertToLiteral("\"Hello \" + name", 0, "Javascript"), "`Hello ${name}`")});
 	test("2.2.2 Regular", () => {assert.equal(convertToLiteral("name + \", welcome\"", 0, "Javascript"), "`${name}, welcome`")});
     test("2.2.2 Regular", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Javascript"), "`Hello, ${name}, welcome`")});
-	test("2.4.1 Python", () => {assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")});
+	test("2.4.1 Python", () => {
+        assert.equal(convertToLiteral("\"Hello, \" + name + \", welcome\"", 0, "Python"), "f\"Hello, {name}, welcome\"")
+    });
 })
 
 suite("3. CheckVarValidation Testing", () => {
