@@ -298,7 +298,7 @@ async function gameLoop(player) {
 
 // Start the game
 (async () => {
-  const name = await askQuestion('What is your name, adventurer? ');
-  const player = new Player(name);
-  await gameLoop(player);
+    const name = await askQuestion('What is your name, adventurer? ');
+    const player = new Player(name);
+    await gameLoop(player);
 })();

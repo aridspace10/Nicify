@@ -16,21 +16,13 @@ async function readFile(uri) {
 const vscode = require('vscode');
 const path = require('path');
 const jsonData = require(path.resolve(__dirname, '../guide.json'));
-const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS, styleHTML, styleRegularFile} = require('../extension');
+const {clangFormat, convertToLiteral, checkVarDecleration, setup, Logger, styleCSS, styleHTML, styleRegularFile, logger} = require('../extension');
 
 suite('1. Clang Formatting Testing', () => {
-    let logger = new Logger();
     logger.language = "Javascript"
     const data = jsonData[logger.language];
     logger.g_rules = data["general"];
     logger.c_rules = data["conventions"][logger.conventions];
-    if (!logger.g_rules["commenting"]) {
-        logger.g_rules["commenting"] = {
-            "singleComment": "//",
-            "multiCommentStart": "/*",
-            "multiCommentEnd": "*/"
-        };
-    }
     logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
     logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
     logger.replace = true;

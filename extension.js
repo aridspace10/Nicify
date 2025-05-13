@@ -15,9 +15,9 @@ const MULTIPLESELECTORSCHOICES = ["Merge"];
 const MERGECONFLICTTEXT = "We have found two field which are the same, what would you like to do?"
 const ELEMENTNONINDENT = ["<p>"]
 
-const openai = new OpenAI({
-    apiKey: process.env.OPENAI_API_KEY,  // read from env
-});
+// const openai = new OpenAI({
+//     apiKey: process.env.OPENAI_API_KEY,  // read from env
+// });
 
 class Stack {
 	constructor() {
@@ -1108,10 +1108,10 @@ async function generateDocDec() {
         return "";
     }
     let docName = logger.editor.document.fileName
-    let brief = await openai.chat.completions.create({
-        messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${logger.text}` }],
-        model: 'gpt-4',
-    }).choices[0].message.content;
+    // let brief = await openai.chat.completions.create({
+    //     messages: [{ role: 'user', content: `Decscribe in 50 words or less, the code below \n ${logger.text}` }],
+    //     model: 'gpt-4',
+    // }).choices[0].message.content;
     return `/**\n 
             * @file ${docName}\n 
             * @author {Your Name}\n 
@@ -1195,5 +1195,6 @@ module.exports = {
     styleCSS,
     styleHTML,
     styleRegularFile,
-    Logger
+    Logger,
+    logger
 }
