@@ -237,6 +237,7 @@ Array.prototype.includes_nested = function(str, index) {
 }
 
 function clangFormat(text) {
+    //console.log(text)
 	const formatted_text = [];
     let lineNum = 1;
 	for (let line of text) {
@@ -357,7 +358,7 @@ function clangFormat(text) {
 		formatted_text.push(" ".repeat(indentation) + modified.trim());
         lineNum += 1;
 	}
-    if (formatted_text.at(-1).trim() !== "") {
+    if (formatted_text.at(-1) && formatted_text.at(-1).trim() !== "") {
         formatted_text.push("")
     }
 	return formatted_text;
@@ -1029,11 +1030,11 @@ async function styleHTML(text) {
  * Setups the logger, the text being used and other things needed
  */
 function setup() {
-	this.editor = vscode.window.activeTextEditor;
+	logger.editor = vscode.window.activeTextEditor;
 	if (editor) {
-        this.document = editor.document;
-		this.text = editor.document.getText().split("\n");
-		logger.setup(determineLanguage(editor));
+        logger.document = logger.editor.document;
+		logger.text = logger.document.getText().split("\n");
+		logger.setup(determineLanguage(logger.editor));
         const settings = vscode.workspace.getConfiguration('nicify');
         logger.replace = settings.get("replace");
         logger.headers = !settings.get("noHeaders")
@@ -1069,9 +1070,9 @@ function editDocument(editor, document, text) {
  * @param {*} text - the text to be checked for styling
  * @returns the new styled text
  */
-function styleRegularFile(text) {
+function styleRegularFile() {
     let new_text = [];
-    const formatted_text = clangFormat(text);
+    const formatted_text = clangFormat(logger.text);
     for (let lineNum in formatted_text) {
         if (isNaN(parseInt(lineNum))) {
             continue
@@ -1140,7 +1141,7 @@ async function styleFix() {
             new_text += styleRegularFile(logger.text);
         }
         if (logger.replace) {
-            editDocument(logger.editor, logger.editor.document, new_text);
+            editDocument(logger.editor, logger.document, new_text);
         }
         logger.createReport();
     } else {
