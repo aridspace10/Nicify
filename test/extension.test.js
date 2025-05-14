@@ -129,17 +129,7 @@ suite("5. Style HTML", () => {
 })
 
 suite("6. Style Python", () => {
-    setup(() => {
-        const logger = new Logger();
-        logger.language = "Python"
-        const data = jsonData[logger.language];
-        logger.g_rules = data["general"];
-        logger.c_rules = data["conventions"][logger.conventions];
-        logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-        logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-        logger.replace = true;
-        logger.conventions = "google"
-    });
+    logger.setup("Python");
     test("6.1 Basic", async () => {
         const input = await readFile(path.join(__dirname, "input/6.1.html"));
         const expected = await readFile(path.join(__dirname, "expected/6.1.html"));
@@ -151,20 +141,11 @@ suite("6. Style Python", () => {
 })
 
 suite("7. Style Javascript", () => {
-    setup(() => {
-        logger.language = "Javascript"
-        const data = jsonData[logger.language];
-        logger.g_rules = data["general"];
-        logger.c_rules = data["conventions"][logger.conventions];
-        logger.importHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " IMPORTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-        logger.constantHeader = logger.g_rules["commenting"]["singleComment"].repeat(2) + " CONSTANTS " + logger.g_rules["commenting"]["singleComment"].repeat(2);
-        logger.replace = true;
-        logger.conventions = "PEP 8"
-    });
+    logger.setup("Javascript");
     test("7.1 Basic", async () => {
         const logger = new Logger();
-        const input = await readFile(path.join(__dirname, "input/7.1.html"));
-        const expected = await readFile(path.join(__dirname, "expected/7.1.html"));
+        const input = await readFile(path.join(__dirname, "input/7.1.js"));
+        const expected = await readFile(path.join(__dirname, "expected/7.1.js"));
         if (!input || !expected) {
             throw new Error("File read failed. Check file paths and existence.");
         }
