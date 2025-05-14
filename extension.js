@@ -239,17 +239,20 @@ Array.prototype.includes_nested = function(str, index) {
 function clangFormat(text) {
     //console.log(text)
 	const formatted_text = [];
+    let opened = new Stack();
     let lineNum = 1;
 	for (let line of text) {
+        console.log(line);
+        console.log(opened.data)
 		let index = 0;
 		let modified = "";
 		let charFound = false;
 		let len = line.length;
 		let indentation = 0;
-		let opened = new Stack();
         let instring = false;
 		while (index < len) {
 			let element = line[index];
+            console.log(element)
 			if (!charFound) {
 				if (element === " ") {
 					indentation += 1;
@@ -266,7 +269,16 @@ function clangFormat(text) {
                 modified += element
                 index++;
                 continue
-            } else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
+            } else if (element === "(" || element === "[") {
+                console.log("HADHYUWAU&W(HDUHAOWDJUI(OWAUWJ")
+				opened.push(element);
+				modified += element;
+				index++;
+			} else if (element === ")" || element === "]") {
+				opened.pop();
+				modified += element;
+				index++;
+			} else if (len > index + 2 && line.substr(index, 2) === "if" && line[index + 2] !== " ") {
 				modified += "if ";
 				index += 2;
                 logger.addToReport("Format", lineNum, "Keywords (if) require space after it");
@@ -317,7 +329,7 @@ function clangFormat(text) {
 				modified += element + " ";
 				index++;
                 logger.addToReport("Format", lineNum, "Spacing needed between ) and {");
-			} else if (element === "}" && line[index + 1] !== " ") { // checks for }if
+			} else if (element === "}" && ![" ",")"].includes(line[index + 1])) { // checks for }if
 				modified += "} ";
 				index++;
                 logger.addToReport("Format", lineNum, "Spacing needed between } and any str");
@@ -338,15 +350,8 @@ function clangFormat(text) {
 				}
 				while (line[++index] === " ");
 				continue;
-			} else if ((element === "(" || element === "[") && line.nextChar(index + 1) !== -1) {
-				opened.push(element);
-				modified += element;
-				index++;
-			} else if ((element === ")" || element === "]") && line.nextChar(index + 1) !== -1) {
-				opened.pop();
-				modified += element;
-				index++;
 			} else {
+                console.log("HERE!@##!#!")
 				modified += line[index++];
                 // if the line is a comment
                 if (modified.endsWith(logger.g_rules["commenting"]["singleComment"])) {
@@ -867,7 +872,7 @@ function checkLine(language, line, lineNum, text) {
 			let last = array.at(-1);
 			// check if there should be a ; added at the end 
 			if (!last.endsWith(";") && !last.endsWith("{") && !last.endsWith("}") && 
-			!last.endsWith("(") && text.length > lineNum + 1 && !(text[lineNum + 1].trim()[0] === ".")) {
+			!last.endsWith("(") && !last.endsWith(",") && text.length > lineNum + 1 && !(text[lineNum + 1].trim()[0] === ".")) {
 				array[array.length-1] = last + ";";
 			}
 			array[array.length-1] += "\n";
@@ -1031,7 +1036,7 @@ async function styleHTML(text) {
  */
 function setup() {
 	logger.editor = vscode.window.activeTextEditor;
-	if (editor) {
+	if (logger.editor) {
         logger.document = logger.editor.document;
 		logger.text = logger.document.getText().split("\n");
 		logger.setup(determineLanguage(logger.editor));
